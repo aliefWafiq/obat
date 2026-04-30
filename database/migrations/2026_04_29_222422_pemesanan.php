@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        schema::create('pemesanan', function(Blueprint $table){
+            $table->id();
+            $table->foreignId('idUser')->constrained('users');
+            $table->foreignId('idProduk')->constained('produk');
+            $table->enum('status', ['Pending', 'Lunas']);
+            $table->integer('totalBeli');
+            $table->integer('totalHarga');
+            $table->dateTime('estimasipembayaran');
+            $table->dateTime('estimasiPengantaran');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        //
+    }
+};
