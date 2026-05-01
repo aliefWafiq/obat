@@ -29,7 +29,8 @@ class mainController extends Controller
     }
 
     public function home() {
-        return view('user.home');
+        $produk = Produk::all();
+        return view('user.home', compact('produk'));
     }
 
     public function history() {
