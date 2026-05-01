@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Produk;
 
 class mainController extends Controller
 {
@@ -40,10 +41,16 @@ class mainController extends Controller
     }
 
     public function dashboard() {
-        return view('admin.dashboard');
+        $produk = Produk::all();
+        return view('admin.dashboard', compact('produk'));
     }
 
     public function viewCreateProduk() {
         return view('admin.createProduk');
+    }
+
+    public function viewEditProduk($id) {
+        $produk = Produk::findOrFail($id);
+        return view('admin.editProduk', compact('produk'));
     }
 }

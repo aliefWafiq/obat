@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
+use App\Models\User;
+use App\Models\Produk;
 
 class actionController extends Controller
 {
@@ -39,9 +42,14 @@ class actionController extends Controller
             'phoneNumber' => $request->input('phoneNumber'),
             'password' => $request->input('password')
         );
+        $check = User::where('phoneNumber', $data['phoneNumber'])->first();
 
         if (Auth::attempt($data)) {
-            return redirect('/home');
+            if($check->role == 'Admin'){
+                return redirect('/dashboard');
+            }else{
+                return redirect('/home');
+            }
         } else {
             return redirect('/login')->with('error', 'Nomor telepon atau password salah.');
         }
@@ -50,6 +58,73 @@ class actionController extends Controller
     public function signOut() 
     {
         Auth::logout();
-        return redirect('/login/view')->with('success', 'Anda berhasil keluar.');
+        return redirect('/login')->with('success', 'Anda berhasil keluar.');
+    }
+
+    public function createProduk(Request $request){
+        $request->validate([
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'namaProduk' => 'required',
+            'harga' => 'required|numeric',
+            'stok' => 'required|numeric',
+        ],[
+            'namaProduk.required' => 'Nama produk wajib diisi.',
+            'harga.required' => 'Harga produk wajib diisi.',
+            'stok.required' => 'Stok produk wajib diisi.',
+        ]);
+
+        $request->file('gambar')->store('images', 'public');
+
+        Produk::create([
+            'namaProduk' => $request->input('namaProduk'),
+            'harga' => $request->input('harga'),
+            'stok' => $request->input('stok'),
+            'gambar' => $request->file('gambar')->store('images', 'public')
+        ]);
+
+        return redirect('/dashboard')->with('success', 'Produk berhasil ditambahkan.');
+    }
+
+    public function updateProduk(Request $request, $id){
+        $request->validate([
+            'gambar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'namaProduk' => 'required',
+            'harga' => 'required|numeric',
+            'stok' => 'required|numeric'
+        ],[
+            'namaProduk.required' => 'Nama produk wajib diisi.',
+            'harga.required' => 'Harga produk wajib diisi.',
+            'stok.required' => 'Stok produk wajib diisi.'
+        ]);
+        
+        $produk = Produk::find($id);
+        $gambar = $request->hasFile('gambar') ? $request->file('gambar')->store('images', 'public') : $produk->gambar;
+
+        if($request->hasFile('gambar') && $produk->gambar) {
+            Storage::disk('public')->delete($produk->gambar);
+        }
+
+        if($produk){
+            $produk->update([
+                'gambar' => $gambar,
+                'namaProduk' => $request->input('namaProduk'),
+                'harga' => $request->input('harga'),
+                'stok' => $request->input('stok')
+            ]);
+            return redirect('/dashboard')->with('success', 'Produk berhasil diperbarui.');
+        }else{
+            return redirect('/dashboard')->with('error', 'Produk tidak ditemukan.');
+        }
+    }
+
+    public function deleteProduk($id){
+        $produk = Produk::find($id);
+        if ($produk) {
+            Storage::disk('public')->delete($produk->gambar);
+            $produk->delete();
+            return redirect('/dashboard')->with('success', 'Produk berhasil dihapus.');
+        } else {
+            return redirect('/dashboard')->with('error', 'Produk tidak ditemukan.');
+        }
     }
 }
