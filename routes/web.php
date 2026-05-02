@@ -16,14 +16,17 @@ Route::get('/keranjang', [mainController::class, 'keranjang'])->name('keranjang'
 Route::get('/dashboard', [mainController::class, 'dashboard'])->name('dashboard')->middleware('auth');
 Route::get('/dashboard/produk/create', [mainController::class, 'viewCreateProduk'])->name('viewCreateProduk')->middleware('auth');
 Route::get('/dashboard/produk/edit/{id}', [mainController::class, 'viewEditProduk'])->name('viewEditProduk')->middleware('auth');
-Route::get('/produk/delete/{id}', [actionController::class, 'deleteProduk'])->name('deleteProduk')->middleware('auth');
 
 Route::post('/register/action', [actionController::class, 'register']);
 Route::post('/login/action', [actionController::class,  'login']);
 Route::get('/logOut', [actionController::class, 'signOut'])->name('logOut')->middleware('auth');
 
+Route::post('/masukKeranjang', [actionController::class, 'masukKeranjang'])->name('masukKeranjang')->middleware('auth');
 Route::post('/pemesanan/create', [actionController::class, 'createPemesanan']);
 Route::post('/pemesanan/update/{id}', [actionController::class, 'updatePemesanan']);
 
 Route::post('/produk/create', [actionController::class, 'createProduk']);
 Route::put('/produk/update/{id}', [actionController::class, 'updateProduk']);
+
+Route::delete('/removeItemKeranjang/{id}', [actionController::class, 'removeItemKeranjang'])->name('removeItemKeranjang');
+Route::delete('/produk/delete/{id}', [actionController::class, 'deleteProduk'])->name('deleteProduk');

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Models\User;
 use App\Models\Produk;
+use App\Models\Keranjang;
 
 class actionController extends Controller
 {
@@ -125,6 +126,33 @@ class actionController extends Controller
             return redirect('/dashboard')->with('success', 'Produk berhasil dihapus.');
         } else {
             return redirect('/dashboard')->with('error', 'Produk tidak ditemukan.');
+        }
+    }
+
+    public function masukKeranjang(Request $request){
+        $request->validate([
+            'produk_id' => 'required',
+            'jumlah' => 'required|numeric|min:1'
+        ]);
+
+        $userId = Auth::id();
+
+        Keranjang::create([
+            'idUser' => $userId,
+            'idProduk' => $request->input('produk_id'),
+            'jumlah' => $request->input('jumlah'),
+        ]);
+
+        return redirect('/keranjang')->with('success', 'Produk berhasil ditambahkan ke keranjang.');
+    }
+
+    public function removeItemKeranjang($id){
+        $keranjangItem = Keranjang::find($id);
+        if ($keranjangItem) {
+            $keranjangItem->delete();
+            return redirect('/keranjang')->with('success', 'Item berhasil dihapus dari keranjang.');
+        } else {
+            return redirect('/keranjang')->with('error', 'Item tidak ditemukan di keranjang.');
         }
     }
 }

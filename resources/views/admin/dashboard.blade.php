@@ -6,6 +6,10 @@
 <div>
     <p>{{ $item->namaProduk }} - Harga: {{ $item->harga }} - Stok: {{ $item->stok }}</p>
     <a href="{{ route('viewEditProduk', $item->id) }}">Edit</a>
-    <a href="{{ route('deleteProduk', $item->id) }}" onclick="return confirm('Are you sure?')">Delete</a>
+    <form action="{{ route('deleteProduk', $item->id) }}" method="POST">
+        @csrf
+        @method('DELETE')
+        <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+    </form>
 </div>
 @endforeach

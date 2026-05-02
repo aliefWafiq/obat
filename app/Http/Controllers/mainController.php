@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Produk;
+use App\Models\keranjang;
 
 class mainController extends Controller
 {
@@ -38,7 +39,9 @@ class mainController extends Controller
     }
 
     public function keranjang() {
-        return view('user.keranjang');
+        $idUser = Auth::id();
+        $items = Keranjang::with('produk')->where('idUser', $idUser)->get();
+        return view('user.keranjang', compact('items'));
     }
 
     public function dashboard() {
