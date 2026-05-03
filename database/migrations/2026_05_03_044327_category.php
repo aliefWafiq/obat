@@ -11,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        schema::create('produk', function(Blueprint $table){
+        Schema::create('category', function(Blueprint $table){
             $table->id();
-            $table->string('gambar');
-            $table->string('namaProduk');
-            $table->text('deskripsi');
-            $table->foreignId('idCategory')->constrained('category')->onDelete('cascade');
-            $table->integer('harga');
-            $table->integer('stok');
+            $table->string('namaCategory');
             $table->timestamps();
         });
     }

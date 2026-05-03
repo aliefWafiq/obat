@@ -10,6 +10,17 @@
     <label for="namaProduk">Nama Produk:</label>
     <input type="text" id="namaProduk" name="namaProduk" value="{{ $produk->namaProduk }}">
 
+    <label for="deskripsi">Deskripsi:</label>
+    <textarea id="deskripsi" name="deskripsi">{{ $produk->deskripsi }}</textarea>
+
+    <label for="idCategory">Kategori:</label>
+    <select id="idCategory" name="idCategory">
+        <option value="">Pilih Kategori</option>
+        @foreach($categories as $category)
+            <option value="{{ $category->id }}" {{ $produk->idCategory == $category->id ? 'selected' : '' }}>{{ $category->namaCategory }}</option>
+        @endforeach
+    </select>
+
     <label for="harga">Harga:</label>
     <input type="number" id="harga" name="harga" value="{{ $produk->harga }}">
 

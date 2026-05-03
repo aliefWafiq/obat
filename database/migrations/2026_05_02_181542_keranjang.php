@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('keranjang', function(Blueprint $table){
             $table->id();
-            $table->foreignId('idUser')->constrained('users');
-            $table->foreignId('idProduk')->constrained('produk');
+            $table->foreignId('idUser')->constrained('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('idProduk')->constrained('produk')->onDelete('cascade');
             $table->integer('jumlah');
             $table->timestamps();
         });

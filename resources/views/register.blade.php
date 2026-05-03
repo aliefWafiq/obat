@@ -2,15 +2,19 @@
 <form action="/register/action" method="POST">
     @csrf
     @error('username')
-        <div class="error">{{ $message }}</div>
+    <div class="error">{{ $message }}</div>
     @enderror
     <input type="text" name="username" placeholder="Name">
+    @error('alamat')
+    <div class="error">{{ $message }}</div>
+    @enderror
+    <textarea type="text" name="alamat" placeholder="Alamat"></textarea>
     @error('phoneNumber')
-        <div class="error">{{ $message }}</div>
+    <div class="error">{{ $message }}</div>
     @enderror
     <input type="number" name="phoneNumber" placeholder="Nomor Hp">
     @error('password')
-        <div class="error">{{ $message }}</div>
+    <div class="error">{{ $message }}</div>
     @enderror
     <input type="password" name="password" placeholder="Password">
     <button type="submit">Sign Up</button>

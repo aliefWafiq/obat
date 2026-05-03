@@ -1,16 +1,100 @@
-<h1>HOME</h1>
-<a href="{{ route('logOut') }}">Logout</a>
-<a href="{{ route('keranjang') }}">Keranjang</a>
-@foreach ($produk as $e)
-<div>
-    <img src="{{ asset('storage/' . $e->gambar) }}" alt="{{ $e->namaProduk }}" width="100">
-    <p>{{ $e->namaProduk }}</p>
-    <p>{{ $e->harga }}</p>
-    <form action="{{ route('masukKeranjang')}}" method="POST">
-        @csrf
-        <input type="hidden" name="produk_id" value="{{ $e->id }}">
-        <input type="number" name="jumlah" min="1" value="1">
-        <button type="submit">Tambah ke Keranjang</button>
-    </form>
+@extends('layouts.mainLayout')
+@push('styles')
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ asset('style/product.css') }}" />
+@endpush
+@section('nav')
+<div class="search-box">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.35-4.35" />
+    </svg>
+    <input type="text" id="search-input" placeholder="Cari produk..." class="search-input" />
 </div>
-@endforeach
+@endsection
+@section('content')
+<!-- HERO -->
+<section class="hero">
+    <span class="hero-label">Produk</span>
+    <h1>Katalog <em>Unggulan</em></h1>
+    <p>Produk kesehatan terbaik dengan kualitas terjamin dan harga terpercaya.</p>
+</section>
+
+<!-- CATALOG -->
+<section class="catalog">
+    <div class="catalog-header">
+        <div>
+            <span class="eyebrow">Koleksi Kami</span>
+            <h2 class="catalog-h2" id="catalog-title">Semua <em>Produk</em></h2>
+        </div>
+        <span class="result-count" id="result-count">Menampilkan 12 produk</span>
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="filter-tabs" id="filter-tabs">
+        <button class="tab active" data-cat="semua">Semua</button>
+        <button class="tab" data-cat="obat">Obat</button>
+        <button class="tab" data-cat="vitamin">Vitamin</button>
+        <button class="tab" data-cat="alat">Alat Kesehatan</button>
+        <button class="tab" data-cat="herbal">Herbal</button>
+    </div>
+
+    <!-- SORT ROW -->
+    <div class="sort-row">
+        <span id="sort-count">12 produk ditemukan</span>
+        <select class="sort-select" id="sort-select">
+            <option value="default">Terpopuler</option>
+            <option value="price-asc">Harga: Rendah ke Tinggi</option>
+            <option value="price-desc">Harga: Tinggi ke Rendah</option>
+            <option value="newest">Terbaru</option>
+        </select>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div class="product-grid" id="product-grid">
+        @foreach ($produk as $e)
+        <form action="{{ route('masukKeranjang')}}" method="POST" class="product-card" data-id="{{ $e->id }}">
+            @csrf
+            <div class="card-img-wrap">
+                <div class="card-img-placeholder">
+                    <img src="{{ asset('storage/' . $e->gambar) }}" alt="{{ $e->namaProduk }}" class="card-img">
+                    <!-- <svg viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <path d="M9 9h.01M15 9h.01M9 15c.83 1 2 1.5 3 1.5s2.17-.5 3-1.5" />
+                    </svg>
+                    <span>{{ $e->namaProduk }}</span> -->
+                </div>
+                <button type="submit" class="card-overlay" style="cursor: pointer;">Tambah ke Keranjang</button>
+            </div>
+            <div class="card-body">
+                <div class="card-name">{{ $e->namaProduk }}</div>
+                <div class="card-desc">{{ $e->deskripsi }}</div>
+                <div class="card-footer">
+                    <div>
+                        <span class="card-price">{{ number_format($e->harga, 0, ',', '.') }}</span>
+                    </div>
+                    <input type="hidden" name="produk_id" value="{{ $e->id }}">
+                </div>
+                <input type="number" name="jumlah" min="1" value="1">
+            </div>
+        </form>
+        @endforeach
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="pagination">
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">›</button>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <p><strong><em>ebat</em>kita.</strong> &nbsp;—&nbsp; Distribusi Obat Terpercaya &copy; 2026</p>
+</footer>
+@endsection
+@push('scripts')
+<script src="product.js"></script>
+@endpush

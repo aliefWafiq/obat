@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 use App\Models\Produk;
 use App\Models\keranjang;
+use App\Models\User;
+use App\Models\Category;
 
 class mainController extends Controller
 {
@@ -45,16 +48,46 @@ class mainController extends Controller
     }
 
     public function dashboard() {
+        return view('admin.dashboard');
+    }
+
+    public function listProduk() {
         $produk = Produk::all();
-        return view('admin.dashboard', compact('produk'));
+        return view('admin.list.listProduk', compact('produk'));
     }
 
     public function viewCreateProduk() {
-        return view('admin.createProduk');
+        $categories = Category::all();
+        return view('admin.create.createProduk', compact('categories'));
     }
 
     public function viewEditProduk($id) {
         $produk = Produk::findOrFail($id);
-        return view('admin.editProduk', compact('produk'));
+        $categories = Category::all();
+        return view('admin.edit.editProduk', compact('produk', 'categories'));
+    }
+
+        public function listUser() {
+        $users = User::all();
+        return view('admin.list.listUser', compact('users'));
+    }
+
+    public function viewEditUser($id) {
+        $users = User::findOrFail($id);
+        return view('admin.edit.editUser', compact('users'));
+    }
+
+    public function listCategory() {
+        $categories = Category::all();
+        return view('admin.list.listCategory', compact('categories'));
+    }
+
+    public function viewCreateCategory() {
+        return view('admin.create.createCategory');
+    }
+
+    public function viewEditCategory($id) {
+        $category = Category::findOrFail($id);
+        return view('admin.edit.editCategory', compact('category'));
     }
 }

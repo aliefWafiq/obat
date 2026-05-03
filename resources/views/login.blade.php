@@ -9,6 +9,7 @@
         {{ session('error') }}
     </div>
 @endif
+<a href="{{ route('register') }}">Don't have an account? Sign Up</a>
 <form action="/login/action" method="POST">
     @csrf
     <input type="number" name="phoneNumber" placeholder="Nomor Hp">
