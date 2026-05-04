@@ -12,6 +12,7 @@ Route::get('/home', [mainController::class, 'home'])->name('home')->middleware('
 Route::get('/home/history', [mainController::class, 'history'])->name('history')->middleware('auth');
 Route::get('/produk/{id}', [mainController::class, 'produk'])->name('produk')->middleware('auth');
 Route::get('/keranjang', [mainController::class, 'keranjang'])->name('keranjang')->middleware('auth');
+Route::get('/pemesanan', [mainController::class, 'pemesanan'])->name('pemesanan')->middleware('auth');
 
 Route::get('/dashboard', [mainController::class, 'dashboard'])->name('dashboard')->middleware('auth');
 Route::get('/dashboard/produk', [mainController::class, 'listProduk'])->name('listProduk')->middleware('auth');

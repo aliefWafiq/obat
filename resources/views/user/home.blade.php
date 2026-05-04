@@ -33,10 +33,9 @@
     <!-- FILTER TABS -->
     <div class="filter-tabs" id="filter-tabs">
         <button class="tab active" data-cat="semua">Semua</button>
-        <button class="tab" data-cat="obat">Obat</button>
-        <button class="tab" data-cat="vitamin">Vitamin</button>
-        <button class="tab" data-cat="alat">Alat Kesehatan</button>
-        <button class="tab" data-cat="herbal">Herbal</button>
+        @foreach ($categories as $e)
+            <button class="tab" data-cat="{{ $e->id }}">{{ $e->namaCategory }}</button>
+        @endforeach
     </div>
 
     <!-- SORT ROW -->
@@ -53,7 +52,7 @@
     <!-- PRODUCT GRID -->
     <div class="product-grid" id="product-grid">
         @foreach ($produk as $e)
-        <form action="{{ route('masukKeranjang')}}" method="POST" class="product-card" data-id="{{ $e->id }}">
+        <form action="{{ route('masukKeranjang')}}" method="POST" class="product-card" data-id="{{ $e->idCategory }}">
             @csrf
             <div class="card-img-wrap">
                 <div class="card-img-placeholder">
@@ -99,5 +98,5 @@
 </footer>
 @endsection
 @push('scripts')
-<script src="product.js"></script>
+<script src="{{ asset('js/product.js') }}"></script>
 @endpush

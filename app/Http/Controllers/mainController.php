@@ -9,6 +9,7 @@ use App\Models\Produk;
 use App\Models\keranjang;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\Pemesanan;
 
 class mainController extends Controller
 {
@@ -34,11 +35,13 @@ class mainController extends Controller
 
     public function home() {
         $produk = Produk::all();
-        return view('user.home', compact('produk'));
+        $categories = Category::all();
+        return view('user.home', compact('produk', 'categories'));
     }
 
-    public function history() {
-        return view('user.history');
+    public function pemesanan() {
+        $pemesanan = Pemesanan::where('idUser', Auth::id())->get();
+        return view('user.pemesanan', compact('pemesanan'));
     }
 
     public function keranjang() {

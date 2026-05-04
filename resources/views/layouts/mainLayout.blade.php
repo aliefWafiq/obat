@@ -18,15 +18,16 @@
 
         <ul class="nav-links">
             <li><a href="#about">Tentang</a></li>
-            @if (Auth::check())
-            <li><a href="{{ route('keranjang') }}">Keranjang</a></li>
-            <li><a href="{{ route('logOut') }}">Keluar</a></li>
-            @else
-                <li><a href="{{ route('login') }}" class="btn-login">Masuk</a></li>
-                <li><a href="#services">Layanan</a></li>
-            @endif
             <li><a href="#products">Produk</a></li>
             <li><a href="#contact">Kontak</a></li>
+            @if (Auth::check())
+            <li><a href="{{ route('keranjang') }}">Keranjang</a></li>
+            <li><a href="{{ route('pemesanan') }}">Pemesanan</a></li>
+            <li><a href="{{ route('logOut') }}">Keluar</a></li>
+            @else
+            <li><a href="#services">Layanan</a></li>
+            <li><a href="{{ route('login') }}" class="btn-login">Masuk</a></li>
+            @endif
         </ul>
 
         <button class="mobile-toggle" id="mobileToggle">
