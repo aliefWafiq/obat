@@ -28,7 +28,7 @@ Route::get('/logOut', [actionController::class, 'signOut'])->name('logOut')->mid
 Route::post('/register/action', [actionController::class, 'register']);
 Route::post('/login/action', [actionController::class,  'login']);
 Route::post('/masukKeranjang', [actionController::class, 'masukKeranjang'])->name('masukKeranjang')->middleware('auth');
-Route::post('/pemesanan/create', [actionController::class, 'createPemesanan']);
+Route::post('/pemesanan/create', [actionController::class, 'createPemesanan'])->name('createPemesanan')->middleware('auth');
 Route::post('/category/create', [actionController::class, 'createCategory']);
 Route::post('/produk/create', [actionController::class, 'createProduk']);
 

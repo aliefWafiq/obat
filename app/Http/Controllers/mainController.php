@@ -44,7 +44,10 @@ class mainController extends Controller
     public function keranjang() {
         $idUser = Auth::id();
         $items = Keranjang::with('produk')->where('idUser', $idUser)->get();
-        return view('user.keranjang', compact('items'));
+        $total = $items->sum(function($item){
+            return $item->produk->harga * $item->jumlah;
+        });
+        return view('user.keranjang', compact('items', 'total'));
     }
 
     public function dashboard() {

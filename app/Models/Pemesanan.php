@@ -8,12 +8,15 @@ class Pemesanan extends Model
 {
     protected $table = 'pemesanan';
     protected $fillable = [
+        'kodePemesanan',
         'idUser',
-        'idProduk',
         'status',
-        'totalBeli',
         'totalHarga',
         'estimasipembayaran',
         'estimasiPengantaran',
     ];
+
+    public function details() {
+        return $this->hasMany(DetailPemesanan::class, 'idPemesanan');
+    }
 }

@@ -12,6 +12,8 @@ use App\Models\Produk;
 use App\Models\Keranjang;
 use App\Models\Category;
 use App\Models\CategoryProduk;
+use App\Models\Pemesanan;
+use App\Models\DetailPemesanan;
 
 class actionController extends Controller
 {
@@ -51,9 +53,9 @@ class actionController extends Controller
         $check = User::where('phoneNumber', $data['phoneNumber'])->first();
 
         if (Auth::attempt($data)) {
-            if($check->role == 'Admin'){
+            if ($check->role == 'Admin') {
                 return redirect('/dashboard');
-            }else{
+            } else {
                 return redirect('/home');
             }
         } else {
@@ -61,13 +63,14 @@ class actionController extends Controller
         }
     }
 
-    public function signOut() 
+    public function signOut()
     {
         Auth::logout();
         return redirect('/login')->with('success', 'Anda berhasil keluar.');
     }
 
-    public function createProduk(Request $request){
+    public function createProduk(Request $request)
+    {
         $request->validate([
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'namaProduk' => 'required',
@@ -75,7 +78,7 @@ class actionController extends Controller
             'idCategory' => 'required',
             'harga' => 'required|numeric',
             'stok' => 'required|numeric',
-        ],[
+        ], [
             'namaProduk.required' => 'Nama produk wajib diisi.',
             'deskripsi.required' => 'Deskripsi produk wajib diisi.',
             'idCategory.required' => 'Kategori produk wajib diisi.',
@@ -97,7 +100,8 @@ class actionController extends Controller
         return redirect('/dashboard')->with('success', 'Produk berhasil ditambahkan.');
     }
 
-    public function updateProduk(Request $request, $id){
+    public function updateProduk(Request $request, $id)
+    {
         $request->validate([
             'gambar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'namaProduk' => 'required',
@@ -105,22 +109,22 @@ class actionController extends Controller
             'idCategory' => 'required',
             'harga' => 'required|numeric',
             'stok' => 'required|numeric'
-        ],[
+        ], [
             'namaProduk.required' => 'Nama produk wajib diisi.',
             'deskripsi.required' => 'Deskripsi produk wajib diisi.',
             'idCategory.required' => 'Kategori produk wajib diisi.',
             'harga.required' => 'Harga produk wajib diisi.',
             'stok.required' => 'Stok produk wajib diisi.'
         ]);
-        
+
         $produk = Produk::find($id);
         $gambar = $request->hasFile('gambar') ? $request->file('gambar')->store('images', 'public') : $produk->gambar;
 
-        if($request->hasFile('gambar') && $produk->gambar) {
+        if ($request->hasFile('gambar') && $produk->gambar) {
             Storage::disk('public')->delete($produk->gambar);
         }
 
-        if($produk){
+        if ($produk) {
             $produk->update([
                 'gambar' => $gambar,
                 'namaProduk' => $request->input('namaProduk'),
@@ -130,12 +134,13 @@ class actionController extends Controller
                 'stok' => $request->input('stok')
             ]);
             return redirect('/dashboard')->with('success', 'Produk berhasil diperbarui.');
-        }else{
+        } else {
             return redirect('/dashboard')->with('error', 'Produk tidak ditemukan.');
         }
     }
 
-    public function deleteProduk($id){
+    public function deleteProduk($id)
+    {
         $produk = Produk::find($id);
         if ($produk) {
             Storage::disk('public')->delete($produk->gambar);
@@ -146,7 +151,8 @@ class actionController extends Controller
         }
     }
 
-    public function updateUser(Request $request, $id){
+    public function updateUser(Request $request, $id)
+    {
         $request->validate([
             'username' => 'required',
             'alamat' => 'required',
@@ -174,7 +180,8 @@ class actionController extends Controller
         }
     }
 
-    public function deleteUser($id){
+    public function deleteUser($id)
+    {
         $user = User::find($id);
         if ($user) {
             $user->delete();
@@ -184,24 +191,38 @@ class actionController extends Controller
         }
     }
 
-    public function masukKeranjang(Request $request){
+    public function masukKeranjang(Request $request)
+    {
         $request->validate([
             'produk_id' => 'required',
             'jumlah' => 'required|numeric|min:1'
         ]);
 
         $userId = Auth::id();
+        $checkCart = Keranjang::where('idUser', $userId)->where('idProduk', $request->input('produk_id'))->first();
 
-        Keranjang::create([
-            'idUser' => $userId,
-            'idProduk' => $request->input('produk_id'),
-            'jumlah' => $request->input('jumlah'),
-        ]);
+        if ($request->input('jumlah') > Produk::find($request->input('produk_id'))->stok) {
+            return redirect('/keranjang')->with('error', 'Jumlah produk melebihi stok yang tersedia.');
+        } else {
+            if ($checkCart) {
+                $checkCart->update([
+                    'jumlah' => $checkCart->jumlah + $request->input('jumlah')
+                ]);
+                return redirect('/keranjang')->with('success', 'Jumlah produk berhasil diperbarui di keranjang.');
+            } else {
+                Keranjang::create([
+                    'idUser' => $userId,
+                    'idProduk' => $request->input('produk_id'),
+                    'jumlah' => $request->input('jumlah'),
+                ]);
 
-        return redirect('/keranjang')->with('success', 'Produk berhasil ditambahkan ke keranjang.');
+                return redirect('/keranjang')->with('success', 'Produk berhasil ditambahkan ke keranjang.');
+            }
+        }
     }
 
-    public function removeItemKeranjang($id){
+    public function removeItemKeranjang($id)
+    {
         $keranjangItem = Keranjang::find($id);
         if ($keranjangItem) {
             $keranjangItem->delete();
@@ -211,10 +232,11 @@ class actionController extends Controller
         }
     }
 
-    public function createCategory(Request $request){
+    public function createCategory(Request $request)
+    {
         $request->validate([
             'namaCategory' => 'required|unique:category,namaCategory'
-        ],[
+        ], [
             'namaCategory.required' => 'Nama kategori wajib diisi.',
             'namaCategory.unique' => 'Nama kategori sudah terdaftar.'
         ]);
@@ -226,10 +248,11 @@ class actionController extends Controller
         return redirect('/dashboard/category')->with('success', 'Kategori berhasil ditambahkan.');
     }
 
-    public function updateCategory(Request $request, $id){
+    public function updateCategory(Request $request, $id)
+    {
         $request->validate([
             'namaCategory' => 'required|unique:category,namaCategory,' . $id
-        ],[
+        ], [
             'namaCategory.required' => 'Nama kategori wajib diisi.',
             'namaCategory.unique' => 'Nama kategori sudah terdaftar.'
         ]);
@@ -245,7 +268,8 @@ class actionController extends Controller
         }
     }
 
-    public function deleteCategory($id){
+    public function deleteCategory($id)
+    {
         $category = Category::find($id);
         if ($category) {
             $category->delete();
@@ -253,5 +277,53 @@ class actionController extends Controller
         } else {
             return redirect('/dashboard/category')->with('error', 'Kategori tidak ditemukan.');
         }
+    }
+
+    public function createPemesanan(Request $request)
+    {
+        $idUser = Auth::id();
+
+        $itemKeranjang = Keranjang::with('produk')->where('idUser', $idUser)->get();
+
+        if ($itemKeranjang->isEmpty()) {
+            return redirect('/keranjang')->with('error', 'Keranjang kosong. Tambahkan produk sebelum melakukan pemesanan.');
+        }
+
+        $total = $itemKeranjang->sum(function ($item) {
+            return $item->produk->harga * $item->jumlah;
+        });
+
+        if ($itemKeranjang->first()->produk->stok < $itemKeranjang->first()->jumlah) {
+            return redirect('/keranjang')->with('error', 'Stok produk tidak mencukupi untuk jumlah yang Anda pesan.');
+        }
+
+        $kodePemesanan = 'PM' . time() . rand(1000, 9999);
+        $estimasiPembayaran = now()->addDays(3)->format('Y-m-d');
+        $estimasiPengiriman = now()->addDays(5)->format('Y-m-d');
+
+        $pemesanan = Pemesanan::create([
+            'kodePemesanan' => $kodePemesanan,
+            'idUser' => $idUser,
+            'status' => 'Pending',
+            'totalHarga' => $total,
+            'estimasipembayaran' => $estimasiPembayaran,
+            'estimasiPengantaran' => $estimasiPengiriman
+        ]);
+
+        foreach ($itemKeranjang as $item) {
+            DetailPemesanan::create([
+                'idPemesanan' => $pemesanan->id,
+                'idProduk' => $item->idProduk,
+                'jumlahBeli' => $item->jumlah,
+                'harga' => $item->produk->harga
+            ]);
+            $produk = Produk::find($item->idProduk);
+            $produk->update([
+                'stok' => $produk->stok - $item->jumlah
+            ]);
+        }
+
+        Keranjang::where('idUser', $idUser)->delete();
+        return redirect('/keranjang')->with('success', 'Pemesanan berhasil dibuat. Kode pemesanan: ' . $kodePemesanan);
     }
 }

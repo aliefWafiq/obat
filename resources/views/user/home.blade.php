@@ -58,13 +58,12 @@
             <div class="card-img-wrap">
                 <div class="card-img-placeholder">
                     <img src="{{ asset('storage/' . $e->gambar) }}" alt="{{ $e->namaProduk }}" class="card-img">
-                    <!-- <svg viewBox="0 0 24 24">
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <path d="M9 9h.01M15 9h.01M9 15c.83 1 2 1.5 3 1.5s2.17-.5 3-1.5" />
-                    </svg>
-                    <span>{{ $e->namaProduk }}</span> -->
                 </div>
+                @if ($e->stok == 0)
+                <div class="card-overlay">Habis</div>
+                @else
                 <button type="submit" class="card-overlay" style="cursor: pointer;">Tambah ke Keranjang</button>
+                @endif
             </div>
             <div class="card-body">
                 <div class="card-name">{{ $e->namaProduk }}</div>
@@ -75,7 +74,11 @@
                     </div>
                     <input type="hidden" name="produk_id" value="{{ $e->id }}">
                 </div>
+                @if ($e->stok == 0)
+                <div class="">Stok Habis</div>
+                @else
                 <input type="number" name="jumlah" min="1" value="1">
+                @endif
             </div>
         </form>
         @endforeach
