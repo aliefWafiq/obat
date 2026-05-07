@@ -11,7 +11,7 @@
 <body>
     <nav class="navbar" id="navbar">
         <a href="/customer/homes/index.html" class="logo">
-            <img src="obatkitalogo.png" alt="">
+            <img src="{{ asset('img/obatkitalogo.png') }}" alt="">
         </a>
 
         @yield('nav')

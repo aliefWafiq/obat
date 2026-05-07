@@ -114,7 +114,14 @@ categoryBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
         categoryBtns.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        // Add filtering logic here when products have data attributes
+        currentCat = btn.dataset.cat;
+        document.querySelectorAll(".product-card").forEach((card) => {
+            const idCategory = parseInt(card.dataset.id);
+            card.style.display =
+                currentCat === "semua" || idCategory == currentCat
+                    ? ""
+                    : "none";
+        });
     });
 });
 

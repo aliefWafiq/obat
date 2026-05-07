@@ -1,4 +1,5 @@
 @extends('layouts.adminLayout')
+
 @section('content')
 <div class="main-content">
     <header class="header">
@@ -6,29 +7,144 @@
             <button class="menu-toggle">
                 <i class="fas fa-bars"></i>
             </button>
-            <h1 id="page-title">Data User</h1>
+            <h1 id="page-title">Daftar Akun</h1>
+        </div>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Cari pengguna...">
         </div>
     </header>
-    <section id="dashboard" class="content-section active">
+
+    <section class="content-section active">
         @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
         @endif
-        @if($users->isEmpty())
-        <p>No users found.</p>
-        @else
-        @foreach ($users as $item)
-        <div>
-            <p>{{ $item->username }} - Nomor Hp: {{ $item->phoneNumber }} - Role: {{ $item->role }}</p>
-            <a href="{{ route('viewEditUser', $item->id) }}">Edit</a>
-            <form action="{{ route('deleteUser', $item->id) }}" method="POST">
-                @csrf
-                @method('DELETE')
-                <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
-            </form>
+
+        <div class="section-header">
+            <h2>Daftar Akun</h2>
+            <div>
+                <span class="filter-btn">Total: {{ $users->count() }}</span>
+            </div>
         </div>
-        @endforeach
-        @endif
+
+        <div class="account-management-grid">
+            <div class="account-main-panel">
+                <div class="account-summary-grid">
+                    <div class="account-summary-card primary">
+                        <div>
+                            <h3>{{ $users->count() }}</h3>
+                            <p>Total Akun Terdaftar</p>
+                        </div>
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="account-summary-card secondary">
+                        <div>
+                            <h3>{{ $users->where('role', 'Admin')->count() }}</h3>
+                            <p>Akun Admin</p>
+                        </div>
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="account-summary-card accent">
+                        <div>
+                            <h3>{{ $users->where('role', 'User')->count() }}</h3>
+                            <p>Akun Pengguna</p>
+                        </div>
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <!-- <div class="account-summary-card info">
+                        <div>
+                            <h3>Aktif</h3>
+                            <p>Semua akun dalam sistem</p>
+                        </div>
+                        <i class="fas fa-check-circle"></i>
+                    </div> -->
+                </div>
+
+                @if($users->isEmpty())
+                <div class="table-container">
+                    <div class="admin-form">
+                        <p>Belum ada akun pengguna.</p>
+                    </div>
+                </div>
+                @else
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Nomor HP</th>
+                                <th>Alamat</th>
+                                <th>Role</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($users as $item)
+                            <tr>
+                                <td>{{ $item->username }}</td>
+                                <td>{{ $item->phoneNumber }}</td>
+                                <td>{{ $item->alamat ?: '-' }}</td>
+                                <td>
+                                    <div class="role-edit-inline">
+                                        <span class="role-badge {{ $item->role == 'admin' ? 'role-admin' : 'role-user' }}">{{ ucfirst($item->role) }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{{ route('viewEditUser', $item->id) }}" class="action-btn" title="Edit User">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('deleteUser', $item->id) }}" method="POST" style="display:inline-block;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="action-btn" title="Hapus User">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @endif
+            </div>
+
+            <aside class="account-sidebar">
+                <div class="admin-add-card">
+                    <div class="card-header">
+                        <h3>Tambah Admin Baru</h3>
+                    </div>
+                    <form class="admin-form" action="/register/action" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label>Nama Lengkap</label>
+                            <input type="text" placeholder="Masukkan nama" name="username" />
+                        </div>
+                        <div class="form-group">
+                            <label>Nomor HP</label>
+                            <input type="text" placeholder="Masukkan nomor HP" name="phoneNumber" />
+                        </div>
+                        <div class="form-group">
+                            <label for="alamat">Alamat Lengkap</label>
+                            <textarea id="alamat" name="alamat" placeholder="Jln. Contoh No. 123, Kota, Provinsi, Kode Pos" required>{{ old('alamat') }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" placeholder="Password" name="password" />
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select name="role">
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="export-btn" style="width:100%;">Buat Admin</button>
+                    </form>
+                </div>
+            </aside>
+        </div>
     </section>
 </div>
+@endsection

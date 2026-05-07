@@ -23,6 +23,9 @@ Route::get('/dashboard/user/edit/{id}', [mainController::class, 'viewEditUser'])
 Route::get('/dashboard/category', [mainController::class, 'listCategory'])->name('listCategory')->middleware('auth');
 Route::get('/dashboard/category/create', [mainController::class, 'viewCreateCategory'])->name('viewCreateCategory')->middleware('auth');
 Route::get('/dashboard/category/edit/{id}', [mainController::class, 'viewEditCategory'])->name('viewEditCategory')->middleware('auth');
+Route::get('/dashboard/transaksi', [mainController::class, 'listTransaksi'])->name('listTransaksi')->middleware('auth');
+Route::get('/pemesanan/bayar-ulang/{id}', [actionController::class, 'bayarUlang'])->name('bayarUlang');
+Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPemesanan']);
 
 Route::get('/logOut', [actionController::class, 'signOut'])->name('logOut')->middleware('auth');
 
@@ -32,8 +35,9 @@ Route::post('/masukKeranjang', [actionController::class, 'masukKeranjang'])->nam
 Route::post('/pemesanan/create', [actionController::class, 'createPemesanan'])->name('createPemesanan')->middleware('auth');
 Route::post('/category/create', [actionController::class, 'createCategory']);
 Route::post('/produk/create', [actionController::class, 'createProduk']);
+// Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPemesanan']);
 
-Route::put('/pemesanan/update/{id}', [actionController::class, 'updatePemesanan']);
+Route::put('/pemesanan/update/{id}', [actionController::class, 'updatePemesanan'])->name('updatePemesanan');
 Route::put('/category/update/{id}', [actionController::class, 'updateCategory']);
 Route::put('/produk/update/{id}', [actionController::class, 'updateProduk']);
 Route::put('/user/update/{id}', [actionController::class, 'updateUser'])->name('updateUser');

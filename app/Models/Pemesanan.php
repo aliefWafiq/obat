@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Pemesanan extends Model
 {
@@ -12,11 +13,18 @@ class Pemesanan extends Model
         'idUser',
         'status',
         'totalHarga',
+        'paymentLink',
         'estimasipembayaran',
         'estimasiPengantaran',
     ];
 
-    public function details() {
+    public function details()
+    {
         return $this->hasMany(DetailPemesanan::class, 'idPemesanan');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'idUser', 'id');
     }
 }

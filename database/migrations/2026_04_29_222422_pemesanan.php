@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('pemesanan', function(Blueprint $table){
             $table->id();
             $table->string('kodePemesanan')->unique();
-            $table->foreignId('idUser')->constrained('users');
+            $table->foreignId('idUser')->constrained('users')->onDelete('cascade');
             $table->enum('status', ['Pending', 'Lunas']);
             $table->bigInteger('totalHarga');
+            $table->string('paymentLink')->nullable();
             $table->dateTime('estimasipembayaran');
             $table->dateTime('estimasiPengantaran');
             $table->timestamps();

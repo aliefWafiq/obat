@@ -20,17 +20,20 @@
             <a href="{{ route('dashboard') }}" class="nav-item" data-section="dashboard">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
-            <a href="#transaksi" class="nav-item" data-section="transaksi">
+            <a href="{{ route('listTransaksi') }}" class="nav-item" data-section="transaksi">
                 <i class="fas fa-exchange-alt"></i> Transaksi
             </a>
             <a href="#penjualan" class="nav-item" data-section="penjualan">
                 <i class="fas fa-chart-line"></i> Laporan Penjualan
             </a>
             <a href="{{ route('listUser') }}" class="nav-item" data-section="admin">
-                <i class="fas fa-users-cog"></i> Account Management
+                <i class="fas fa-users-cog"></i> Data Akun
             </a>
             <a href="{{ route('listProduk') }}" class="nav-item" data-section="obat">
                 <i class="fas fa-capsules"></i> Data Obat
+            </a>
+            <a href="{{ route('listCategory') }}" class="nav-item" data-section="kategori">
+                <i class="fas fa-tags"></i> Data Kategori
             </a>
             <a href="#pembeli" class="nav-item" data-section="pembeli">
                 <i class="fas fa-user"></i> Data Pembeli
@@ -41,14 +44,16 @@
         </nav>
         <div class="sidebar-footer">
             <div class="user-info">
-                <img src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
+                <img src="{{ asset('img/397057724_11539820.png') }}" alt="Admin" class="user-avatar">
                 <div>
                     <p>{{ Auth::user()->username }}</p>
                     <small>{{ Auth::user()->phoneNumber }}</small>
                 </div>
             </div>
-            <a href="{{ route('logOut') }}" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
+            <a href="{{ route('logOut') }}">
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </a>
         </div>
     </div>

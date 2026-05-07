@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\User;
 use App\Models\Produk;
@@ -15,15 +17,28 @@ use App\Models\CategoryProduk;
 use App\Models\Pemesanan;
 use App\Models\DetailPemesanan;
 
+use Midtrans\Config;
+use Midtrans\Snap;
+
 class actionController extends Controller
 {
+
+    public function __construct()
+    {
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized = config('midtrans.is_sanitized');
+        Config::$is3ds = config('midtrans.is_3ds');
+    }
+
     public function register(Request $request)
     {
         $request->validate([
             'username' => 'required',
             'alamat' => 'required',
             'phoneNumber' => 'required|unique:users,phoneNumber',
-            'password' => 'required'
+            'password' => 'required',
+            'role' => 'required'
         ], [
             'username.required' => 'Username wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
@@ -33,15 +48,21 @@ class actionController extends Controller
         ]);
 
         $password = Hash::make($request->input('password'));
+        $role = $request->input('role');
 
         User::create([
             'username' => $request->input('username'),
             'alamat' => $request->input('alamat'),
             'phoneNumber' => $request->input('phoneNumber'),
+            'role' => $role,
             'password' => $password
         ]);
 
-        return redirect('/login')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
+        if ($role == 'Admin') {
+            return redirect('/dashboard/user')->with('success', 'Akun admin berhasil dibuat. Silakan masuk.');
+        } else {
+            return redirect('/login')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
+        }
     }
 
     public function login(Request $request)
@@ -323,7 +344,102 @@ class actionController extends Controller
             ]);
         }
 
+        $params = [
+            'transaction_details' => [
+                'order_id' => $kodePemesanan,
+                'gross_amount' => $total,
+            ],
+            'customer_details' => [
+                'first_name' => Auth::user()->username,
+                'phone' => Auth::user()->phoneNumber,
+            ],
+        ];
+
+        $snapToken = Snap::getSnapToken($params);
         Keranjang::where('idUser', $idUser)->delete();
-        return redirect('/keranjang')->with('success', 'Pemesanan berhasil dibuat. Kode pemesanan: ' . $kodePemesanan);
+        return response()->json(['snapToken' => $snapToken]);
+    }
+
+    public function updateStatusPemesanan(Request $request)
+    {
+        Log::info('Midtrans Notification:', $request->all());
+        $serverKey = config('midtrans.server_key');
+        $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
+
+        if ($hashed == $request->signature_key) {
+            $orderIdParts = explode('-', $request->order_id);
+            $pureOrderId = $orderIdParts[0];
+
+            $order = Pemesanan::where('kodePemesanan', $pureOrderId)->first();
+
+            if (!$order) {
+                return response()->json(['message' => 'Order tidak ditemukan'], 404);
+            }
+
+            if ($request->transaction_status == 'capture' || $request->transaction_status == 'settlement') {
+                $order->update(['status' => 'Lunas']);
+            } elseif (in_array($request->transaction_status, ['deny', 'expire', 'cancel'])) {
+                $order->update(['status' => 'Gagal']);
+            }
+
+            return response()->json(['message' => 'Success']);
+        }
+
+        return response()->json(['message' => 'Invalid Signature'], 403);
+    }
+
+    private function generateMidtransLink($pesanan)
+    {
+        $serverKey = env('MIDTRANS_SERVER_KEY');
+        $isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+        $baseUrl = $isProduction
+            ? 'https://api.midtrans.com/v1/payment-links'
+            : 'https://api.sandbox.midtrans.com/v1/payment-links';
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $pesanan->kodePemesanan,
+                'gross_amount' => (int) $pesanan->totalHarga,
+            ],
+            'usage_limit' => 1,
+            'notification_url' => 'https://a73c-103-190-46-192.ngrok-free.app/updateStatusPemesanan',
+            'customer_details' => [
+                'first_name' => Auth::user()->username,
+                'phone' => Auth::user()->phoneNumber,
+            ],
+        ];
+
+        $response = Http::withBasicAuth($serverKey, '')
+            ->post($baseUrl, $params);
+
+        if ($response->successful()) {
+            return $response->json()['payment_url'];
+        }
+
+        logger('Midtrans Error: ' . $response->body());
+        return null;
+    }
+
+    public function bayarUlang($id)
+    {
+        $pesanan = Pemesanan::findOrFail($id);
+
+        if ($pesanan->status !== 'Pending') {
+            return redirect()->back()->with('error', 'Pesanan ini tidak dapat dibayar lagi.');
+        }
+
+        if ($pesanan->paymentLink) {
+            return redirect()->away($pesanan->paymentLink);
+        }
+
+        $paymentLink = $this->generateMidtransLink($pesanan);
+
+        if (!$paymentLink) {
+            return redirect()->back()->with('error', 'Gagal membuat link pembayaran. Pastikan koneksi internet stabil atau hubungi admin.');
+        }
+
+        $pesanan->update(['paymentLink' => $paymentLink]);
+
+        return redirect()->away($paymentLink);
     }
 }

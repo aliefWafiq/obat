@@ -31,7 +31,7 @@
         </div>
 
         <div class="slide" data-slide="2">
-            <div class="slide-bg" style="background-image: url('test3.jpg')"></div>
+            <div class="slide-bg" style="background-image: url('{{ asset('img/tes3.jpg') }}')"></div>
             <div class="hero-content">
                 <span class="hero-tag">100% Original</span>
                 <h1>Produk Berkualitas Tinggi</h1>
@@ -189,26 +189,27 @@
         </div>
 
         <div class="product-categories">
-            <button class="category-btn active">Semua</button>
-            <button class="category-btn">Obat</button>
-            <button class="category-btn">Vitamin</button>
-            <button class="category-btn">Alat Kesehatan</button>
-            <button class="category-btn">Herbal</button>
+            <button class="category-btn active" data-cat="semua">Semua</button>
+            @foreach ($categories as $e)
+            <button class="category-btn" data-cat="{{ $e->id }}">{{ $e->namaCategory }}</button>
+            @endforeach
         </div>
 
         <div class="products-grid">
-            <article class="product-card">
+            @foreach ($categories as $cat)
+            @foreach ($cat->produk as $e)
+            <article class="product-card" data-id="{{ $e->idCategory }}">
                 <div class="product-badge">Best Seller</div>
                 <div class="product-image">
-                    <img src="product1.jpg" alt="Vitamin C 1000mg" />
+                    <img src="{{ asset('storage/' . $e->gambar) }}" alt="{{ $e->namaProduk }}" />
                     <button class="quick-view">Quick View</button>
                 </div>
                 <div class="product-info">
-                    <span class="product-category">Vitamin & Suplemen</span>
-                    <h3>Vitamin C 1000mg</h3>
-                    <p class="product-desc">Meningkatkan daya tahan tubuh</p>
+                    <span class="product-category">{{ $cat->namaCategory }}</span>
+                    <h3>{{ $e->namaproduk }}</h3>
+                    <p class="product-desc">{{ $e->deskripsi }}</p>
                     <div class="product-footer">
-                        <span class="product-price">Rp 125.000</span>
+                        <span class="product-price">{{ number_format($e->harga, 0, ',', '.') }}</span>
                         <button class="btn-cart">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
@@ -219,73 +220,8 @@
                     </div>
                 </div>
             </article>
-
-            <article class="product-card">
-                <div class="product-image">
-                    <img src="product2.jpg" alt="Paracetamol 500mg" />
-                    <button class="quick-view">Quick View</button>
-                </div>
-                <div class="product-info">
-                    <span class="product-category">Obat Generik</span>
-                    <h3>Paracetamol 500mg</h3>
-                    <p class="product-desc">Pereda demam dan nyeri</p>
-                    <div class="product-footer">
-                        <span class="product-price">Rp 15.000</span>
-                        <button class="btn-cart">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                                <line x1="3" y1="6" x2="21" y2="6" />
-                                <path d="M16 10a4 4 0 01-8 0" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </article>
-
-            <article class="product-card">
-                <div class="product-badge new">New</div>
-                <div class="product-image">
-                    <img src="product3.jpg" alt="First Aid Kit Premium" />
-                    <button class="quick-view">Quick View</button>
-                </div>
-                <div class="product-info">
-                    <span class="product-category">Alat Kesehatan</span>
-                    <h3>First Aid Kit Premium</h3>
-                    <p class="product-desc">Peralatan P3K lengkap</p>
-                    <div class="product-footer">
-                        <span class="product-price">Rp 350.000</span>
-                        <button class="btn-cart">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                                <line x1="3" y1="6" x2="21" y2="6" />
-                                <path d="M16 10a4 4 0 01-8 0" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </article>
-
-            <article class="product-card">
-                <div class="product-image">
-                    <img src="product4.jpg" alt="Herbal Immunity Booster" />
-                    <button class="quick-view">Quick View</button>
-                </div>
-                <div class="product-info">
-                    <span class="product-category">Herbal</span>
-                    <h3>Immunity Booster</h3>
-                    <p class="product-desc">Ekstrak herbal alami</p>
-                    <div class="product-footer">
-                        <span class="product-price">Rp 89.000</span>
-                        <button class="btn-cart">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                                <line x1="3" y1="6" x2="21" y2="6" />
-                                <path d="M16 10a4 4 0 01-8 0" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </article>
+            @endforeach
+            @endforeach
         </div>
 
         <div class="products-cta">
