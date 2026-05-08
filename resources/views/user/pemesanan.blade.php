@@ -16,6 +16,10 @@
     <a href="{{ route('bayarUlang', $item->id) }}" class="btn-bayar">
         Bayar Sekarang
     </a>
+    @elseif($item->status == 'Lunas')
+    <a href="{{ route('cetakStruk', $item->id) }}" class="btn-cetak" target="_blank">
+        Cetak Struk
+    </a>
     @endif
 </div>
 @endforeach

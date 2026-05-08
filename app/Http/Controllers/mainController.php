@@ -10,6 +10,7 @@ use App\Models\keranjang;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Pemesanan;
+use App\Models\BuatProgram;
 
 class mainController extends Controller
 {
@@ -20,8 +21,9 @@ class mainController extends Controller
         }])->take(4)->get();
 
         $produk = Produk::with('category')->latest()->take(4)->get();
+        $BuatProgram = BuatProgram::all();
 
-        return view('landingPage', compact('categories', 'produk'));
+        return view('landingPage', compact('categories', 'produk', 'BuatProgram'));
     }
 
     public function viewRegister()
@@ -122,5 +124,22 @@ class mainController extends Controller
     {
         $pemesanan = Pemesanan::with('user')->orderBy('created_at', 'desc')->get();
         return view('admin.list.listTransaksi', compact('pemesanan'));
+    }
+
+    public function listProgram()
+    {
+        $buatProgram = BuatProgram::all();
+        return view('admin.list.listProgram', compact('buatProgram'));
+    }
+
+    public function viewBuatProgram()
+    {
+        return view('admin.create.buatProgram');
+    }
+
+    public function viewEditProgram($id)
+    {
+        $buatProgram = BuatProgram::findOrFail($id);
+        return view('admin.edit.editProgram', compact('buatProgram'));
     }
 }

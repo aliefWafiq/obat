@@ -1,6 +1,3 @@
-<!-- <h1>LANDIN</h1>
-<a href="/login">Sign In</a>
-<a href="/register">Sign Up</a> -->
 @extends('layouts.mainLayout')
 @push('styles')
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -10,35 +7,17 @@
 <!-- Hero Section -->
 <section class="hero" id="home">
     <div class="hero-slider">
+        @foreach($BuatProgram as $e)
         <div class="slide active" data-slide="0">
-            <div class="slide-bg" style="background-image: url('{{ asset('img/tes1.jpg') }}')"></div>
+            <div class="slide-bg" style="background-image: url('{{ asset('storage/' . $e->gambar) }}')"></div>
             <div class="hero-content">
-                <span class="hero-tag">Kesehatan Keluarga</span>
-                <h1>Lindungi yang Anda Cintai</h1>
-                <p>Program kesehatan komprehensif untuk seluruh anggota keluarga</p>
+                <span class="hero-tag">{{ $e->tagProgram }}</span>
+                <h1>{{ $e->judul }}</h1>
+                <p>{{ $e->deskripsi }}</p>
                 <a href="#services" class="btn-primary">Jelajahi Layanan</a>
             </div>
         </div>
-
-        <div class="slide" data-slide="1">
-            <div class="slide-bg" style="background-image: url('{{ asset('img/tes2.jpg') }}')"></div>
-            <div class="hero-content">
-                <span class="hero-tag">Konsultasi 24/7</span>
-                <h1>Tenaga Medis Profesional</h1>
-                <p>Konsultasi dengan dokter dan apoteker berpengalaman kapan saja</p>
-                <a href="#contact" class="btn-primary">Mulai Konsultasi</a>
-            </div>
-        </div>
-
-        <div class="slide" data-slide="2">
-            <div class="slide-bg" style="background-image: url('{{ asset('img/tes3.jpg') }}')"></div>
-            <div class="hero-content">
-                <span class="hero-tag">100% Original</span>
-                <h1>Produk Berkualitas Tinggi</h1>
-                <p>Jaminan keaslian dari distributor resmi dengan harga terbaik</p>
-                <a href="#products" class="btn-primary">Lihat Katalog</a>
-            </div>
-        </div>
+        @endforeach
     </div>
 
     <div class="slider-controls">

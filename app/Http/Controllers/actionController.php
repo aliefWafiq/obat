@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\User;
 use App\Models\Produk;
@@ -16,6 +17,7 @@ use App\Models\Category;
 use App\Models\CategoryProduk;
 use App\Models\Pemesanan;
 use App\Models\DetailPemesanan;
+use App\Models\BuatProgram;
 
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -441,5 +443,92 @@ class actionController extends Controller
         $pesanan->update(['paymentLink' => $paymentLink]);
 
         return redirect()->away($paymentLink);
+    }
+
+    public function cetakStruk($id)
+    {
+        $pesanan = Pemesanan::with(['details.produk', 'user'])->findOrFail($id);
+
+        if ($pesanan->status !== 'Lunas') {
+            return redirect()->back()->with('error', 'Struk hanya dapat dicetak untuk pesanan yang sudah lunas.');
+        }
+
+        $pdf = Pdf::loadView('struk_pembayaran', compact('pesanan'));
+        $pdf->setPaper([0, 0, 226, 600], 'potrait');
+
+        return $pdf->stream('struk-' . $pesanan->kodePemesanan . '.pdf');
+    }
+
+    public function buatProgram(Request $request)
+    {
+        $request->validate([
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'tagProgram' => 'required',
+            'judul' => 'required',
+            'deskripsi' => 'required'
+        ], [
+            'gambar.required' => 'Gambar program wajib diisi.',
+            'gambar.image' => 'File yang diunggah harus berupa gambar.',
+            'gambar.mimes' => 'Gambar harus berformat jpeg, png, jpg, atau gif.',
+            'gambar.max' => 'Ukuran gambar maksimal 2MB.'
+        ]);
+
+        $gambarPath = $request->file('gambar')->store('images/program', 'public');
+
+        BuatProgram::create([
+            'gambar' => $gambarPath,
+            'tagProgram' => $request->tagProgram,
+            'judul' => $request->judul,
+            'deskripsi' => $request->deskripsi
+        ]);
+
+        return redirect('/dashboard/listProgram')->with('success', 'Program berhasil dibuat.');
+    }
+
+    public function updateProgram(Request $request, $id)
+    {
+        $request->validate([
+            'gambar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'tagProgram' => 'required',
+            'judul' => 'required',
+            'deskripsi' => 'required'
+        ], [
+            'gambar.image' => 'File yang diunggah harus berupa gambar.',
+            'gambar.mimes' => 'Gambar harus berformat jpeg, png, jpg, atau gif.',
+            'gambar.max' => 'Ukuran gambar maksimal 2MB.'
+        ]);
+
+        $program = BuatProgram::find($id);
+        if (!$program) {
+            return redirect('/dashboard/listProgram')->with('error', 'Program tidak ditemukan.');
+        }
+
+        $updateData = [
+            'tagProgram' => $request->tagProgram,
+            'judul' => $request->judul,
+            'deskripsi' => $request->deskripsi
+        ];
+
+        if ($request->hasFile('gambar')) {
+            Storage::disk('public')->delete($program->gambar);
+            $gambarPath = $request->file('gambar')->store('images/program', 'public');
+            $updateData['gambar'] = $gambarPath;
+        }
+
+        $program->update($updateData);
+        return redirect('/dashboard/listProgram')->with('success', 'Program berhasil diperbarui.');
+    }
+
+    public function deleteProgram($id)
+    {
+        $program = BuatProgram::find($id);
+        if (!$program) {
+            return redirect('/dashboard/listProgram')->with('error', 'Program tidak ditemukan.');
+        }
+
+        Storage::disk('public')->delete($program->gambar);
+        $program->delete();
+
+        return redirect('/dashboard/listProgram')->with('success', 'Program berhasil dihapus.');
     }
 }

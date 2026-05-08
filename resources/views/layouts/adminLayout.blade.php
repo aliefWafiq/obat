@@ -35,11 +35,8 @@
             <a href="{{ route('listCategory') }}" class="nav-item" data-section="kategori">
                 <i class="fas fa-tags"></i> Data Kategori
             </a>
-            <a href="#pembeli" class="nav-item" data-section="pembeli">
-                <i class="fas fa-user"></i> Data Pembeli
-            </a>
-            <a href="#pengaturan" class="nav-item" data-section="pengaturan">
-                <i class="fas fa-cog"></i> Pengaturan
+            <a href="{{ route('listProgram') }}" class="nav-item" data-section="BuatProgram">
+                <i class="fas fa-cog"></i> Buat Program
             </a>
         </nav>
         <div class="sidebar-footer">
