@@ -26,9 +26,8 @@
                     <i class="fas fa-wallet"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>Rp 124.560.000</h3>
+                    <h3>Rp {{ $totalPendapatan }}</h3>
                     <p>Total Pendapatan</p>
-                    <small>Klik untuk grafik harian/bulanan/tahunan</small>
                 </div>
             </div>
             <div class="stat-card" data-detail="transactions">
@@ -36,9 +35,8 @@
                     <i class="fas fa-shopping-cart"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>1.256</h3>
+                    <h3>{{ $totalTransaksiHariIni }}</h3>
                     <p>Transaksi Hari Ini</p>
-                    <small>Klik untuk melihat item dan pembeli</small>
                 </div>
             </div>
             <div class="stat-card" data-detail="products">
@@ -46,19 +44,8 @@
                     <i class="fas fa-box-open"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>348</h3>
+                    <h3>{{ $totalProdukTerjual }}</h3>
                     <p>Produk Terjual</p>
-                    <small>Klik untuk detail produk unggulan</small>
-                </div>
-            </div>
-            <div class="stat-card" data-detail="average">
-                <div class="stat-icon">
-                    <i class="fas fa-chart-pie"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>Rp 99.000</h3>
-                    <p>Rata-rata Transaksi</p>
-                    <small>Klik untuk analisis tren nilai transaksi</small>
                 </div>
             </div>
         </div>

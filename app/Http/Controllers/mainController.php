@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 use App\Models\Produk;
 use App\Models\keranjang;
@@ -11,6 +12,7 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\Pemesanan;
 use App\Models\BuatProgram;
+use App\Models\DetailPemesanan;
 
 class mainController extends Controller
 {
@@ -69,7 +71,22 @@ class mainController extends Controller
 
     public function dashboard()
     {
-        return view('admin.dashboard');
+        $pemesananLunas = Pemesanan::where('status', 'Lunas')->get();
+        $totalPendapatan = $pemesananLunas->sum('totalHarga');
+
+        $totalTransaksiHariIni = Pemesanan::where('status', 'Lunas')
+            ->whereDate('created_at', Carbon::today())
+            ->count();
+
+        $totalProdukTerjual = DetailPemesanan::whereHas('pemesanan', function ($query) {
+            $query->where('status', 'Lunas');
+        })->sum('jumlahBeli');
+
+        return view('admin.dashboard', compact(
+            'totalPendapatan',
+            'totalTransaksiHariIni',
+            'totalProdukTerjual'
+        ));
     }
 
     public function listProduk()
