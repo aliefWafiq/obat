@@ -156,9 +156,9 @@ class actionController extends Controller
                 'harga' => $request->input('harga'),
                 'stok' => $request->input('stok')
             ]);
-            return redirect('/dashboard')->with('success', 'Produk berhasil diperbarui.');
+            return redirect('/dashboard/produk')->with('success', 'Produk berhasil diperbarui.');
         } else {
-            return redirect('/dashboard')->with('error', 'Produk tidak ditemukan.');
+            return redirect('/dashboard/produk')->with('error', 'Produk tidak ditemukan.');
         }
     }
 
@@ -168,9 +168,9 @@ class actionController extends Controller
         if ($produk) {
             Storage::disk('public')->delete($produk->gambar);
             $produk->delete();
-            return redirect('/dashboard')->with('success', 'Produk berhasil dihapus.');
+            return redirect('/dashboard/produk')->with('success', 'Produk berhasil dihapus.');
         } else {
-            return redirect('/dashboard')->with('error', 'Produk tidak ditemukan.');
+            return redirect('/dashboard/produk')->with('error', 'Produk tidak ditemukan.');
         }
     }
 

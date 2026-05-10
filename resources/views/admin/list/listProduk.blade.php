@@ -1,38 +1,45 @@
 @extends('layouts.adminLayout')
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('style/createProduk.css') }}" />
+@endpush
+
 @section('content')
 <div class="main-content">
-    <header class="header">
-        <div class="header-left">
-            <button class="menu-toggle">
-                <i class="fas fa-bars"></i>
-            </button>
-            <h1 id="page-title">Daftar Produk</h1>
-        </div>
-    </header>
-    <section id="dashboard" class="content-section active">
-        <div class="section-header">
-            <h2>Daftar Produk</h2>
-            <a href="{{ route('viewCreateProduk') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Tambah Produk
-            </a>
-        </div>
+    <div class="page-header">
+        <h1>Daftar Produk</h1>
 
-        @if (session('success'))
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i> {{ session('success') }}
-        </div>
-        @endif
+        <a href="{{ route('dashboard') }}" class="back-btn">
+            ← Back Dashboard
+        </a>
+    </div>
 
-        @if($produk->isEmpty())
-        <div class="table-container">
-            <div style="padding: 3rem; text-align: center; color: #999;">
-                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
-                <p>Belum ada produk. <a href="{{ route('viewCreateProduk') }}">Tambah produk sekarang</a></p>
+    <div class="main-container">
+
+        <!-- LEFT -->
+        <div class="produk-list">
+            @if (session('success'))
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> {{ session('success') }}
             </div>
-        </div>
-        @else
-        <div class="table-container">
-            <table class="data-table">
+            @endif
+            <div class="table-header">
+                <h2>Daftar Produk</h2>
+                
+                <div class="total-box">
+                    Total: {{ count($produk) }}
+                </div>
+            </div>
+
+            @if($produk->isEmpty())
+            <div class="table-container">
+                <div style="padding: 3rem; text-align: center; color: #999;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                    <p>Belum ada produk. <a href="{{ route('viewCreateProduk') }}">Tambah produk sekarang</a></p>
+                </div>
+            </div>
+            @else
+            <table>
                 <thead>
                     <tr>
                         <th>Gambar</th>
@@ -43,6 +50,7 @@
                         <th>Aksi</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @foreach ($produk as $item)
                     <tr>
@@ -85,8 +93,63 @@
                     @endforeach
                 </tbody>
             </table>
+            @endif
         </div>
-        @endif
-    </section>
+
+        <!-- RIGHT -->
+        <div class="create-box">
+
+            <h2>Create Produk</h2>
+
+            <form action="/produk/create" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div>
+                    <label for="gambar">Gambar:</label>
+                    <input type="file" id="gambar" name="gambar">
+                </div>
+
+                <div>
+                    <label for="namaProduk">Nama Produk:</label>
+                    <input type="text" id="namaProduk" name="namaProduk">
+                </div>
+
+                <div>
+                    <label for="deskripsi">Deskripsi:</label>
+                    <textarea id="deskripsi" name="deskripsi"></textarea>
+                </div>
+
+                <div>
+                    <label for="idCategory">Kategori:</label>
+
+                    <select id="idCategory" name="idCategory">
+                        <option value="">Pilih Kategori</option>
+
+                        @foreach($categories as $category)
+                        <option value="{{ $category->id }}">
+                            {{ $category->namaCategory }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label for="harga">Harga:</label>
+                    <input type="number" id="harga" name="harga">
+                </div>
+
+                <div>
+                    <label for="stok">Stok:</label>
+                    <input type="number" id="stok" name="stok">
+                </div>
+
+                <button type="submit">
+                    Create Produk
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
 </div>
 @endsection

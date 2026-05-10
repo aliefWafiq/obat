@@ -82,7 +82,6 @@ class mainController extends Controller
             $query->where('status', 'Lunas');
         })->sum('jumlahBeli');
 
-        // Kalkulasi Statistik Tambahan
         $startOfWeek = Carbon::now()->startOfWeek();
         $endOfWeek = Carbon::now()->endOfWeek();
         $pendapatanMingguan = $pemesananLunas->whereBetween('created_at', [$startOfWeek, $endOfWeek])->sum('totalHarga');
@@ -106,7 +105,6 @@ class mainController extends Controller
         $totalPesanan = $pemesananLunas->count();
         $pelangganAktif = $pemesananLunas->pluck('idUser')->unique()->count();
 
-        // Data Grafik Harian (7 hari terakhir)
         $dailyLabels = [];
         $dailyData = [];
         for ($i = 6; $i >= 0; $i--) {
@@ -117,7 +115,6 @@ class mainController extends Controller
                 ->sum('totalHarga');
         }
 
-        // Data Grafik Bulanan (6 bulan terakhir)
         $monthlyLabels = [];
         $monthlyData = [];
         for ($i = 5; $i >= 0; $i--) {
@@ -212,13 +209,8 @@ class mainController extends Controller
     public function listProduk()
     {
         $produk = Produk::with('category')->get();
-        return view('admin.list.listProduk', compact('produk'));
-    }
-
-    public function viewCreateProduk()
-    {
         $categories = Category::all();
-        return view('admin.create.createProduk', compact('categories'));
+        return view('admin.list.listProduk', compact('produk', 'categories'));
     }
 
     public function viewEditProduk($id)

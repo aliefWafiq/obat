@@ -18,7 +18,6 @@ Route::get('/pemesanan', [mainController::class, 'pemesanan'])->name('pemesanan'
 //Admin
 Route::get('/dashboard', [mainController::class, 'dashboard'])->name('dashboard')->middleware('auth');
 Route::get('/dashboard/produk', [mainController::class, 'listProduk'])->name('listProduk')->middleware('auth');
-Route::get('/dashboard/produk/create', [mainController::class, 'viewCreateProduk'])->name('viewCreateProduk')->middleware('auth');
 Route::get('/dashboard/produk/edit/{id}', [mainController::class, 'viewEditProduk'])->name('viewEditProduk')->middleware('auth');
 
 // List User

@@ -44,7 +44,9 @@
             @foreach ($buatProgram as $program)
             <article class="program-card" style="background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 18px 40px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
                 <div style="position: relative; min-height: 180px; overflow: hidden;">
-                    <img src="{{ asset('storage/' . $program->gambar) }}" alt="{{ $program->judul }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="width: 100%; height: 200px;">
+                        <img src="{{ asset('storage/' . $program->gambar) }}" alt="{{ $program->judul }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
                     <span style="position: absolute; top: 1rem; left: 1rem; background: rgba(15, 23, 42, 0.85); color: #fff; padding: 0.45rem 0.85rem; border-radius: 999px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em;">{{ $program->tagProgram }}</span>
                 </div>
                 <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1;">

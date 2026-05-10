@@ -21,7 +21,7 @@
         background: white;
         border-radius: 20px;
         padding: 35px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
     }
 
     .category-container h1 {
@@ -103,16 +103,13 @@
             <label for="namaCategory">Nama Kategori:</label>
 
             <input type="text"
-                   id="namaCategory"
-                   name="namaCategory"
-                   placeholder="Masukkan nama kategori">
+                id="namaCategory"
+                name="namaCategory"
+                placeholder="Masukkan nama kategori">
         </div>
 
         <button type="submit">
             Create Category
         </button>
-
     </form>
-
 </div>
-```
