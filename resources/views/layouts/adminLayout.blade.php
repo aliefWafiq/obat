@@ -23,7 +23,7 @@
             <a href="{{ route('listTransaksi') }}" class="nav-item" data-section="transaksi">
                 <i class="fas fa-exchange-alt"></i> Transaksi
             </a>
-            <a href="#penjualan" class="nav-item" data-section="penjualan">
+            <a href="{{ route('listPenjualan') }}" class="nav-item" data-section="penjualan">
                 <i class="fas fa-chart-line"></i> Laporan Penjualan
             </a>
             <a href="{{ route('listUser') }}" class="nav-item" data-section="admin">
