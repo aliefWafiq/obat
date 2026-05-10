@@ -6,6 +6,8 @@ window.addEventListener("scroll", () => {
 
 document.getElementById("filter-tabs").addEventListener("click", (e) => {
     const btn = e.target.closest(".tab");
+    let showingCardTotal = document.getElementById('result-count')
+    let totalCard = 0
     if (!btn) return;
     document
         .querySelectorAll(".tab")
@@ -14,8 +16,14 @@ document.getElementById("filter-tabs").addEventListener("click", (e) => {
     currentCat = btn.dataset.cat;
     document.querySelectorAll(".product-card").forEach((card) => {
         const idCategory = parseInt(card.dataset.id);
-        card.style.display = currentCat === "semua" || idCategory == currentCat ? "" : "none";
+        if (currentCat === "semua" || idCategory == currentCat) {
+            card.style.display = "";
+            totalCard++;
+        } else {
+            card.style.display = "none";
+        }
     });
+    showingCardTotal.textContent = "Menampilkan " + totalCard + " produk";
 });
 
 // Sort

@@ -27,7 +27,6 @@
             <span class="eyebrow">Koleksi Kami</span>
             <h2 class="catalog-h2" id="catalog-title">Semua <em>Produk</em></h2>
         </div>
-        <span class="result-count" id="result-count">Menampilkan 12 produk</span>
     </div>
 
     <!-- FILTER TABS -->
@@ -40,7 +39,7 @@
 
     <!-- SORT ROW -->
     <div class="sort-row">
-        <span id="sort-count">12 produk ditemukan</span>
+        <span id="result-count"></span>
         <select class="sort-select" id="sort-select">
             <option value="default">Terpopuler</option>
             <option value="price-asc">Harga: Rendah ke Tinggi</option>
