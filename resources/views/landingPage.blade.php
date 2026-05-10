@@ -176,9 +176,8 @@
 
         <div class="products-grid">
             @foreach ($categories as $cat)
-            @foreach ($cat->produk as $e)
+            @foreach ($cat->produk as $index => $e)
             <article class="product-card" data-id="{{ $e->idCategory }}">
-                <div class="product-badge">Best Seller</div>
                 <div class="product-image">
                     <img src="{{ asset('storage/' . $e->gambar) }}" alt="{{ $e->namaProduk }}" />
                     <button class="quick-view">Quick View</button>
@@ -204,7 +203,7 @@
         </div>
 
         <div class="products-cta">
-            <a href="/customer/product/layout/product.html" class="btn-secondary">Lihat Semua Produk →</a>
+            <a href="{{ route('login') }}" class="btn-secondary">Lihat Semua Produk →</a>
         </div>
     </div>
 </section>

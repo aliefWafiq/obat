@@ -54,7 +54,7 @@
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: auto;">
-                        <span style="font-size: 0.9rem; color: #6b7280;">Dibuat: {{ $program->created_at->format('d M Y') }}</span>
+                        
                         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                             <a href="{{ route('viewEditProgram', $program->id) }}" class="btn btn-secondary" style="padding: 0.7rem 1rem; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none;">
                                 <i class="fas fa-edit"></i> Edit

@@ -10,7 +10,7 @@
 
 <body>
     <nav class="navbar" id="navbar">
-        <a href="/customer/homes/index.html" class="logo">
+        <a href="{{ route('login') }}" class="logo">
             <img src="{{ asset('img/obatkitalogo.png') }}" alt="">
         </a>
 
@@ -18,7 +18,7 @@
 
         <ul class="nav-links">
             <li><a href="#about">Tentang</a></li>
-            <li><a href="#products">Produk</a></li>
+            <li><a href="{{ route('login') }}">Produk</a></li>
             <li><a href="#contact">Kontak</a></li>
             @if (Auth::check())
             <li><a href="{{ route('keranjang') }}">Keranjang</a></li>

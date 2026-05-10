@@ -25,12 +25,12 @@
     <section class="content-section active" style="padding: 1.5rem 2rem 2rem;">
         <div class="section-header">
             <h2>Ringkasan Penjualan</h2>
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+            <!-- <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
                 <input type="date" class="date-filter" style="padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid #e5e7eb;" />
                 <input type="date" class="date-filter" style="padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid #e5e7eb;" />
                 <button class="filter-btn">Filter</button>
                 <button class="export-btn">Export</button>
-            </div>
+            </div> -->
         </div>
 
         <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">
@@ -61,23 +61,6 @@
                     <h3>{{ $totalPelangganAktif }}</h3>
                     <p>Pelanggan Aktif</p>
                 </div>
-            </div>
-        </div>
-
-        <div class="charts-grid" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
-            <div class="chart-card" style="background: #fff; border-radius: 24px; padding: 1.5rem; box-shadow: 0 18px 40px rgba(0,0,0,0.05);">
-                <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                    <h3 style="margin: 0;">Grafik Penjualan</h3>
-                    <button class="print-btn">Print</button>
-                </div>
-                <canvas id="dailyChart" style="width: 100%; min-height: 260px;"></canvas>
-            </div>
-            <div class="chart-card" style="background: #fff; border-radius: 24px; padding: 1.5rem; box-shadow: 0 18px 40px rgba(0,0,0,0.05);">
-                <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                    <h3 style="margin: 0;">Trend Bulanan</h3>
-                    <button class="print-btn">Print</button>
-                </div>
-                <canvas id="monthlyChart" style="width: 100%; min-height: 260px;"></canvas>
             </div>
         </div>
 
