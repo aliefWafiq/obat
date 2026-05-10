@@ -32,6 +32,7 @@ Route::get('/dashboard/category/edit/{id}', [mainController::class, 'viewEditCat
 
 // List Transaksi
 Route::get('/dashboard/transaksi', [mainController::class, 'listTransaksi'])->name('listTransaksi')->middleware('auth');
+Route::get('/dashboard/penjualan', [mainController::class, 'listPenjualan'])->name('listPenjualan')->middleware('auth');
 Route::get('/pemesanan/bayar-ulang/{id}', [actionController::class, 'bayarUlang'])->name('bayarUlang');
 Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPemesanan']);
 Route::get('/pemesanan/cetak/{id}', [actionController::class, 'cetakStruk'])->name('cetakStruk')->middleware('auth');
@@ -48,7 +49,7 @@ Route::post('/login/action', [actionController::class,  'login']);
 Route::post('/masukKeranjang', [actionController::class, 'masukKeranjang'])->name('masukKeranjang')->middleware('auth');
 Route::post('/pemesanan/create', [actionController::class, 'createPemesanan'])->name('createPemesanan')->middleware('auth');
 Route::post('/category/create', [actionController::class, 'createCategory']);
-Route::post('/produk/create', [actionController::class, 'createProduk']);
+Route::post('/produk/create', [actionController::class, 'createProduk'])->name('produk.store');
 Route::post('/program/create', [actionController::class, 'buatProgram']);
 // Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPemesanan']);
 

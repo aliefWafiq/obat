@@ -143,6 +143,25 @@ class mainController extends Controller
         return view('admin.list.listTransaksi', compact('pemesanan'));
     }
 
+    public function listPenjualan()
+    {
+        $pemesanan = Pemesanan::with('user')->orderBy('created_at', 'desc')->get();
+        $totalPendapatan = $pemesanan->where('status', 'Lunas')->sum('totalHarga');
+        $totalTransaksi = $pemesanan->count();
+        $totalProdukTerjual = DetailPemesanan::whereHas('pemesanan', function ($query) {
+            $query->where('status', 'Lunas');
+        })->sum('jumlahBeli');
+        $totalPelangganAktif = $pemesanan->pluck('idUser')->unique()->count();
+
+        return view('admin.list.listPenjualan', compact(
+            'totalPendapatan',
+            'totalTransaksi',
+            'totalProdukTerjual',
+            'totalPelangganAktif',
+            'pemesanan'
+        ));
+    }
+
     public function listProgram()
     {
         $buatProgram = BuatProgram::all();

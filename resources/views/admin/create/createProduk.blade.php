@@ -20,7 +20,7 @@
         @endforeach
     </select>
 
-    <label for="harga">Harga:</label>
+    <label for="harga">Harga:</label>   
     <input type="number" id="harga" name="harga">
 
     <label for="stok">Stok:</label>
