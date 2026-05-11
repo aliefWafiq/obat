@@ -109,24 +109,7 @@
                     <button type="submit" class="auth-btn" id="submitBtn">
                         <i class="fas fa-user-plus"></i> Buat Akun
                     </button>
-
-                    <!-- <div class="terms-info">
-                        Dengan mendaftar, Anda menyetujui <a href="#">Syarat & Ketentuan</a> dan <a href="#">Kebijakan Privasi</a> kami
-                    </div> -->
                 </form>
-
-                <!-- <div class="auth-divider">
-                    <span>atau</span>
-                </div> -->
-<!-- 
-                <div class="social-login">
-                    <button class="social-btn" type="button">
-                        <i class="fab fa-google"></i> Google
-                    </button>
-                    <button class="social-btn" type="button">
-                        <i class="fab fa-facebook"></i> Facebook
-                    </button>
-                </div> -->
 
                 <div class="auth-footer">
                     Sudah punya akun? <a href="{{ route('login') }}">Masuk sekarang</a>

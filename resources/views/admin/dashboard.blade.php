@@ -14,10 +14,6 @@
     <section id="dashboard" class="content-section active">
         <div class="section-header">
             <h2>Dashboard</h2>
-            <div>
-                <button class="filter-btn">Ringkas</button>
-                <button class="export-btn">Export</button>
-            </div>
         </div>
 
         <div class="stats-grid">
@@ -239,52 +235,6 @@
                 </div>
                 <canvas id="monthlyChart"></canvas>
             </div>
-        </div>
-
-        <div class="table-container" style="margin-top: 1.5rem;">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Transaksi</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>05 Mei 2026</td>
-                        <td>#TRX-1023</td>
-                        <td>Rp 2.400.000</td>
-                        <td><span class="status completed">Selesai</span></td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn"><i class="fas fa-print"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>04 Mei 2026</td>
-                        <td>#TRX-1018</td>
-                        <td>Rp 1.850.000</td>
-                        <td><span class="status completed">Selesai</span></td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn"><i class="fas fa-print"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>03 Mei 2026</td>
-                        <td>#TRX-1009</td>
-                        <td>Rp 3.200.000</td>
-                        <td><span class="status active">Diproses</span></td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn"><i class="fas fa-print"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </section>
 </div>

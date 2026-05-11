@@ -101,7 +101,9 @@
 
         <div class="form-group">
             <label for="namaCategory">Nama Kategori:</label>
-
+            @error('namaCategory')
+            <span class="error">{{ $message }}</span>
+            @enderror
             <input type="text"
                 id="namaCategory"
                 name="namaCategory"

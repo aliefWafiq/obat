@@ -471,7 +471,10 @@ class actionController extends Controller
             'gambar.required' => 'Gambar program wajib diisi.',
             'gambar.image' => 'File yang diunggah harus berupa gambar.',
             'gambar.mimes' => 'Gambar harus berformat jpeg, png, jpg, atau gif.',
-            'gambar.max' => 'Ukuran gambar maksimal 2MB.'
+            'gambar.max' => 'Ukuran gambar maksimal 2MB.',
+            'tagProgram.required' => 'Tag program wajib diisi',
+            'judul.required' => 'Judul program wajib diisi',
+            'deskripsi.required' => 'Deskripsi program wajib diisi'
         ]);
 
         $gambarPath = $request->file('gambar')->store('images/program', 'public');

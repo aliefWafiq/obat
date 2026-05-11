@@ -47,7 +47,7 @@
                         <th>Total Harga</th>
                         <th>Status</th>
                         <th>Tanggal Pesanan</th>
-                        <th>Aksi</th>
+                        <!-- <th>Aksi</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -65,19 +65,19 @@
                             </span>
                         </td>
                         <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
-                        <td>
+                        <!-- <td>
                             <!-- <button type="button" class="action-btn" onclick="viewDetail({{ $item->id }})" title="Lihat Detail">
                                 <i class="fas fa-eye"></i>
                             </button> -->
-                            <form action="{{ route('updatePemesanan', $item->id) }}" method="POST" style="display:inline-block;">
+                            <!-- <form action="{{ route('updatePemesanan', $item->id) }}" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="status" value="{{ $item->status === 'pending' ? 'completed' : 'pending' }}">
                                 <button type="submit" class="action-btn" title="Ubah Status">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
-                            </form>
-                        </td>
+                            </form> -->
+                        <!-- </td> -->
                     </tr>
                     @endforeach
                 </tbody>

@@ -6,7 +6,7 @@ const contentSections = document.querySelectorAll(".content-section");
 const pageTitle = document.getElementById("page-title");
 const addBtn = document.querySelector(".add-btn");
 const adminModal = document.getElementById("adminModal");
-const closeModal = document.querySelector(".close-modal");
+const closeModalBtn = document.querySelector(".close-modal");
 const adminForm = document.querySelector(".admin-form");
 
 // Charts
@@ -15,9 +15,10 @@ let dailyChart, monthlyChart;
 // Initialize Dashboard
 document.addEventListener("DOMContentLoaded", function () {
     initCharts();
-    initNavigation();
+    // initNavigation();
     initMobileMenu();
     initModals();
+    initSearch();
 });
 
 // Navigation
@@ -53,10 +54,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Charts
 function initCharts() {
-    const dailyCtx = document.getElementById("dailyChart").getContext("2d");
-    dailyChart = new Chart(dailyCtx, {
-        type: "line",
-        data: {
+    const dailyChartEl = document.getElementById("dailyChart");
+    if (dailyChartEl) {
+        const dailyCtx = dailyChartEl.getContext("2d");
+        dailyChart = new Chart(dailyCtx, {
+            type: "line",
+            data: {
             labels: window.chartData ? window.chartData.dailyLabels : ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
             datasets: [
                 {
@@ -95,11 +98,14 @@ function initCharts() {
             },
         },
     });
+    }
 
-    const monthlyCtx = document.getElementById("monthlyChart").getContext("2d");
-    monthlyChart = new Chart(monthlyCtx, {
-        type: "bar",
-        data: {
+    const monthlyChartEl = document.getElementById("monthlyChart");
+    if (monthlyChartEl) {
+        const monthlyCtx = monthlyChartEl.getContext("2d");
+        monthlyChart = new Chart(monthlyCtx, {
+            type: "bar",
+            data: {
             labels: window.chartData ? window.chartData.monthlyLabels : ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
             datasets: [
                 {
@@ -136,6 +142,7 @@ function initCharts() {
             },
         },
     });
+    }
 
     const revenueCtx = document.getElementById("revenuePeriodChart");
     if (revenueCtx && window.chartData) {
@@ -215,59 +222,87 @@ function initCharts() {
     }
 }
 
-// Mobile Menu
 function initMobileMenu() {
-    menuToggle.addEventListener("click", () => {
-        sidebar.classList.toggle("active");
-    });
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener("click", () => {
+            sidebar.classList.toggle("active");
+        });
+    }
 }
 
-// Modals
 function initModals() {
-    addBtn.addEventListener("click", () => {
-        adminModal.style.display = "flex";
-    });
+    if (addBtn && adminModal) {
+        addBtn.addEventListener("click", () => {
+            adminModal.style.display = "flex";
+        });
+    }
 
-    closeModal.addEventListener("click", () => {
-        adminModal.style.display = "none";
-    });
-
-    adminForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        // Handle form submission
-        alert("Admin baru berhasil ditambahkan!");
-        adminModal.style.display = "none";
-        adminForm.reset();
-    });
-
-    // Close modal when clicking outside
-    window.addEventListener("click", (e) => {
-        if (e.target === adminModal) {
+    if (closeModalBtn && adminModal) {
+        closeModalBtn.addEventListener("click", () => {
             adminModal.style.display = "none";
-        }
-    });
+        });
+    }
+
+    if (adminForm && adminModal) {
+        adminForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            // Handle form submission
+            alert("Admin baru berhasil ditambahkan!");
+            adminModal.style.display = "none";
+            adminForm.reset();
+        });
+    }
+
+    if (adminModal) {
+        window.addEventListener("click", (e) => {
+            if (e.target === adminModal) {
+                adminModal.style.display = "none";
+            }
+        });
+    }
 }
 
-// Print functionality
 document.querySelectorAll(".print-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
         window.print();
     });
 });
 
-// Action buttons
 document.querySelectorAll(".action-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
         const icon = btn.querySelector("i").classList[1];
         if (icon === "fa-trash") {
             if (confirm("Yakin ingin menghapus data ini?")) {
-                // btn.closest("tr").remove();
+
             }
         }
     });
 });
 
 window.addEventListener("resize", () => {
-    dailyChart.resize();
-    monthlyChart.resize();
+    if (dailyChart) dailyChart.resize();
+    if (monthlyChart) monthlyChart.resize();
 });
+
+function initSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const dataTable = document.querySelector('.data-table');
+    
+    if (searchInput && dataTable) {
+        const tbody = dataTable.querySelector('tbody');
+        const rows = tbody.querySelectorAll('tr');
+        
+        searchInput.addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+}

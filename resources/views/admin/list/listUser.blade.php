@@ -11,7 +11,7 @@
         </div>
         <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" placeholder="Cari pengguna...">
+            <input type="text" placeholder="Cari pengguna..." id="searchInput">
         </div>
     </header>
 
@@ -53,13 +53,6 @@
                         </div>
                         <i class="fas fa-user-friends"></i>
                     </div>
-                    <!-- <div class="account-summary-card info">
-                        <div>
-                            <h3>Aktif</h3>
-                            <p>Semua akun dalam sistem</p>
-                        </div>
-                        <i class="fas fa-check-circle"></i>
-                    </div> -->
                 </div>
 
                 @if($users->isEmpty())
@@ -120,18 +113,30 @@
                         @csrf
                         <div class="form-group">
                             <label>Nama Lengkap</label>
+                            @error('username')
+                            <span class="error">{{ $message }}</span>
+                            @enderror
                             <input type="text" placeholder="Masukkan nama" name="username" />
                         </div>
                         <div class="form-group">
                             <label>Nomor HP</label>
+                            @error('phoneNumber')
+                            <span class="error">{{ $message }}</span>
+                            @enderror
                             <input type="text" placeholder="Masukkan nomor HP" name="phoneNumber" />
                         </div>
                         <div class="form-group">
                             <label for="alamat">Alamat Lengkap</label>
-                            <textarea id="alamat" name="alamat" placeholder="Jln. Contoh No. 123, Kota, Provinsi, Kode Pos" required>{{ old('alamat') }}</textarea>
+                            @error('alamat')
+                            <span class="error">{{ $message }}</span>
+                            @enderror
+                            <textarea id="alamat" name="alamat" placeholder="Jln. Contoh No. 123, Kota, Provinsi, Kode Pos">{{ old('alamat') }}</textarea>
                         </div>
                         <div class="form-group">
                             <label>Password</label>
+                            @error('password')
+                            <span class="error">{{ $message }}</span>
+                            @enderror
                             <input type="password" placeholder="Password" name="password" />
                         </div>
                         <div class="form-group">
