@@ -35,7 +35,7 @@
             <div class="table-container">
                 <div style="padding: 3rem; text-align: center; color: #999;">
                     <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
-                    <p>Belum ada produk. <a href="{{ route('viewCreateProduk') }}">Tambah produk sekarang</a></p>
+                    <p>Belum ada produk.</p>
                 </div>
             </div>
             @else
