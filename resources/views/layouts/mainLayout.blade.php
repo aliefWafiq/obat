@@ -17,7 +17,6 @@
         @yield('nav')
 
         <ul class="nav-links">
-            <li><a href="#about">Tentang</a></li>
             <li><a href="{{ route('login') }}">Produk</a></li>
             <li><a href="#contact">Kontak</a></li>
             @if (Auth::check())
@@ -38,6 +37,7 @@
     </nav>
     @yield('content')
     @stack('scripts')
+    
 </body>
 
 </html>

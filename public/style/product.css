@@ -456,6 +456,48 @@ body {
     transform: translateY(0);
 }
 
+.qty-box {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.8rem;
+}
+
+.qty-input {
+    width: 55px;
+    height: 34px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-size: 0.9rem;
+    background: #fff;
+}
+
+.qty-input::-webkit-inner-spin-button,
+.qty-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.qty-btn {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: #f0ede8;
+    color: #333;
+    font-size: 1rem;
+    cursor: pointer;
+    position: relative;    
+    transition: 0.2s;
+}
+
+.qty-btn:hover {
+    background: var(--black);
+    color: white;
+}
+
 /* Card body */
 .card-body {
     padding: 1rem 1rem 1rem;

@@ -68,14 +68,24 @@
                 <div class="card-desc">{{ $e->deskripsi }}</div>
                 <div class="card-footer">
                     <div>
-                        <span class="card-price">{{ number_format($e->harga, 0, ',', '.') }}</span>
+                        <span class="card-price"><b>Harga :</b> {{ number_format($e->harga, 0, ',', '.') }}</span>
                     </div>
                     <input type="hidden" name="produk_id" value="{{ $e->id }}">
                 </div>
                 @if ($e->stok == 0)
                 <div class="">Stok Habis</div>
                 @else
-                <input type="number" name="jumlah" min="1" value="1">
+                <div class="qty-box">
+                    <button type="button" class="qty-btn minus">-</button>
+
+                    <input type="number" 
+                        name="jumlah" 
+                        class="qty-input"
+                        min="1" 
+                        value="1">
+
+                    <button type="button" class="qty-btn plus">+</button>
+                </div>
                 @endif
             </div>
         </form>
