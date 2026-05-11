@@ -53,6 +53,16 @@ body {
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
 }
 
+.alert {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 15px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .table-header {
     padding: 25px;
     border-bottom: 1px solid #e5e7eb;
