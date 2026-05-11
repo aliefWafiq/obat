@@ -102,6 +102,7 @@ class actionController extends Controller
             'harga' => 'required|numeric',
             'stok' => 'required|numeric',
         ], [
+            'gambar.required' => 'Gambar produk wajib diisi',
             'namaProduk.required' => 'Nama produk wajib diisi.',
             'deskripsi.required' => 'Deskripsi produk wajib diisi.',
             'idCategory.required' => 'Kategori produk wajib diisi.',

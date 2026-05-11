@@ -25,7 +25,7 @@
             @endif
             <div class="table-header">
                 <h2>Daftar Produk</h2>
-                
+
                 <div class="total-box">
                     Total: {{ count($produk) }}
                 </div>
@@ -66,7 +66,7 @@
                         <td>
                             <strong>{{ $item->namaProduk }}</strong>
                             <br>
-                            <small style="color: #999;">{{ Str::limit($item->deskripsi, 50) }}</small>
+                            <small style="color: #999;">{{ Str::limit($item->deskripsi, 10) }}</small>
                         </td>
                         <td>{{ $item->category->namaCategory ?? 'N/A' }}</td>
                         <td>
@@ -105,22 +105,33 @@
                 @csrf
                 <div>
                     <label for="gambar">Gambar:</label>
+                    @error('gambar')
+                    <span class="error">{{ $message }}</span>
+                    @enderror
                     <input type="file" id="gambar" name="gambar">
                 </div>
 
                 <div>
                     <label for="namaProduk">Nama Produk:</label>
+                    @error('namaProduk')
+                    <span class="error">{{ $message }}</span>
+                    @enderror
                     <input type="text" id="namaProduk" name="namaProduk">
                 </div>
 
                 <div>
                     <label for="deskripsi">Deskripsi:</label>
+                    @error('deskripsi')
+                    <span class="error">{{ $message }}</span>
+                    @enderror
                     <textarea id="deskripsi" name="deskripsi"></textarea>
                 </div>
 
                 <div>
                     <label for="idCategory">Kategori:</label>
-
+                    @error('idCategory')
+                    <span class="error">{{ $message }}</span>
+                    @enderror
                     <select id="idCategory" name="idCategory">
                         <option value="">Pilih Kategori</option>
 
@@ -134,11 +145,17 @@
 
                 <div>
                     <label for="harga">Harga:</label>
+                    @error('harga')
+                    <span class="error">{{ $message }}</span>
+                    @enderror
                     <input type="number" id="harga" name="harga">
                 </div>
 
                 <div>
                     <label for="stok">Stok:</label>
+                    @error('stok')
+                    <span class="error">{{ $message }}</span>
+                    @enderror
                     <input type="number" id="stok" name="stok">
                 </div>
 
