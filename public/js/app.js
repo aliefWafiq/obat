@@ -1,6 +1,3 @@
-// ================================
-// NAVBAR SCROLL EFFECT
-// ================================
 const navbar = document.getElementById("navbar");
 
 window.addEventListener("scroll", () => {
@@ -11,9 +8,6 @@ window.addEventListener("scroll", () => {
     }
 });
 
-// ================================
-// SMOOTH SCROLL
-// ================================
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", function (e) {
         const href = this.getAttribute("href");
@@ -33,9 +27,6 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     });
 });
 
-// ================================
-// HERO SLIDER
-// ================================
 const slides = document.querySelectorAll(".slide");
 const dots = document.querySelectorAll(".slider-dot");
 let currentSlide = 0;
@@ -78,15 +69,11 @@ if (slides.length > 0) {
         });
     });
 
-    // Pause on hover
     const hero = document.querySelector(".hero");
     hero.addEventListener("mouseenter", stopSlider);
     hero.addEventListener("mouseleave", startSlider);
 }
 
-// ================================
-// SCROLL REVEAL ANIMATIONS
-// ================================
 const reveals = document.querySelectorAll(".reveal-left, .reveal-right");
 
 function revealOnScroll() {
@@ -105,29 +92,61 @@ function revealOnScroll() {
 window.addEventListener("scroll", revealOnScroll);
 revealOnScroll();
 
-// ================================
-// PRODUCT CATEGORY FILTER
-// ================================
 const categoryBtns = document.querySelectorAll(".category-btn");
+
+function filterProducts(category) {
+    if (category === "semua") {
+        let productsByCategory = {};
+        let allProducts = [];
+        
+        document.querySelectorAll(".product-card").forEach((card) => {
+            const idCategory = parseInt(card.dataset.id);
+            if (!productsByCategory[idCategory]) {
+                productsByCategory[idCategory] = [];
+            }
+            productsByCategory[idCategory].push(card);
+            allProducts.push(card);
+        });
+
+        let selectedCards = new Set();
+        
+        for (let cat in productsByCategory) {
+            if (selectedCards.size < 4 && productsByCategory[cat].length > 0) {
+                selectedCards.add(productsByCategory[cat][0]);
+            }
+        }
+        berurutan
+        if (selectedCards.size < 4) {
+            for (let card of allProducts) {
+                if (selectedCards.size < 4 && !selectedCards.has(card)) {
+                    selectedCards.add(card);
+                }
+            }
+        }
+
+        document.querySelectorAll(".product-card").forEach((card) => {
+            card.style.display = selectedCards.has(card) ? "" : "none";
+        });
+    } else {
+        document.querySelectorAll(".product-card").forEach((card) => {
+            const idCategory = parseInt(card.dataset.id);
+            card.style.display = (idCategory == category) ? "" : "none";
+        });
+    }
+}
 
 categoryBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
         categoryBtns.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        currentCat = btn.dataset.cat;
-        document.querySelectorAll(".product-card").forEach((card) => {
-            const idCategory = parseInt(card.dataset.id);
-            card.style.display =
-                currentCat === "semua" || idCategory == currentCat
-                    ? ""
-                    : "none";
-        });
+        filterProducts(btn.dataset.cat);
     });
 });
 
-// ================================
-// SEARCH FUNCTIONALITY
-// ================================
+if (document.querySelector(".product-card")) {
+    filterProducts("semua");
+}
+
 const searchBox = document.querySelector(".search-box");
 const searchInput = document.querySelector(".search-input");
 
@@ -143,9 +162,6 @@ if (searchInput) {
     });
 }
 
-// ================================
-// MOBILE MENU TOGGLE
-// ================================
 const mobileToggle = document.getElementById("mobileToggle");
 const navLinks = document.querySelector(".nav-links");
 
@@ -156,28 +172,20 @@ if (mobileToggle) {
     });
 }
 
-// ================================
-// FORM HANDLING
-// ================================
 const contactForm = document.querySelector(".contact-form");
 
 if (contactForm) {
     contactForm.addEventListener("submit", (e) => {
         e.preventDefault();
 
-        // Add form submission logic here
         const formData = new FormData(contactForm);
         console.log("Form submitted:", Object.fromEntries(formData));
 
-        // Show success message
         alert("Pesan Anda telah terkirim! Kami akan segera menghubungi Anda.");
         contactForm.reset();
     });
 }
 
-// ================================
-// PARALLAX EFFECT (subtle)
-// ================================
 window.addEventListener("scroll", () => {
     const scrolled = window.scrollY;
     const heroContent = document.querySelector(".hero-content");

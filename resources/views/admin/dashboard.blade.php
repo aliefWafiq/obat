@@ -69,15 +69,15 @@
                 <div class="detail-summary-grid">
                     <div class="detail-summary-card">
                         <span>Total Minggu Ini</span>
-                        <strong>Rp 19.800.000</strong>
+                        <strong>Rp {{ number_format($pendapatanMingguan, 0, ',', '.') }}</strong>
                     </div>
                     <div class="detail-summary-card">
                         <span>Total Bulan Ini</span>
-                        <strong>Rp 76.200.000</strong>
+                        <strong>Rp {{ number_format($pendapatanBulanIni, 0, ',', '.') }}</strong>
                     </div>
                     <div class="detail-summary-card">
                         <span>Pertumbuhan</span>
-                        <strong>+18%</strong>
+                        <strong class="{{ $pertumbuhan >= 0 ? 'text-success' : 'text-danger' }}">{{ $pertumbuhan > 0 ? '+' : '' }}{{ $pertumbuhan }}%</strong>
                     </div>
                 </div>
             </div>
@@ -93,17 +93,21 @@
                     <div class="detail-list-card">
                         <h4>Top Item</h4>
                         <ul>
-                            <li>Vitamin C 1000mg <span>56x</span></li>
-                            <li>Paracetamol <span>48x</span></li>
-                            <li>Suplemen Omega <span>32x</span></li>
+                            @forelse($topItems as $item)
+                            <li>{{ $item->produk->namaProduk ?? 'Produk Dihapus' }} <span>{{ $item->total_qty }}x</span></li>
+                            @empty
+                            <li>Belum ada data</li>
+                            @endforelse
                         </ul>
                     </div>
                     <div class="detail-list-card">
-                        <h4>Pembeli Teratas</h4>
+                        <h4>Pembeli Teratas Hari Ini</h4>
                         <ul>
-                            <li>Ani Nur <span>3 transaksi</span></li>
-                            <li>Budi Santoso <span>2 transaksi</span></li>
-                            <li>Citra Lestari <span>2 transaksi</span></li>
+                            @forelse($topBuyers as $buyer)
+                            <li>{{ $buyer->user->username ?? 'User Dihapus' }} <span>{{ $buyer->total_transaksi }} transaksi</span></li>
+                            @empty
+                            <li>Belum ada data</li>
+                            @endforelse
                         </ul>
                     </div>
                 </div>
@@ -128,21 +132,17 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @forelse($produkUnggulan as $item)
                                 <tr>
-                                    <td>Vitamin C 1000mg</td>
-                                    <td>56</td>
-                                    <td>24</td>
+                                    <td>{{ $item->produk->namaProduk ?? 'Produk Dihapus' }}</td>
+                                    <td>{{ $item->total_terjual }}</td>
+                                    <td>{{ $item->produk->stok ?? 0 }}</td>
                                 </tr>
+                                @empty
                                 <tr>
-                                    <td>Paracetamol</td>
-                                    <td>48</td>
-                                    <td>14</td>
+                                    <td colspan="3">Belum ada data</td>
                                 </tr>
-                                <tr>
-                                    <td>Suplemen Omega</td>
-                                    <td>32</td>
-                                    <td>18</td>
-                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -159,16 +159,14 @@
                 <div class="detail-summary-grid">
                     <div class="detail-summary-card">
                         <span>Nilai Transaksi Rata-rata</span>
-                        <strong>Rp 99.000</strong>
+                        <strong>Rp {{ number_format($rataRataTransaksi, 0, ',', '.') }}</strong>
                     </div>
+                    @foreach($kategoriKontribusi->take(2) as $kat)
                     <div class="detail-summary-card">
-                        <span>Kontribusi Obat</span>
-                        <strong>63%</strong>
+                        <span>Kontribusi {{ $kat->namaCategory }}</span>
+                        <strong>{{ $totalPenjualanSemuaKategori > 0 ? round(($kat->total_penjualan / $totalPenjualanSemuaKategori) * 100) : 0 }}%</strong>
                     </div>
-                    <div class="detail-summary-card">
-                        <span>Kontribusi Suplemen</span>
-                        <strong>27%</strong>
-                    </div>
+                    @endforeach
                 </div>
                 <div class="detail-chart-card small">
                     <canvas id="averageTrendChart"></canvas>
@@ -194,7 +192,7 @@
                     <i class="fas fa-coins"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>Rp 76.200.000</h3>
+                    <h3>Rp {{ number_format($pendapatanMingguan, 0, ',', '.') }}</h3>
                     <p>Pendapatan Mingguan</p>
                 </div>
             </div>
@@ -203,7 +201,7 @@
                     <i class="fas fa-cart-plus"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>893</h3>
+                    <h3>{{ number_format($totalPesanan, 0, ',', '.') }}</h3>
                     <p>Total Pesanan</p>
                 </div>
             </div>
@@ -212,7 +210,7 @@
                     <i class="fas fa-chart-line"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>22%</h3>
+                    <h3 class="{{ $pertumbuhan >= 0 ? 'text-success' : 'text-danger' }}">{{ $pertumbuhan > 0 ? '+' : '' }}{{ $pertumbuhan }}%</h3>
                     <p>Pertumbuhan</p>
                 </div>
             </div>
@@ -221,7 +219,7 @@
                     <i class="fas fa-user-check"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>1.120</h3>
+                    <h3>{{ number_format($pelangganAktif, 0, ',', '.') }}</h3>
                     <p>Pelanggan Aktif</p>
                 </div>
             </div>
@@ -290,4 +288,16 @@
         </div>
     </section>
 </div>
+<script>
+    window.chartData = {
+        dailyLabels: {!! json_encode($dailyLabels) !!},
+        dailyData: {!! json_encode($dailyData) !!},
+        monthlyLabels: {!! json_encode($monthlyLabels) !!},
+        monthlyData: {!! json_encode($monthlyData) !!},
+        yearlyLabels: {!! json_encode($yearlyLabels) !!},
+        yearlyData: {!! json_encode($yearlyData) !!},
+        kategoriLabels: {!! json_encode($kategoriKontribusi->pluck('namaCategory')) !!},
+        kategoriData: {!! json_encode($kategoriKontribusi->pluck('total_penjualan')) !!}
+    };
+</script>
 @endsection

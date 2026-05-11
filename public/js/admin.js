@@ -57,11 +57,11 @@ function initCharts() {
     dailyChart = new Chart(dailyCtx, {
         type: "line",
         data: {
-            labels: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
+            labels: window.chartData ? window.chartData.dailyLabels : ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
             datasets: [
                 {
                     label: "Penjualan",
-                    data: [
+                    data: window.chartData ? window.chartData.dailyData : [
                         1200000, 1900000, 1500000, 2300000, 2800000, 2200000,
                         3000000,
                     ],
@@ -100,11 +100,11 @@ function initCharts() {
     monthlyChart = new Chart(monthlyCtx, {
         type: "bar",
         data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
+            labels: window.chartData ? window.chartData.monthlyLabels : ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
             datasets: [
                 {
                     label: "Penjualan",
-                    data: [
+                    data: window.chartData ? window.chartData.monthlyData : [
                         45000000, 52000000, 48000000, 61000000, 58000000,
                         67000000,
                     ],
@@ -136,6 +136,83 @@ function initCharts() {
             },
         },
     });
+
+    const revenueCtx = document.getElementById("revenuePeriodChart");
+    if (revenueCtx && window.chartData) {
+        let revenuePeriodChartInstance = new Chart(revenueCtx.getContext("2d"), {
+            type: "line",
+            data: {
+                labels: window.chartData.dailyLabels,
+                datasets: [{
+                    label: "Pendapatan",
+                    data: window.chartData.dailyData,
+                    borderColor: "#3b82f6",
+                    backgroundColor: "rgba(59, 130, 246, 0.1)",
+                    tension: 0.4,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        document.querySelectorAll('.detail-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                const period = e.target.dataset.period;
+                let labels, data;
+                if (period === 'daily') {
+                    labels = window.chartData.dailyLabels;
+                    data = window.chartData.dailyData;
+                } else if (period === 'monthly') {
+                    labels = window.chartData.monthlyLabels;
+                    data = window.chartData.monthlyData;
+                } else if (period === 'yearly') {
+                    labels = window.chartData.yearlyLabels;
+                    data = window.chartData.yearlyData;
+                }
+                
+                revenuePeriodChartInstance.data.labels = labels;
+                revenuePeriodChartInstance.data.datasets[0].data = data;
+                revenuePeriodChartInstance.update();
+            });
+        });
+    }
+
+    const avgCtx = document.getElementById("averageTrendChart");
+    if (avgCtx && window.chartData) {
+        new Chart(avgCtx.getContext("2d"), {
+            type: "doughnut",
+            data: {
+                labels: window.chartData.kategoriLabels,
+                datasets: [{
+                    data: window.chartData.kategoriData,
+                    backgroundColor: [
+                        "#00d4aa", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    }
 }
 
 // Mobile Menu

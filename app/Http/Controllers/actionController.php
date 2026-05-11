@@ -120,7 +120,7 @@ class actionController extends Controller
             'gambar' => $request->file('gambar')->store('images', 'public')
         ]);
 
-        return redirect('/dashboard')->with('success', 'Produk berhasil ditambahkan.');
+        return redirect('/dashboard/produk')->with('success', 'Produk berhasil ditambahkan.');
     }
 
     public function updateProduk(Request $request, $id)
