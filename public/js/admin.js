@@ -6,7 +6,7 @@ const contentSections = document.querySelectorAll(".content-section");
 const pageTitle = document.getElementById("page-title");
 const addBtn = document.querySelector(".add-btn");
 const adminModal = document.getElementById("adminModal");
-const closeModalBtn = document.querySelector(".close-modal");
+const closeModal = document.querySelector(".close-modal");
 const adminForm = document.querySelector(".admin-form");
 
 // Charts
@@ -15,44 +15,11 @@ let dailyChart, monthlyChart;
 // Initialize Dashboard
 document.addEventListener("DOMContentLoaded", function () {
     initCharts();
-    // initNavigation();
     initMobileMenu();
     initModals();
     initSearch();
 });
 
-// Navigation
-// function initNavigation() {
-//     navItems.forEach((item) => {
-//         item.addEventListener("click", (e) => {
-//             const section = item.getAttribute("data-section");
-
-//             // Update active nav
-//             navItems.forEach((nav) => nav.classList.remove("active"));
-//             item.classList.add("active");
-
-//             // Show section
-//             contentSections.forEach((sectionEl) =>
-//                 sectionEl.classList.remove("active"),
-//             );
-//             document.getElementById(section).classList.add("active");
-
-//             // Update page title
-//             const titles = {
-//                 dashboard: "Dashboard",
-//                 transaksi: "Riwayat Transaksi",
-//                 penjualan: "Laporan Penjualan",
-//                 admin: "Kelola Admin",
-//                 obat: "Data Obat",
-//                 pembeli: "Data Pembeli",
-//                 pengaturan: "Pengaturan",
-//             };
-//             pageTitle.textContent = titles[section] || "Dashboard";
-//         });
-//     });
-// }
-
-// Charts
 function initCharts() {
     const dailyChartEl = document.getElementById("dailyChart");
     if (dailyChartEl) {
@@ -237,8 +204,8 @@ function initModals() {
         });
     }
 
-    if (closeModalBtn && adminModal) {
-        closeModalBtn.addEventListener("click", () => {
+    if (closeModal && adminModal) {
+        closeModal.addEventListener("click", () => {
             adminModal.style.display = "none";
         });
     }
