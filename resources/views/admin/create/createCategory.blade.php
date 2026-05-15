@@ -107,7 +107,8 @@
             <input type="text"
                 id="namaCategory"
                 name="namaCategory"
-                placeholder="Masukkan nama kategori">
+                placeholder="Masukkan nama kategori"
+                value="{{ old('namaCategory') }}">
         </div>
 
         <button type="submit">

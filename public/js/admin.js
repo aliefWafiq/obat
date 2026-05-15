@@ -18,7 +18,24 @@ document.addEventListener("DOMContentLoaded", function () {
     initMobileMenu();
     initModals();
     initSearch();
+    initActiveNav();
 });
+
+function initActiveNav() {
+    const currentPath = window.location.pathname;
+    navItems.forEach(item => {
+        try {
+            const itemPath = new URL(item.href).pathname;
+            if (currentPath === itemPath) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        } catch (e) {
+            // Silently ignore invalid URLs
+        }
+    });
+}
 
 function initCharts() {
     const dailyChartEl = document.getElementById("dailyChart");
@@ -210,15 +227,7 @@ function initModals() {
         });
     }
 
-    if (adminForm && adminModal) {
-        adminForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            // Handle form submission
-            alert("Admin baru berhasil ditambahkan!");
-            adminModal.style.display = "none";
-            adminForm.reset();
-        });
-    }
+
 
     if (adminModal) {
         window.addEventListener("click", (e) => {
@@ -235,16 +244,7 @@ document.querySelectorAll(".print-btn").forEach((btn) => {
     });
 });
 
-document.querySelectorAll(".action-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const icon = btn.querySelector("i").classList[1];
-        if (icon === "fa-trash") {
-            if (confirm("Yakin ingin menghapus data ini?")) {
 
-            }
-        }
-    });
-});
 
 window.addEventListener("resize", () => {
     if (dailyChart) dailyChart.resize();

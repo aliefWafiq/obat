@@ -71,7 +71,7 @@
 
                 <form action="/register/action" method="POST" onsubmit="handleSubmit(this)">
                     @csrf
-                    <input type="text" id="role" name="role" placeholder="Masukkan role" value="User" style="display: none;" required>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="username">Nama Lengkap</label>

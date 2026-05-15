@@ -365,10 +365,10 @@
             <p>© 2026 Obatkita. All rights reserved.</p>
             <div class="payment-methods">
                 <span>Pembayaran:</span>
-                <img src="payment-visa.svg" alt="Visa" />
-                <img src="payment-mastercard.svg" alt="Mastercard" />
-                <img src="payment-gopay.svg" alt="GoPay" />
-                <img src="payment-ovo.svg" alt="OVO" />
+                <i class="fab fa-cc-visa" style="font-size: 24px; color: #1A1F71;" title="Visa"></i>
+                <i class="fab fa-cc-mastercard" style="font-size: 24px; color: #EB001B;" title="Mastercard"></i>
+                <i class="fas fa-wallet" style="font-size: 24px; color: #00AED6;" title="GoPay/E-Wallet"></i>
+                <i class="fas fa-money-bill-wave" style="font-size: 24px; color: #4CAF50;" title="OVO/Cash"></i>
             </div>
         </div>
     </div>

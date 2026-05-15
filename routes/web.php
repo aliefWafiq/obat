@@ -16,30 +16,30 @@ Route::get('/keranjang', [mainController::class, 'keranjang'])->name('keranjang'
 Route::get('/pemesanan', [mainController::class, 'pemesanan'])->name('pemesanan')->middleware('auth');
 
 //Admin
-Route::get('/dashboard', [mainController::class, 'dashboard'])->name('dashboard')->middleware('auth');
-Route::get('/dashboard/produk', [mainController::class, 'listProduk'])->name('listProduk')->middleware('auth');
-Route::get('/dashboard/produk/edit/{id}', [mainController::class, 'viewEditProduk'])->name('viewEditProduk')->middleware('auth');
+Route::get('/dashboard', [mainController::class, 'dashboard'])->name('dashboard')->middleware(['auth', 'admin']);
+Route::get('/dashboard/produk', [mainController::class, 'listProduk'])->name('listProduk')->middleware(['auth', 'admin']);
+Route::get('/dashboard/produk/edit/{id}', [mainController::class, 'viewEditProduk'])->name('viewEditProduk')->middleware(['auth', 'admin']);
 
 // List User
-Route::get('/dashboard/user', [mainController::class, 'listUser'])->name('listUser')->middleware('auth');
-Route::get('/dashboard/user/edit/{id}', [mainController::class, 'viewEditUser'])->name('viewEditUser')->middleware('auth');
+Route::get('/dashboard/user', [mainController::class, 'listUser'])->name('listUser')->middleware(['auth', 'admin']);
+Route::get('/dashboard/user/edit/{id}', [mainController::class, 'viewEditUser'])->name('viewEditUser')->middleware(['auth', 'admin']);
 
 // list Category
-Route::get('/dashboard/category', [mainController::class, 'listCategory'])->name('listCategory')->middleware('auth');
-Route::get('/dashboard/category/create', [mainController::class, 'viewCreateCategory'])->name('viewCreateCategory')->middleware('auth');
-Route::get('/dashboard/category/edit/{id}', [mainController::class, 'viewEditCategory'])->name('viewEditCategory')->middleware('auth');
+Route::get('/dashboard/category', [mainController::class, 'listCategory'])->name('listCategory')->middleware(['auth', 'admin']);
+Route::get('/dashboard/category/create', [mainController::class, 'viewCreateCategory'])->name('viewCreateCategory')->middleware(['auth', 'admin']);
+Route::get('/dashboard/category/edit/{id}', [mainController::class, 'viewEditCategory'])->name('viewEditCategory')->middleware(['auth', 'admin']);
 
 // List Transaksi
-Route::get('/dashboard/transaksi', [mainController::class, 'listTransaksi'])->name('listTransaksi')->middleware('auth');
-Route::get('/dashboard/penjualan', [mainController::class, 'listPenjualan'])->name('listPenjualan')->middleware('auth');
+Route::get('/dashboard/transaksi', [mainController::class, 'listTransaksi'])->name('listTransaksi')->middleware(['auth', 'admin']);
+Route::get('/dashboard/penjualan', [mainController::class, 'listPenjualan'])->name('listPenjualan')->middleware(['auth', 'admin']);
 Route::get('/pemesanan/bayar-ulang/{id}', [actionController::class, 'bayarUlang'])->name('bayarUlang');
 Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPemesanan']);
 Route::get('/pemesanan/cetak/{id}', [actionController::class, 'cetakStruk'])->name('cetakStruk')->middleware('auth');
 
 // List Program
-Route::get('/dashboard/listProgram', [mainController::class, 'listProgram'])->name('listProgram')->middleware('auth');
-Route::get('/dashboard/buatProgram', [mainController::class, 'viewBuatProgram'])->name('viewBuatProgram')->middleware('auth');
-Route::get('/dashboard/buatProgram/edit/{id}', [mainController::class, 'viewEditProgram'])->name('viewEditProgram')->middleware('auth');
+Route::get('/dashboard/listProgram', [mainController::class, 'listProgram'])->name('listProgram')->middleware(['auth', 'admin']);
+Route::get('/dashboard/buatProgram', [mainController::class, 'viewBuatProgram'])->name('viewBuatProgram')->middleware(['auth', 'admin']);
+Route::get('/dashboard/buatProgram/edit/{id}', [mainController::class, 'viewEditProgram'])->name('viewEditProgram')->middleware(['auth', 'admin']);
 
 Route::get('/logOut', [actionController::class, 'signOut'])->name('logOut')->middleware('auth');
 
