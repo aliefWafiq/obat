@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('tagProgram');
             $table->string('judul');
             $table->text('deskripsi');
+            
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        
     }
 };

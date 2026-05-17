@@ -8,7 +8,7 @@
 <section class="hero" id="home">
     <div class="hero-slider">
         @foreach($BuatProgram as $e)
-        <div class="slide active" data-slide="0">
+        <div class="slide {{ $loop->first ? 'active' : '' }}" data-slide="{{ $loop->index }}">
             <div class="slide-bg" style="background-image: url('{{ asset('storage/' . $e->gambar) }}')"></div>
             <div class="hero-content">
                 <span class="hero-tag">{{ $e->tagProgram }}</span>
@@ -21,9 +21,9 @@
     </div>
 
     <div class="slider-controls">
-        <button class="slider-dot active" data-index="0"></button>
-        <button class="slider-dot" data-index="1"></button>
-        <button class="slider-dot" data-index="2"></button>
+        @foreach($BuatProgram as $e)
+        <button class="slider-dot {{ $loop->first ? 'active' : '' }}" data-index="{{ $loop->index }}"></button>
+        @endforeach
     </div>
 
     <div class="scroll-indicator">

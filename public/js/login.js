@@ -13,6 +13,10 @@ function handleSubmit(form) {
     }, 5000);
 }
 
+
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {

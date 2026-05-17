@@ -109,10 +109,10 @@
                     <div class="card-header">
                         <h3>Tambah Admin Baru</h3>
                     </div>
-                    <form class="admin-form" action="/register/action" method="POST">
+                    <form class="admin-form" action="{{ route('registerKlinik') }}" method="POST">
                         @csrf
                         <div class="form-group">
-                            <label>Nama Lengkap</label>
+                            <label>Nama Klinik</label>
                             @error('username')
                             <span class="error">{{ $message }}</span>
                             @enderror
@@ -143,6 +143,7 @@
                             <label>Role</label>
                             <select name="role">
                                 <option value="Admin">Admin</option>
+                                <option value="SuperAdmin">Super Admin</option>
                             </select>
                         </div>
                         <button type="submit" class="export-btn" style="width:100%;">Buat Admin</button>

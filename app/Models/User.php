@@ -23,7 +23,8 @@ class User extends Authenticatable
         'phoneNumber',
         'password',
         'alamat',
-        'role'
+        'role',
+        'idKlinik'
     ];
 
     /**
@@ -45,5 +46,10 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
         ];
+    }
+
+    public function klinik()
+    {
+        return $this->belongsTo(KodeKlinik::class, 'idKlinik');
     }
 }

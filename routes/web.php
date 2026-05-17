@@ -44,6 +44,7 @@ Route::get('/dashboard/buatProgram/edit/{id}', [mainController::class, 'viewEdit
 Route::get('/logOut', [actionController::class, 'signOut'])->name('logOut')->middleware('auth');
 
 Route::post('/register/action', [actionController::class, 'register']);
+Route::post('/registerKlinik/action', [actionController::class, 'registerKlinik'])->name('registerKlinik');
 Route::post('/login/action', [actionController::class,  'login']);
 Route::post('/masukKeranjang', [actionController::class, 'masukKeranjang'])->name('masukKeranjang')->middleware('auth');
 Route::post('/pemesanan/create', [actionController::class, 'createPemesanan'])->name('createPemesanan')->middleware('auth');
