@@ -10,7 +10,7 @@
 
 <body>
     <nav class="navbar" id="navbar">
-        <a href="{{ route('login') }}" class="logo">
+        <a href="{{ route('landingPage') }}" class="logo">
             <img src="{{ asset('img/obatkitalogo.png') }}" alt="">
         </a>
 
