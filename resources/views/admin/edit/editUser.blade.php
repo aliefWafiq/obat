@@ -69,8 +69,8 @@
                         <i class="fas fa-user-tag"></i> Role <span style="color: #ff4757;">*</span>
                     </label>
                     <select id="role" name="role" required>
-                        <option value="user" {{ old('role', $users->role) === 'user' ? 'selected' : '' }}>User</option>
-                        <option value="admin" {{ old('role', $users->role) === 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="User" {{ old('role', $users->role) === 'User' ? 'selected' : '' }}>User</option>
+                        <option value="Admin" {{ old('role', $users->role) === 'Admin' ? 'selected' : '' }}>Admin</option>
                     </select>
                 </div>
 

@@ -39,8 +39,7 @@ class actionController extends Controller
             'username' => 'required',
             'alamat' => 'required',
             'phoneNumber' => 'required|unique:users,phoneNumber',
-            'password' => 'required',
-            'role' => 'required'
+            'password' => 'required'
         ], [
             'username.required' => 'Username wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
@@ -50,7 +49,13 @@ class actionController extends Controller
         ]);
 
         $password = Hash::make($request->input('password'));
-        $role = $request->input('role');
+        
+        // Cek jika yang mendaftarkan adalah Admin, maka boleh ambil role dari request.
+        // Jika pendaftaran publik, paksa role menjadi 'User'.
+        $role = 'User';
+        if (auth()->check() && auth()->user()->role == 'Admin') {
+            $role = $request->input('role', 'User');
+        }
 
         User::create([
             'username' => $request->input('username'),
@@ -192,11 +197,17 @@ class actionController extends Controller
 
         $user = User::find($id);
         if ($user) {
+            // Mencegah admin mendemosi diri sendiri
+            $role = $request->input('role');
+            if ($user->id === Auth::id() && $role !== 'Admin' && $user->role === 'Admin') {
+                return redirect()->back()->with('error', 'Anda tidak dapat mengubah role Anda sendiri dari Admin ke User untuk menghindari kehilangan akses.');
+            }
+
             $user->update([
                 'username' => $request->input('username'),
                 'alamat' => $request->input('alamat'),
                 'phoneNumber' => $request->input('phoneNumber'),
-                'role' => $request->input('role')
+                'role' => $role
             ]);
             return redirect('/dashboard/user')->with('success', 'User berhasil diperbarui.');
         } else {
@@ -247,12 +258,12 @@ class actionController extends Controller
 
     public function removeItemKeranjang($id)
     {
-        $keranjangItem = Keranjang::find($id);
+        $keranjangItem = Keranjang::where('id', $id)->where('idUser', Auth::id())->first();
         if ($keranjangItem) {
             $keranjangItem->delete();
             return redirect('/keranjang')->with('success', 'Item berhasil dihapus dari keranjang.');
         } else {
-            return redirect('/keranjang')->with('error', 'Item tidak ditemukan di keranjang.');
+            return redirect('/keranjang')->with('error', 'Item tidak ditemukan atau Anda tidak memiliki akses.');
         }
     }
 
@@ -425,7 +436,7 @@ class actionController extends Controller
 
     public function bayarUlang($id)
     {
-        $pesanan = Pemesanan::findOrFail($id);
+        $pesanan = Pemesanan::where('id', $id)->where('idUser', Auth::id())->firstOrFail();
 
         if ($pesanan->status !== 'Pending') {
             return redirect()->back()->with('error', 'Pesanan ini tidak dapat dibayar lagi.');
@@ -452,6 +463,10 @@ class actionController extends Controller
 
         if ($pesanan->status !== 'Lunas') {
             return redirect()->back()->with('error', 'Struk hanya dapat dicetak untuk pesanan yang sudah lunas.');
+        }
+
+        if ($pesanan->idUser !== Auth::id() && Auth::user()->role !== 'Admin') {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mencetak struk ini.');
         }
 
         $pdf = Pdf::loadView('struk_pembayaran', compact('pesanan'));

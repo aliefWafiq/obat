@@ -6,7 +6,7 @@ const contentSections = document.querySelectorAll(".content-section");
 const pageTitle = document.getElementById("page-title");
 const addBtn = document.querySelector(".add-btn");
 const adminModal = document.getElementById("adminModal");
-const closeModalBtn = document.querySelector(".close-modal");
+const closeModal = document.querySelector(".close-modal");
 const adminForm = document.querySelector(".admin-form");
 
 // Charts
@@ -15,44 +15,28 @@ let dailyChart, monthlyChart;
 // Initialize Dashboard
 document.addEventListener("DOMContentLoaded", function () {
     initCharts();
-    // initNavigation();
     initMobileMenu();
     initModals();
     initSearch();
+    initActiveNav();
 });
 
-// Navigation
-// function initNavigation() {
-//     navItems.forEach((item) => {
-//         item.addEventListener("click", (e) => {
-//             const section = item.getAttribute("data-section");
+function initActiveNav() {
+    const currentPath = window.location.pathname;
+    navItems.forEach(item => {
+        try {
+            const itemPath = new URL(item.href).pathname;
+            if (currentPath === itemPath) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        } catch (e) {
+            // Silently ignore invalid URLs
+        }
+    });
+}
 
-//             // Update active nav
-//             navItems.forEach((nav) => nav.classList.remove("active"));
-//             item.classList.add("active");
-
-//             // Show section
-//             contentSections.forEach((sectionEl) =>
-//                 sectionEl.classList.remove("active"),
-//             );
-//             document.getElementById(section).classList.add("active");
-
-//             // Update page title
-//             const titles = {
-//                 dashboard: "Dashboard",
-//                 transaksi: "Riwayat Transaksi",
-//                 penjualan: "Laporan Penjualan",
-//                 admin: "Kelola Admin",
-//                 obat: "Data Obat",
-//                 pembeli: "Data Pembeli",
-//                 pengaturan: "Pengaturan",
-//             };
-//             pageTitle.textContent = titles[section] || "Dashboard";
-//         });
-//     });
-// }
-
-// Charts
 function initCharts() {
     const dailyChartEl = document.getElementById("dailyChart");
     if (dailyChartEl) {
@@ -237,21 +221,13 @@ function initModals() {
         });
     }
 
-    if (closeModalBtn && adminModal) {
-        closeModalBtn.addEventListener("click", () => {
+    if (closeModal && adminModal) {
+        closeModal.addEventListener("click", () => {
             adminModal.style.display = "none";
         });
     }
 
-    if (adminForm && adminModal) {
-        adminForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            // Handle form submission
-            alert("Admin baru berhasil ditambahkan!");
-            adminModal.style.display = "none";
-            adminForm.reset();
-        });
-    }
+
 
     if (adminModal) {
         window.addEventListener("click", (e) => {
@@ -268,16 +244,7 @@ document.querySelectorAll(".print-btn").forEach((btn) => {
     });
 });
 
-document.querySelectorAll(".action-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const icon = btn.querySelector("i").classList[1];
-        if (icon === "fa-trash") {
-            if (confirm("Yakin ingin menghapus data ini?")) {
 
-            }
-        }
-    });
-});
 
 window.addEventListener("resize", () => {
     if (dailyChart) dailyChart.resize();

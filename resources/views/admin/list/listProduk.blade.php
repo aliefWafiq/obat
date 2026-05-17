@@ -116,7 +116,7 @@
                     @error('namaProduk')
                     <span class="error">{{ $message }}</span>
                     @enderror
-                    <input type="text" id="namaProduk" name="namaProduk">
+                    <input type="text" id="namaProduk" name="namaProduk" value="{{ old('namaProduk') }}">
                 </div>
 
                 <div>
@@ -124,7 +124,7 @@
                     @error('deskripsi')
                     <span class="error">{{ $message }}</span>
                     @enderror
-                    <textarea id="deskripsi" name="deskripsi"></textarea>
+                    <textarea id="deskripsi" name="deskripsi">{{ old('deskripsi') }}</textarea>
                 </div>
 
                 <div>
@@ -136,7 +136,7 @@
                         <option value="">Pilih Kategori</option>
 
                         @foreach($categories as $category)
-                        <option value="{{ $category->id }}">
+                        <option value="{{ $category->id }}" {{ old('idCategory') == $category->id ? 'selected' : '' }}>
                             {{ $category->namaCategory }}
                         </option>
                         @endforeach
@@ -148,7 +148,7 @@
                     @error('harga')
                     <span class="error">{{ $message }}</span>
                     @enderror
-                    <input type="number" id="harga" name="harga">
+                    <input type="number" id="harga" name="harga" value="{{ old('harga') }}">
                 </div>
 
                 <div>
@@ -156,7 +156,7 @@
                     @error('stok')
                     <span class="error">{{ $message }}</span>
                     @enderror
-                    <input type="number" id="stok" name="stok">
+                    <input type="number" id="stok" name="stok" value="{{ old('stok') }}">
                 </div>
 
                 <button type="submit">
