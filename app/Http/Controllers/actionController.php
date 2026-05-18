@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 use App\Models\User;
 use App\Models\Produk;
@@ -18,6 +20,7 @@ use App\Models\CategoryProduk;
 use App\Models\Pemesanan;
 use App\Models\DetailPemesanan;
 use App\Models\BuatProgram;
+use App\Models\KodeKlinik;
 
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -49,26 +52,71 @@ class actionController extends Controller
         ]);
 
         $password = Hash::make($request->input('password'));
-        
-        // Cek jika yang mendaftarkan adalah Admin, maka boleh ambil role dari request.
-        // Jika pendaftaran publik, paksa role menjadi 'User'.
-        $role = 'User';
-        if (auth()->check() && auth()->user()->role == 'Admin') {
-            $role = $request->input('role', 'User');
+
+        $selectedKlinik = KodeKlinik::withCount('users')
+            ->orderBy('users_count', 'asc')
+            ->first();
+
+        if (!$selectedKlinik) {
+            return redirect('/register')->with('error', 'Kode klinik tidak terdaftar.');
         }
 
         User::create([
             'username' => $request->input('username'),
             'alamat' => $request->input('alamat'),
             'phoneNumber' => $request->input('phoneNumber'),
-            'role' => $role,
-            'password' => $password
+            'role' => 'User',
+            'password' => $password,
+            'idKlinik' => $selectedKlinik->id
         ]);
 
-        if ($role == 'Admin') {
-            return redirect('/dashboard/user')->with('success', 'Akun admin berhasil dibuat. Silakan masuk.');
-        } else {
-            return redirect('/login')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
+        return redirect('/login')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
+    }
+
+    public function registerKlinik(Request $request)
+    {
+        $request->validate([
+            'username' => 'required',
+            'alamat' => 'required',
+            'phoneNumber' => 'required|unique:users,phoneNumber',
+            'password' => 'required'
+        ], [
+            'username.required' => 'Username wajib diisi.',
+            'alamat.required' => 'Alamat wajib diisi.',
+            'phoneNumber.required' => 'Nomor telepon wajib diisi.',
+            'phoneNumber.unique' => 'Nomor telepon sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.'
+        ]);
+
+        $password = Hash::make($request->input('password'));
+
+        do {
+            $kodeKlinik = 'KNK-' . strtoupper(Str::random(5));
+        } while (KodeKlinik::where('kodeKlinik', $kodeKlinik)->exists());
+
+        DB::beginTransaction();
+
+        try {
+            $klinik = KodeKlinik::create([
+                'kodeKlinik' => $kodeKlinik,
+                'namaKlinik' => $request->input('username')
+            ]);
+
+            $user = User::create([
+                'username' => $request->input('username'),
+                'alamat' => $request->input('alamat'),
+                'phoneNumber' => $request->input('phoneNumber'),
+                'role' => $request->input('role'),
+                'password' => $password,
+                'idKlinik' => $klinik->id
+            ]);
+
+            DB::commit();
+
+            return redirect('/dashboard/user')->with('success', 'Akun admin berhasil dibuat dengan Kode Klinik: ' . $kodeKlinik);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal membuat akun klinik: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -81,7 +129,7 @@ class actionController extends Controller
         $check = User::where('phoneNumber', $data['phoneNumber'])->first();
 
         if (Auth::attempt($data)) {
-            if ($check->role == 'Admin') {
+            if ($check->role == 'SuperAdmin' || $check->role == 'Admin') {
                 return redirect('/dashboard');
             } else {
                 return redirect('/home');
@@ -101,6 +149,7 @@ class actionController extends Controller
     {
         $request->validate([
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'kodeProduk' => 'required|unique:produk,kodeProduk',
             'namaProduk' => 'required',
             'deskripsi' => 'required',
             'idCategory' => 'required',
@@ -108,6 +157,8 @@ class actionController extends Controller
             'stok' => 'required|numeric',
         ], [
             'gambar.required' => 'Gambar produk wajib diisi',
+            'kodeProduk.required' => 'Kode produk wajib diisi.',
+            'kodeProduk.unique' => 'Kode produk sudah terdaftar.',
             'namaProduk.required' => 'Nama produk wajib diisi.',
             'deskripsi.required' => 'Deskripsi produk wajib diisi.',
             'idCategory.required' => 'Kategori produk wajib diisi.',
@@ -118,6 +169,7 @@ class actionController extends Controller
         $request->file('gambar')->store('images', 'public');
 
         Produk::create([
+            'kodeProduk' => $request->input('kodeProduk'),
             'namaProduk' => $request->input('namaProduk'),
             'deskripsi' => $request->input('deskripsi'),
             'idCategory' => $request->input('idCategory'),
@@ -333,7 +385,7 @@ class actionController extends Controller
         }
 
         $kodePemesanan = 'PM' . time() . rand(1000, 9999);
-        $estimasiPembayaran = now()->addDays(3)->format('Y-m-d');
+        $estimasiPembayaran = now()->addDays(21)->format('Y-m-d');
         $estimasiPengiriman = now()->addDays(5)->format('Y-m-d');
 
         $pemesanan = Pemesanan::create([
@@ -474,6 +526,7 @@ class actionController extends Controller
 
         return $pdf->stream('struk-' . $pesanan->kodePemesanan . '.pdf');
     }
+
 
     public function buatProgram(Request $request)
     {

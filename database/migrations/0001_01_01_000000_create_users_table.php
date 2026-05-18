@@ -16,9 +16,14 @@ return new class extends Migration
             $table->string('username');
             $table->string('phoneNumber')->unique();
             $table->string('password');
-            $table->enum('role', ['User', 'Admin'])->default('User');
+            $table->unsignedBigInteger('idKlinik')->nullable();
+            $table->enum('role', ['User', 'Admin', 'SuperAdmin'])->default('User');
             $table->text('alamat');
             $table->timestamps();
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreign('idKlinik')->references('id')->on('kodeKlinik')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

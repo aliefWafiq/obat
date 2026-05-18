@@ -1,27 +1,6 @@
-<!-- <h1>SIGN UP</h1>
-<form action="/register/action" method="POST">
-    @csrf
-    @error('username')
-    <div class="error">{{ $message }}</div>
-    @enderror
-    <input type="text" name="username" placeholder="Name">
-    @error('alamat')
-    <div class="error">{{ $message }}</div>
-    @enderror
-    <textarea type="text" name="alamat" placeholder="Alamat"></textarea>
-    @error('phoneNumber')
-    <div class="error">{{ $message }}</div>
-    @enderror
-    <input type="number" name="phoneNumber" placeholder="Nomor Hp">
-    @error('password')
-    <div class="error">{{ $message }}</div>
-    @enderror
-    <input type="password" name="password" placeholder="Password">
-    <button type="submit">Sign Up</button>
-</form> -->
-
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('style/register.css') }}">
 </head>
+
 <body>
     <!-- Main Auth Container -->
     <div class="auth-wrapper">
@@ -37,7 +17,8 @@
             <!-- Left Side -->
             <div class="auth-left">
                 <h2>Bergabunglah dengan Kami!</h2>
-                <p>Daftarkan akun baru dan nikmati pengalaman berbelanja yang lebih baik dengan berbagai keuntungan eksklusif.</p>
+                <p>Daftarkan akun baru dan nikmati pengalaman berbelanja yang lebih baik dengan berbagai keuntungan
+                    eksklusif.</p>
 
                 <div class="auth-left-features">
                     <div class="feature-item">
@@ -69,13 +50,21 @@
                 <h3>Buat Akun Baru</h3>
                 <p class="auth-right-subtitle">Isi data diri Anda dengan lengkap dan benar</p>
 
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                @endif
+
                 <form action="/register/action" method="POST" onsubmit="handleSubmit(this)">
                     @csrf
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="username">Nama Lengkap</label>
-                            <input type="text" id="username" name="username" placeholder="Masukkan nama Anda" value="{{ old('username') }}" required>
+                            <input type="text" id="username" name="username" placeholder="Masukkan nama Anda"
+                                value="{{ old('username') }}" required>
                             @error('username')
                                 <span class="error">{{ $message }}</span>
                             @enderror
@@ -83,7 +72,8 @@
 
                         <div class="form-group">
                             <label for="phoneNumber">Nomor HP</label>
-                            <input type="number" id="phoneNumber" name="phoneNumber" placeholder="08xxxxxxxxxx" value="{{ old('phoneNumber') }}" required>
+                            <input type="number" id="phoneNumber" name="phoneNumber" placeholder="08xxxxxxxxxx"
+                                value="{{ old('phoneNumber') }}" required>
                             @error('phoneNumber')
                                 <span class="error">{{ $message }}</span>
                             @enderror
@@ -92,7 +82,8 @@
 
                     <div class="form-group">
                         <label for="alamat">Alamat Lengkap</label>
-                        <textarea id="alamat" name="alamat" placeholder="Jln. Contoh No. 123, Kota, Provinsi, Kode Pos" required>{{ old('alamat') }}</textarea>
+                        <textarea id="alamat" name="alamat" placeholder="Jln. Contoh No. 123, Kota, Provinsi, Kode Pos"
+                            required>{{ old('alamat') }}</textarea>
                         @error('alamat')
                             <span class="error">{{ $message }}</span>
                         @enderror
@@ -131,4 +122,5 @@
 
     <script src="{{ asset('js/register.js') }}"></script>
 </body>
+
 </html>
