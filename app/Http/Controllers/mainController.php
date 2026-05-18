@@ -13,6 +13,7 @@ use App\Models\Category;
 use App\Models\Pemesanan;
 use App\Models\BuatProgram;
 use App\Models\DetailPemesanan;
+use App\Models\KuantitasDiskon;
 
 class mainController extends Controller
 {
@@ -62,10 +63,30 @@ class mainController extends Controller
     public function keranjang()
     {
         $idUser = Auth::id();
-        $items = Keranjang::with('produk')->where('idUser', $idUser)->get();
-        $total = $items->sum(function ($item) {
-            return $item->produk->harga * $item->jumlah;
-        });
+        $items = Keranjang::with(['produk.kuantitasDiskon'])->where('idUser', $idUser)->get();
+
+        $total = 0;
+        foreach ($items as $item) {
+            $item->subtotal_original = $item->produk->harga * $item->jumlah;
+            $item->diskon_nominal = 0;
+            $item->has_diskon = false;
+            $item->diskon_rule = $item->produk->kuantitasDiskon;
+
+            if ($item->diskon_rule) {
+                if ($item->jumlah >= $item->diskon_rule->minimalBeli) {
+                    $item->diskon_nominal = $item->diskon_rule->diskon;
+                    $item->has_diskon = true;
+                    $item->subtotal_discounted = max(0, $item->subtotal_original - $item->diskon_nominal);
+                } else {
+                    $item->subtotal_discounted = $item->subtotal_original;
+                }
+            } else {
+                $item->subtotal_discounted = $item->subtotal_original;
+            }
+
+            $total += $item->subtotal_discounted;
+        }
+
         return view('user.keranjang', compact('items', 'total'));
     }
 

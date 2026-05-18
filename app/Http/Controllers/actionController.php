@@ -21,6 +21,7 @@ use App\Models\Pemesanan;
 use App\Models\DetailPemesanan;
 use App\Models\BuatProgram;
 use App\Models\KodeKlinik;
+use App\Models\KuantitasDiskon;
 
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -70,7 +71,7 @@ class actionController extends Controller
             'idKlinik' => $selectedKlinik->id
         ]);
 
-        return redirect('/login')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
+        return redirect('/')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
     }
 
     public function registerKlinik(Request $request)
@@ -135,14 +136,14 @@ class actionController extends Controller
                 return redirect('/home');
             }
         } else {
-            return redirect('/login')->with('error', 'Nomor telepon atau password salah.');
+            return redirect('/')->with('error', 'Nomor telepon atau password salah.');
         }
     }
 
     public function signOut()
     {
         Auth::logout();
-        return redirect('/login')->with('success', 'Anda berhasil keluar.');
+        return redirect('/')->with('success', 'Anda berhasil keluar.');
     }
 
     public function createProduk(Request $request)
@@ -370,15 +371,21 @@ class actionController extends Controller
     {
         $idUser = Auth::id();
 
-        $itemKeranjang = Keranjang::with('produk')->where('idUser', $idUser)->get();
+        $itemKeranjang = Keranjang::with(['produk.kuantitasDiskon'])->where('idUser', $idUser)->get();
 
         if ($itemKeranjang->isEmpty()) {
             return redirect('/keranjang')->with('error', 'Keranjang kosong. Tambahkan produk sebelum melakukan pemesanan.');
         }
 
-        $total = $itemKeranjang->sum(function ($item) {
-            return $item->produk->harga * $item->jumlah;
-        });
+        $total = 0;
+        foreach ($itemKeranjang as $item) {
+            $subtotal = $item->produk->harga * $item->jumlah;
+            $diskonRule = $item->produk->kuantitasDiskon;
+            if ($diskonRule && $item->jumlah >= $diskonRule->minimalBeli) {
+                $subtotal = max(0, $subtotal - $diskonRule->diskon);
+            }
+            $total += $subtotal;
+        }
 
         if ($itemKeranjang->first()->produk->stok < $itemKeranjang->first()->jumlah) {
             return redirect('/keranjang')->with('error', 'Stok produk tidak mencukupi untuk jumlah yang Anda pesan.');
@@ -398,11 +405,18 @@ class actionController extends Controller
         ]);
 
         foreach ($itemKeranjang as $item) {
+            $subtotal = $item->produk->harga * $item->jumlah;
+            $diskonRule = $item->produk->kuantitasDiskon;
+            if ($diskonRule && $item->jumlah >= $diskonRule->minimalBeli) {
+                $subtotal = max(0, $subtotal - $diskonRule->diskon);
+            }
+            $hargaSatuan = $subtotal / $item->jumlah;
+
             DetailPemesanan::create([
                 'idPemesanan' => $pemesanan->id,
                 'idProduk' => $item->idProduk,
                 'jumlahBeli' => $item->jumlah,
-                'harga' => $item->produk->harga
+                'harga' => $hargaSatuan
             ]);
             $produk = Produk::find($item->idProduk);
             $produk->update([

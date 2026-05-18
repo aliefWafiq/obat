@@ -30,15 +30,17 @@
             <a href="{{ route('listUser') }}" class="nav-item" data-section="admin">
                 <i class="fas fa-users-cog"></i> Data Akun
             </a>
-            <a href="{{ route('listProduk') }}" class="nav-item" data-section="obat">
-                <i class="fas fa-capsules"></i> Data Obat
-            </a>
-            <a href="{{ route('listCategory') }}" class="nav-item" data-section="kategori">
-                <i class="fas fa-tags"></i> Data Kategori
-            </a>
-            <a href="{{ route('listProgram') }}" class="nav-item" data-section="BuatProgram">
-                <i class="fas fa-cog"></i> Buat Program
-            </a>
+            @if(auth()->user()->role === 'SuperAdmin')
+                <a href="{{ route('listProduk') }}" class="nav-item" data-section="obat">
+                    <i class="fas fa-capsules"></i> Data Obat
+                </a>
+                <a href="{{ route('listCategory') }}" class="nav-item" data-section="kategori">
+                    <i class="fas fa-tags"></i> Data Kategori
+                </a>
+                <a href="{{ route('listProgram') }}" class="nav-item" data-section="BuatProgram">
+                    <i class="fas fa-cog"></i> Buat Program
+                </a>
+            @endif
         </nav>
         <div class="sidebar-footer">
             <div class="user-info">

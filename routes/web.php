@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\mainController;
 use App\Http\Controllers\actionController;
 
-Route::get('/', [mainController::class, 'index'])->name('landingPage');
+Route::get('/', [mainController::class, 'viewLogin'])->name('login');
 Route::get('/register', [mainController::class, 'viewRegister'])->name('register');
-Route::get('/login', [mainController::class, 'viewLogin'])->name('login');
+Route::redirect('/login', '/');
 
 // User
 Route::get('/home', [mainController::class, 'home'])->name('home')->middleware('auth');
