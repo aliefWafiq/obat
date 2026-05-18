@@ -71,16 +71,19 @@ class mainController extends Controller
             $item->subtotal_original = $item->produk->harga * $item->jumlah;
             $item->diskon_nominal = 0;
             $item->has_diskon = false;
-            $item->diskon_rule = $item->produk->kuantitasDiskon;
+
+            // Find best matching tiered rule & next progressive rule
+            $allRules = $item->produk->kuantitasDiskon;
+            $bestRule = $allRules ? $allRules->where('minimalBeli', '<=', $item->jumlah)->sortByDesc('minimalBeli')->first() : null;
+            $nextRule = $allRules ? $allRules->where('minimalBeli', '>', $item->jumlah)->sortBy('minimalBeli')->first() : null;
+
+            $item->diskon_rule = $bestRule;
+            $item->next_diskon_rule = $nextRule;
 
             if ($item->diskon_rule) {
-                if ($item->jumlah >= $item->diskon_rule->minimalBeli) {
-                    $item->diskon_nominal = $item->diskon_rule->diskon;
-                    $item->has_diskon = true;
-                    $item->subtotal_discounted = max(0, $item->subtotal_original - $item->diskon_nominal);
-                } else {
-                    $item->subtotal_discounted = $item->subtotal_original;
-                }
+                $item->diskon_nominal = ($item->diskon_rule->diskon / 100 * $item->subtotal_original);
+                $item->has_diskon = true;
+                $item->subtotal_discounted = max(0, $item->subtotal_original - $item->diskon_nominal);
             } else {
                 $item->subtotal_discounted = $item->subtotal_original;
             }
@@ -311,5 +314,24 @@ class mainController extends Controller
     {
         $buatProgram = BuatProgram::findOrFail($id);
         return view('admin.edit.editProgram', compact('buatProgram'));
+    }
+
+    public function listDiskon()
+    {
+        $buatDiskon = KuantitasDiskon::all();
+        return view('admin.list.listDiskon', compact('buatDiskon'));
+    }
+
+    public function viewBuatDiskon()
+    {
+        $produk = Produk::all();
+        return view('admin.create.buatDiskon', compact('produk'));
+    }
+
+    public function viewEditDiskon($id)
+    {
+        $produk = Produk::all();
+        $buatDiskon = KuantitasDiskon::findOrFail($id);
+        return view('admin.edit.editDiskon', compact('produk', 'buatDiskon'));
     }
 }

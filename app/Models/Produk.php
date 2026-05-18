@@ -25,6 +25,6 @@ class Produk extends Model
 
     public function kuantitasDiskon()
     {
-        return $this->hasOne(KuantitasDiskon::class, 'idProduk', 'id');
+        return $this->hasMany(KuantitasDiskon::class, 'idProduk', 'id');
     }
 }

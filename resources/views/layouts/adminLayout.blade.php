@@ -40,6 +40,9 @@
                 <a href="{{ route('listProgram') }}" class="nav-item" data-section="BuatProgram">
                     <i class="fas fa-cog"></i> Buat Program
                 </a>
+                <a href="{{ route('listDiskon') }}" class="nav-item" data-section="BuatDiskon">
+                    <i class="fas fa-cog"></i> List Diskon
+                </a>
             @endif
         </nav>
         <div class="sidebar-footer">

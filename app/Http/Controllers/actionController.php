@@ -380,9 +380,10 @@ class actionController extends Controller
         $total = 0;
         foreach ($itemKeranjang as $item) {
             $subtotal = $item->produk->harga * $item->jumlah;
-            $diskonRule = $item->produk->kuantitasDiskon;
-            if ($diskonRule && $item->jumlah >= $diskonRule->minimalBeli) {
-                $subtotal = max(0, $subtotal - $diskonRule->diskon);
+            $allRules = $item->produk->kuantitasDiskon;
+            $bestRule = $allRules ? $allRules->where('minimalBeli', '<=', $item->jumlah)->sortByDesc('minimalBeli')->first() : null;
+            if ($bestRule) {
+                $subtotal = max(0, $subtotal - ($bestRule->diskon / 100 * $subtotal));
             }
             $total += $subtotal;
         }
@@ -406,9 +407,10 @@ class actionController extends Controller
 
         foreach ($itemKeranjang as $item) {
             $subtotal = $item->produk->harga * $item->jumlah;
-            $diskonRule = $item->produk->kuantitasDiskon;
-            if ($diskonRule && $item->jumlah >= $diskonRule->minimalBeli) {
-                $subtotal = max(0, $subtotal - $diskonRule->diskon);
+            $allRules = $item->produk->kuantitasDiskon;
+            $bestRule = $allRules ? $allRules->where('minimalBeli', '<=', $item->jumlah)->sortByDesc('minimalBeli')->first() : null;
+            if ($bestRule) {
+                $subtotal = max(0, $subtotal - ($bestRule->diskon / 100 * $subtotal));
             }
             $hargaSatuan = $subtotal / $item->jumlah;
 
@@ -616,5 +618,56 @@ class actionController extends Controller
         $program->delete();
 
         return redirect('/dashboard/listProgram')->with('success', 'Program berhasil dihapus.');
+    }
+
+    public function buatDiskon(Request $request)
+    {
+        $request->validate([
+            'produk_id' => 'required',
+            'minimalBeli' => 'required',
+            'diskon' => 'required'
+        ], [
+            'produk_id.required' => 'Produk wajib dipilih.',
+            'minimalBeli.required' => 'Minimal beli wajib diisi',
+            'diskon.required' => 'Diskon wajib diisi'
+        ]);
+
+        KuantitasDiskon::create([
+            'idProduk' => $request->produk_id,
+            'minimalBeli' => $request->minimalBeli,
+            'diskon' => $request->diskon
+        ]);
+
+        return redirect('/dashboard/listDiskon')->with('success', 'Diskon berhasil dibuat.');
+    }
+
+    public function updateDiskon(Request $request, $id)
+    {
+        $request->validate([
+            'produk_id' => 'required',
+            'minimalBeli' => 'required',
+            'diskon' => 'required'
+        ], [
+            'produk_id.required' => 'Produk wajib dipilih.',
+            'minimalBeli.required' => 'Minimal beli wajib diisi',
+            'diskon.required' => 'Diskon wajib diisi'
+        ]);
+
+        $diskon = KuantitasDiskon::findOrFail($id);
+        $diskon->update([
+            'idProduk' => $request->produk_id,
+            'minimalBeli' => $request->minimalBeli,
+            'diskon' => $request->diskon
+        ]);
+
+        return redirect('/dashboard/listDiskon')->with('success', 'Diskon berhasil diperbarui.');
+    }
+
+    public function deleteDiskon($id)
+    {
+        $diskon = KuantitasDiskon::findOrFail($id);
+        $diskon->delete();
+
+        return redirect('/dashboard/listDiskon')->with('success', 'Diskon berhasil dihapus.');
     }
 }

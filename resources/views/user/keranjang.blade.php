@@ -676,12 +676,14 @@
                             @if($item->has_diskon)
                                 <div style="margin-top: 0.45rem;">
                                     <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.75rem; border-radius: 999px; background: var(--accent-light); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.78rem; font-weight: 700; width: fit-content; box-shadow: var(--shadow-sm);">
-                                        Diskon Kuantitas: -Rp {{ number_format($item->diskon_nominal, 0, ',', '.') }}
+                                        Diskon Kuantitas ({{ number_format($item->diskon_rule->diskon, 0) }}%): -Rp {{ number_format($item->diskon_nominal, 0, ',', '.') }}
                                     </span>
                                 </div>
-                            @elseif($item->diskon_rule)
+                            @endif
+
+                            @if($item->next_diskon_rule)
                                 <div style="margin-top: 0.45rem; background: var(--primary-light); border: 1px dashed rgba(37, 99, 235, 0.3); border-radius: 12px; padding: 0.5rem 0.75rem; font-size: 0.78rem; color: var(--primary-hover); width: fit-content; max-width: 100%; line-height: 1.5; box-sizing: border-box; font-weight: 600;">
-                                   Beli <strong>{{ $item->diskon_rule->minimalBeli - $item->jumlah }}</strong> lagi untuk mendapat potongan <strong>Rp {{ number_format($item->diskon_rule->diskon, 0, ',', '.') }}</strong>!
+                                    💡 Beli <strong>{{ $item->next_diskon_rule->minimalBeli - $item->jumlah }}</strong> lagi untuk mendapat potongan <strong>{{ number_format($item->next_diskon_rule->diskon, 0) }}%</strong>!
                                 </div>
                             @endif
                         </div>
