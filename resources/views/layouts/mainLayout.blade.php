@@ -11,11 +11,7 @@
 
 <body>
     <nav class="navbar" id="navbar">
-<<<<<<< HEAD
-        <a href="{{ route('landingPage') }}" class="logo">
-=======
         <a href="{{ Auth::check() ? route('home') : route('landingPage') }}" class="logo">
->>>>>>> 956df9a113aaff858c0d81420fff08acf5791639
             <img src="{{ asset('img/obatkitalogo.png') }}" alt="">
         </a>
 

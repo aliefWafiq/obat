@@ -6,13 +6,17 @@
 
 @section('content')
 <div class="main-content">
-    <div class="page-header">
-        <h1>Daftar Produk</h1>
-
-        <a href="{{ route('dashboard') }}" class="back-btn">
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 id="page-title">Daftar Produk</h1>
+        </div>
+        <a href="{{ route('dashboard') }}" class="back-btn" style="margin-left: auto;">
             ← Back Dashboard
         </a>
-    </div>
+    </header>
 
     <div class="main-container">
 
@@ -39,60 +43,62 @@
                 </div>
             </div>
             @else
-            <table>
-                <thead>
-                    <tr>
-                        <th>Gambar</th>
-                        <th>Nama Produk</th>
-                        <th>Kategori</th>
-                        <th>Harga</th>
-                        <th>Stok</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Gambar</th>
+                            <th>Nama Produk</th>
+                            <th>Kategori</th>
+                            <th>Harga</th>
+                            <th>Stok</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
 
-                <tbody>
-                    @foreach ($produk as $item)
-                    <tr>
-                        <td>
-                            @if($item->gambar)
-                            <img src="{{ asset('storage/' . $item->gambar) }}" alt="{{ $item->namaProduk }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
-                            @else
-                            <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999;">
-                                <i class="fas fa-image"></i>
-                            </div>
-                            @endif
-                        </td>
-                        <td>
-                            <strong>{{ $item->namaProduk }}</strong>
-                            <br>
-                            <small style="color: #999;">{{ Str::limit($item->deskripsi, 10) }}</small>
-                        </td>
-                        <td>{{ $item->category->namaCategory ?? 'N/A' }}</td>
-                        <td>
-                            <strong>Rp {{ number_format($item->harga, 0, ',', '.') }}</strong>
-                        </td>
-                        <td>
-                            <span class="status {{ $item->stok > 0 ? 'active' : 'completed' }}">
-                                {{ $item->stok }} unit
-                            </span>
-                        </td>
-                        <td>
-                            <a href="{{ route('viewEditProduk', $item->id) }}" class="action-btn" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form action="{{ route('deleteProduk', $item->id) }}" method="POST" style="display: inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="action-btn" title="Hapus">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    <tbody>
+                        @foreach ($produk as $item)
+                        <tr>
+                            <td>
+                                @if($item->gambar)
+                                <img src="{{ asset('storage/' . $item->gambar) }}" alt="{{ $item->namaProduk }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                                @else
+                                <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999;">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                @endif
+                            </td>
+                            <td>
+                                <strong>{{ $item->namaProduk }}</strong>
+                                <br>
+                                <small style="color: #999;">{{ Str::limit($item->deskripsi, 10) }}</small>
+                            </td>
+                            <td>{{ $item->category->namaCategory ?? 'N/A' }}</td>
+                            <td>
+                                <strong>Rp {{ number_format($item->harga, 0, ',', '.') }}</strong>
+                            </td>
+                            <td>
+                                <span class="status {{ $item->stok > 0 ? 'active' : 'completed' }}">
+                                    {{ $item->stok }} unit
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ route('viewEditProduk', $item->id) }}" class="action-btn" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ route('deleteProduk', $item->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="action-btn" title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
             @endif
         </div>
 

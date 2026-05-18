@@ -50,7 +50,8 @@ class mainController extends Controller
     {
         $produk = Produk::all();
         $categories = Category::all();
-        return view('user.home', compact('produk', 'categories'));
+        $BuatProgram = BuatProgram::all();
+        return view('user.home', compact('produk', 'categories', 'BuatProgram'));
     }
 
     public function pemesanan()
