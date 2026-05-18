@@ -108,6 +108,7 @@ function renderProducts() {
 
 const filterTabs = document.getElementById("filter-tabs");
 if (filterTabs) {
+    const catalogTitle = document.getElementById("catalog-title");
     filterTabs.addEventListener("click", (e) => {
         const btn = e.target.closest(".tab");
         if (!btn) return;
@@ -116,6 +117,16 @@ if (filterTabs) {
             .querySelectorAll(".tab")
             .forEach((t) => t.classList.remove("active"));
         btn.classList.add("active");
+
+        // Perbarui judul secara dinamis mengikuti nama kategori tab aktif
+        if (catalogTitle) {
+            const catName = btn.textContent.trim();
+            if (catName.toLowerCase() === "semua") {
+                catalogTitle.innerHTML = `Semua <em>Produk</em>`;
+            } else {
+                catalogTitle.innerHTML = `Produk <em>${catName}</em>`;
+            }
+        }
 
         currentPage = 1;
         renderProducts();
@@ -139,3 +150,202 @@ if (searchInput) {
 }
 
 renderProducts();
+
+const mobileToggle = document.getElementById("mobileToggle");
+const navLinks = document.querySelector(".nav-links");
+
+if (mobileToggle && navLinks) {
+    mobileToggle.addEventListener("click", () => {
+        mobileToggle.classList.toggle("active");
+        navLinks.classList.toggle("active");
+    });
+}
+
+// Program Slider Logic
+document.addEventListener("DOMContentLoaded", () => {
+    const slides = document.querySelectorAll(".program-slide");
+    const dots = document.querySelectorAll(".slider-container .dot");
+    const prevBtn = document.querySelector(".prev-btn");
+    const nextBtn = document.querySelector(".next-btn");
+    let currentSlideIndex = 0;
+    let slideInterval;
+
+    function showSlide(index) {
+        if (slides.length === 0) return;
+
+        // Handle index bounds
+        if (index >= slides.length) {
+            currentSlideIndex = 0;
+        } else if (index < 0) {
+            currentSlideIndex = slides.length - 1;
+        } else {
+            currentSlideIndex = index;
+        }
+
+        // Toggle active class on slides
+        slides.forEach((slide, i) => {
+            if (i === currentSlideIndex) {
+                slide.classList.add("active");
+            } else {
+                slide.classList.remove("active");
+            }
+        });
+
+        // Toggle active class on dots
+        dots.forEach((dot, i) => {
+            if (i === currentSlideIndex) {
+                dot.classList.add("active");
+            } else {
+                dot.classList.remove("active");
+            }
+        });
+    }
+
+    function nextSlide() {
+        showSlide(currentSlideIndex + 1);
+    }
+
+    function prevSlide() {
+        showSlide(currentSlideIndex - 1);
+    }
+
+    function startSlideShow() {
+        stopSlideShow();
+        slideInterval = setInterval(nextSlide, 5000); // Auto-play every 5s
+    }
+
+    function stopSlideShow() {
+        if (slideInterval) {
+            clearInterval(slideInterval);
+        }
+    }
+
+    // Event Listeners
+    if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+            prevSlide();
+            startSlideShow();
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+            nextSlide();
+            startSlideShow();
+        });
+    }
+
+    if (dots) {
+        dots.forEach((dot) => {
+            dot.addEventListener("click", (e) => {
+                const index = parseInt(e.target.dataset.index);
+                showSlide(index);
+                startSlideShow();
+            });
+        });
+    }
+
+    // Start slideshow if container exists
+    if (slides.length > 0) {
+        startSlideShow();
+
+        // Pause on hover
+        const sliderContainer = document.querySelector(".slider-container");
+        if (sliderContainer) {
+            sliderContainer.addEventListener("mouseenter", stopSlideShow);
+            sliderContainer.addEventListener("mouseleave", startSlideShow);
+        }
+    }
+
+    // ── SHOPEE STYLE DRAWER CONTROLLER ──
+    const drawerOverlay = document.getElementById("cart-drawer-overlay");
+    const drawer = document.getElementById("cart-drawer");
+    const closeBtn = document.querySelector(".drawer-close-btn");
+
+    const drawerProductId = document.getElementById("drawer-product-id");
+    const drawerProductImg = document.getElementById("drawer-product-img");
+    const drawerProductName = document.getElementById("drawer-product-name");
+    const drawerProductDesc = document.getElementById("drawer-product-desc");
+    const drawerProductPrice = document.getElementById("drawer-product-price");
+    const drawerProductStock = document.getElementById("drawer-product-stock");
+    const drawerQtyInput = document.getElementById("drawer-qty-input");
+
+    const openButtons = document.querySelectorAll(".open-drawer-btn");
+    let currentMaxStock = 999;
+
+    // Open Drawer
+    openButtons.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const id = btn.dataset.id;
+            const name = btn.dataset.name;
+            const desc = btn.dataset.desc;
+            const harga = btn.dataset.harga;
+            const stok = parseInt(btn.dataset.stok) || 0;
+            const gambar = btn.dataset.gambar;
+
+            currentMaxStock = stok;
+
+            // Populate Drawer Fields
+            drawerProductId.value = id;
+            drawerProductImg.src = gambar;
+            drawerProductImg.alt = name;
+            drawerProductName.textContent = name;
+            drawerProductDesc.textContent = desc;
+            drawerProductPrice.textContent = harga;
+            drawerProductStock.textContent = `Stok: ${stok}`;
+
+            // Reset quantity to 1
+            drawerQtyInput.value = 1;
+
+            // Show Drawer
+            drawerOverlay.classList.add("active");
+        });
+    });
+
+    // Close Drawer Function
+    function closeCartDrawer() {
+        drawerOverlay.classList.remove("active");
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", closeCartDrawer);
+    }
+
+    if (drawerOverlay) {
+        drawerOverlay.addEventListener("click", (e) => {
+            // Close if clicked on overlay (outside the drawer)
+            if (e.target === drawerOverlay) {
+                closeCartDrawer();
+            }
+        });
+    }
+
+    // Quantity Plus/Minus inside Drawer
+    const drawerMinusBtn = document.querySelector(".cart-drawer .qty-btn.minus");
+    const drawerPlusBtn = document.querySelector(".cart-drawer .qty-btn.plus");
+
+    if (drawerMinusBtn && drawerPlusBtn && drawerQtyInput) {
+        drawerMinusBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            let val = parseInt(drawerQtyInput.value) || 1;
+            if (val > 1) {
+                drawerQtyInput.value = val - 1;
+            }
+        });
+
+        drawerPlusBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            let val = parseInt(drawerQtyInput.value) || 1;
+            if (val < currentMaxStock) {
+                drawerQtyInput.value = val + 1;
+            } else {
+                alert(`Maaf, jumlah pembelian melebihi stok yang tersedia (${currentMaxStock} pcs).`);
+            }
+        });
+    }
+});

@@ -115,7 +115,7 @@ function filterProducts(category) {
                 selectedCards.add(productsByCategory[cat][0]);
             }
         }
-        berurutan
+
         if (selectedCards.size < 4) {
             for (let card of allProducts) {
                 if (selectedCards.size < 4 && !selectedCards.has(card)) {
