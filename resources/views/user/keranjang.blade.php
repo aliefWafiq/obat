@@ -672,12 +672,33 @@
                         <div class="item-info">
                             <h3 class="item-title">{{ $item->produk->namaProduk }}</h3>
                             <p class="item-desc">{{ \Illuminate\Support\Str::limit($item->produk->deskripsi, 120, '...') }}</p>
+                            
+                            @if($item->has_diskon)
+                                <div style="margin-top: 0.45rem;">
+                                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.75rem; border-radius: 999px; background: var(--accent-light); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.78rem; font-weight: 700; width: fit-content; box-shadow: var(--shadow-sm);">
+                                        Diskon Kuantitas ({{ number_format($item->diskon_rule->diskon, 0) }}%): -Rp {{ number_format($item->diskon_nominal, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                            @endif
+
+                            @if($item->next_diskon_rule)
+                                <div style="margin-top: 0.45rem; background: var(--primary-light); border: 1px dashed rgba(37, 99, 235, 0.3); border-radius: 12px; padding: 0.5rem 0.75rem; font-size: 0.78rem; color: var(--primary-hover); width: fit-content; max-width: 100%; line-height: 1.5; box-sizing: border-box; font-weight: 600;">
+                                    💡 Beli <strong>{{ $item->next_diskon_rule->minimalBeli - $item->jumlah }}</strong> lagi untuk mendapat potongan <strong>{{ number_format($item->next_diskon_rule->diskon, 0) }}%</strong>!
+                                </div>
+                            @endif
                         </div>
                         
                         <div class="item-actions-row">
                             <div class="item-price-info">
                                 <span class="item-unit-price">Harga satuan: Rp {{ number_format($item->produk->harga, 0, ',', '.') }}</span>
-                                <span class="item-subtotal">Subtotal: Rp {{ number_format($item->produk->harga * $item->jumlah, 0, ',', '.') }}</span>
+                                @if($item->has_diskon)
+                                    <span class="item-subtotal">Subtotal: 
+                                        <del style="color: var(--text-muted); font-size: 0.9em; font-weight: normal; margin-right: 0.35rem;">Rp {{ number_format($item->subtotal_original, 0, ',', '.') }}</del>
+                                        <span style="color: var(--accent);">Rp {{ number_format($item->subtotal_discounted, 0, ',', '.') }}</span>
+                                    </span>
+                                @else
+                                    <span class="item-subtotal">Subtotal: Rp {{ number_format($item->subtotal_original, 0, ',', '.') }}</span>
+                                @endif
                             </div>
                             
                             <div class="item-controls">
@@ -699,7 +720,7 @@
                 </article>
                 @endforeach
             </section>
-
+ 
             <!-- Right Side: Sticky Checkout Card -->
             <aside class="cart-summary">
                 <h2 class="summary-header">
@@ -712,9 +733,15 @@
                         <strong style="color: var(--text-main);">{{ $items->sum('jumlah') }} unit</strong>
                     </div>
                     <div class="summary-row">
-                        <span>Total Harga Barang</span>
-                        <span>Rp {{ number_format($total, 0, ',', '.') }}</span>
+                        <span>Subtotal</span>
+                        <span>Rp {{ number_format($items->sum('subtotal_original'), 0, ',', '.') }}</span>
                     </div>
+                    @if($items->sum('diskon_nominal') > 0)
+                    <div class="summary-row" style="color: var(--accent); font-weight: 700;">
+                        <span>Total Diskon Kuantitas</span>
+                        <span>-Rp {{ number_format($items->sum('diskon_nominal'), 0, ',', '.') }}</span>
+                    </div>
+                    @endif
                     <div class="summary-row">
                         <span>Estimasi Ongkos Kirim</span>
                         <span class="free-shipping-tag">Gratis Ongkir</span>

@@ -21,6 +21,7 @@ use App\Models\Pemesanan;
 use App\Models\DetailPemesanan;
 use App\Models\BuatProgram;
 use App\Models\KodeKlinik;
+use App\Models\KuantitasDiskon;
 
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -70,7 +71,7 @@ class actionController extends Controller
             'idKlinik' => $selectedKlinik->id
         ]);
 
-        return redirect('/login')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
+        return redirect('/')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
     }
 
     public function registerKlinik(Request $request)
@@ -135,14 +136,14 @@ class actionController extends Controller
                 return redirect('/home');
             }
         } else {
-            return redirect('/login')->with('error', 'Nomor telepon atau password salah.');
+            return redirect('/')->with('error', 'Nomor telepon atau password salah.');
         }
     }
 
     public function signOut()
     {
         Auth::logout();
-        return redirect('/login')->with('success', 'Anda berhasil keluar.');
+        return redirect('/')->with('success', 'Anda berhasil keluar.');
     }
 
     public function createProduk(Request $request)
@@ -370,15 +371,22 @@ class actionController extends Controller
     {
         $idUser = Auth::id();
 
-        $itemKeranjang = Keranjang::with('produk')->where('idUser', $idUser)->get();
+        $itemKeranjang = Keranjang::with(['produk.kuantitasDiskon'])->where('idUser', $idUser)->get();
 
         if ($itemKeranjang->isEmpty()) {
             return redirect('/keranjang')->with('error', 'Keranjang kosong. Tambahkan produk sebelum melakukan pemesanan.');
         }
 
-        $total = $itemKeranjang->sum(function ($item) {
-            return $item->produk->harga * $item->jumlah;
-        });
+        $total = 0;
+        foreach ($itemKeranjang as $item) {
+            $subtotal = $item->produk->harga * $item->jumlah;
+            $allRules = $item->produk->kuantitasDiskon;
+            $bestRule = $allRules ? $allRules->where('minimalBeli', '<=', $item->jumlah)->sortByDesc('minimalBeli')->first() : null;
+            if ($bestRule) {
+                $subtotal = max(0, $subtotal - ($bestRule->diskon / 100 * $subtotal));
+            }
+            $total += $subtotal;
+        }
 
         if ($itemKeranjang->first()->produk->stok < $itemKeranjang->first()->jumlah) {
             return redirect('/keranjang')->with('error', 'Stok produk tidak mencukupi untuk jumlah yang Anda pesan.');
@@ -398,11 +406,19 @@ class actionController extends Controller
         ]);
 
         foreach ($itemKeranjang as $item) {
+            $subtotal = $item->produk->harga * $item->jumlah;
+            $allRules = $item->produk->kuantitasDiskon;
+            $bestRule = $allRules ? $allRules->where('minimalBeli', '<=', $item->jumlah)->sortByDesc('minimalBeli')->first() : null;
+            if ($bestRule) {
+                $subtotal = max(0, $subtotal - ($bestRule->diskon / 100 * $subtotal));
+            }
+            $hargaSatuan = $subtotal / $item->jumlah;
+
             DetailPemesanan::create([
                 'idPemesanan' => $pemesanan->id,
                 'idProduk' => $item->idProduk,
                 'jumlahBeli' => $item->jumlah,
-                'harga' => $item->produk->harga
+                'harga' => $hargaSatuan
             ]);
             $produk = Produk::find($item->idProduk);
             $produk->update([
@@ -602,5 +618,56 @@ class actionController extends Controller
         $program->delete();
 
         return redirect('/dashboard/listProgram')->with('success', 'Program berhasil dihapus.');
+    }
+
+    public function buatDiskon(Request $request)
+    {
+        $request->validate([
+            'produk_id' => 'required',
+            'minimalBeli' => 'required',
+            'diskon' => 'required'
+        ], [
+            'produk_id.required' => 'Produk wajib dipilih.',
+            'minimalBeli.required' => 'Minimal beli wajib diisi',
+            'diskon.required' => 'Diskon wajib diisi'
+        ]);
+
+        KuantitasDiskon::create([
+            'idProduk' => $request->produk_id,
+            'minimalBeli' => $request->minimalBeli,
+            'diskon' => $request->diskon
+        ]);
+
+        return redirect('/dashboard/listDiskon')->with('success', 'Diskon berhasil dibuat.');
+    }
+
+    public function updateDiskon(Request $request, $id)
+    {
+        $request->validate([
+            'produk_id' => 'required',
+            'minimalBeli' => 'required',
+            'diskon' => 'required'
+        ], [
+            'produk_id.required' => 'Produk wajib dipilih.',
+            'minimalBeli.required' => 'Minimal beli wajib diisi',
+            'diskon.required' => 'Diskon wajib diisi'
+        ]);
+
+        $diskon = KuantitasDiskon::findOrFail($id);
+        $diskon->update([
+            'idProduk' => $request->produk_id,
+            'minimalBeli' => $request->minimalBeli,
+            'diskon' => $request->diskon
+        ]);
+
+        return redirect('/dashboard/listDiskon')->with('success', 'Diskon berhasil diperbarui.');
+    }
+
+    public function deleteDiskon($id)
+    {
+        $diskon = KuantitasDiskon::findOrFail($id);
+        $diskon->delete();
+
+        return redirect('/dashboard/listDiskon')->with('success', 'Diskon berhasil dihapus.');
     }
 }

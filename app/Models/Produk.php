@@ -22,4 +22,9 @@ class Produk extends Model
     {
         return $this->belongsTo(Category::class, 'idCategory');
     }
+
+    public function kuantitasDiskon()
+    {
+        return $this->hasMany(KuantitasDiskon::class, 'idProduk', 'id');
+    }
 }

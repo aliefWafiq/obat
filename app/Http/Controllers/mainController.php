@@ -13,6 +13,7 @@ use App\Models\Category;
 use App\Models\Pemesanan;
 use App\Models\BuatProgram;
 use App\Models\DetailPemesanan;
+use App\Models\KuantitasDiskon;
 
 class mainController extends Controller
 {
@@ -63,10 +64,33 @@ class mainController extends Controller
     public function keranjang()
     {
         $idUser = Auth::id();
-        $items = Keranjang::with('produk')->where('idUser', $idUser)->get();
-        $total = $items->sum(function ($item) {
-            return $item->produk->harga * $item->jumlah;
-        });
+        $items = Keranjang::with(['produk.kuantitasDiskon'])->where('idUser', $idUser)->get();
+
+        $total = 0;
+        foreach ($items as $item) {
+            $item->subtotal_original = $item->produk->harga * $item->jumlah;
+            $item->diskon_nominal = 0;
+            $item->has_diskon = false;
+
+            // Find best matching tiered rule & next progressive rule
+            $allRules = $item->produk->kuantitasDiskon;
+            $bestRule = $allRules ? $allRules->where('minimalBeli', '<=', $item->jumlah)->sortByDesc('minimalBeli')->first() : null;
+            $nextRule = $allRules ? $allRules->where('minimalBeli', '>', $item->jumlah)->sortBy('minimalBeli')->first() : null;
+
+            $item->diskon_rule = $bestRule;
+            $item->next_diskon_rule = $nextRule;
+
+            if ($item->diskon_rule) {
+                $item->diskon_nominal = ($item->diskon_rule->diskon / 100 * $item->subtotal_original);
+                $item->has_diskon = true;
+                $item->subtotal_discounted = max(0, $item->subtotal_original - $item->diskon_nominal);
+            } else {
+                $item->subtotal_discounted = $item->subtotal_original;
+            }
+
+            $total += $item->subtotal_discounted;
+        }
+
         return view('user.keranjang', compact('items', 'total'));
     }
 
@@ -290,5 +314,24 @@ class mainController extends Controller
     {
         $buatProgram = BuatProgram::findOrFail($id);
         return view('admin.edit.editProgram', compact('buatProgram'));
+    }
+
+    public function listDiskon()
+    {
+        $buatDiskon = KuantitasDiskon::all();
+        return view('admin.list.listDiskon', compact('buatDiskon'));
+    }
+
+    public function viewBuatDiskon()
+    {
+        $produk = Produk::all();
+        return view('admin.create.buatDiskon', compact('produk'));
+    }
+
+    public function viewEditDiskon($id)
+    {
+        $produk = Produk::all();
+        $buatDiskon = KuantitasDiskon::findOrFail($id);
+        return view('admin.edit.editDiskon', compact('produk', 'buatDiskon'));
     }
 }
