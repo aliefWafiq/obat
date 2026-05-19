@@ -66,6 +66,9 @@ class mainController extends Controller
     {
         $idUser = Auth::id();
         $items = Keranjang::with(['produk.kuantitasDiskon'])->where('idUser', $idUser)->get();
+        $pemesananPending = Pemesanan::where('status', 'Pending')->where(function ($query) {
+            $query->whereDate('estimasipembayaran', '<=', Carbon::today());
+        })->get();
         
         $total = 0;
         foreach ($items as $item) {
@@ -88,12 +91,11 @@ class mainController extends Controller
                 $total += $subtotalOriginal;
             }
             
-            // hint for next discount tier
             $nextRule = $allRules ? $allRules->where('minimalBeli', '>', $item->jumlah)->sortBy('minimalBeli')->first() : null;
             $item->next_diskon_rule = $nextRule;
         }
         
-        return view('user.keranjang', compact('items', 'total'));
+        return view('user.keranjang', compact('items', 'total', 'pemesananPending'));
     }
 
     public function dashboard()

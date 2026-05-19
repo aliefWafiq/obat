@@ -11,10 +11,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb; /* Royal Blue */
+            --primary: #2563eb;
+            /* Royal Blue */
             --primary-light: #eff6ff;
             --primary-hover: #1d4ed8;
-            --accent: #10b981; /* Emerald Green */
+            --accent: #10b981;
+            /* Emerald Green */
             --accent-light: #ecfdf5;
             --bg-body: #f8fafc;
             --text-main: #0f172a;
@@ -141,8 +143,15 @@
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .alert-success {
@@ -353,7 +362,8 @@
 
         .btn-delete-text i {
             font-size: 0.95rem;
-            pointer-events: none; /* Make click pass through to the button */
+            pointer-events: none;
+            /* Make click pass through to the button */
         }
 
         /* Right Column: Checkout Summary Sidebar */
@@ -364,7 +374,8 @@
             box-shadow: var(--shadow-sm);
             padding: 1.5rem;
             position: sticky;
-            top: 90px; /* offset for nav */
+            top: 90px;
+            /* offset for nav */
         }
 
         .summary-header {
@@ -530,9 +541,17 @@
         }
 
         @keyframes float {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-            100% { transform: translateY(0); }
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
         }
 
         .empty-cart-section h2 {
@@ -633,6 +652,13 @@
         </div>
         @endif
 
+        @if($pemesananPending->isNotEmpty())
+        <div class="alert-box alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>Ada Pemesanan yang belum lunas</div>
+        </div>
+        @endif
+
         @if($items->isEmpty())
         <!-- Gorgeous Empty Cart Screen -->
         <section class="empty-cart-section">
@@ -666,46 +692,46 @@
                     <div class="cart-item-image-box">
                         <img src="{{ asset('storage/' . $item->produk->gambar) }}" alt="{{ $item->produk->namaProduk }}">
                     </div>
-                    
+
                     <div class="cart-item-content">
                         <div class="item-info">
                             <h3 class="item-title">{{ $item->produk->namaProduk }}</h3>
                             <p class="item-desc">{{ \Illuminate\Support\Str::limit($item->produk->deskripsi, 120, '...') }}</p>
-                            
+
                             @if($item->has_diskon)
-                                <div style="margin-top: 0.45rem;">
-                                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.75rem; border-radius: 999px; background: var(--accent-light); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.78rem; font-weight: 700; width: fit-content; box-shadow: var(--shadow-sm);">
-                                        Diskon Kuantitas ({{ number_format($item->diskon_rule->diskon, 0) }}%): -Rp {{ number_format($item->diskon_nominal, 0, ',', '.') }}
-                                    </span>
-                                </div>
+                            <div style="margin-top: 0.45rem;">
+                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.75rem; border-radius: 999px; background: var(--accent-light); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.78rem; font-weight: 700; width: fit-content; box-shadow: var(--shadow-sm);">
+                                    Diskon Kuantitas ({{ number_format($item->diskon_rule->diskon, 0) }}%): -Rp {{ number_format($item->diskon_nominal, 0, ',', '.') }}
+                                </span>
+                            </div>
                             @endif
 
                             @if($item->next_diskon_rule)
-                                <div style="margin-top: 0.45rem; background: var(--primary-light); border: 1px dashed rgba(37, 99, 235, 0.3); border-radius: 12px; padding: 0.5rem 0.75rem; font-size: 0.78rem; color: var(--primary-hover); width: fit-content; max-width: 100%; line-height: 1.5; box-sizing: border-box; font-weight: 600;">
-                                    💡 Beli <strong>{{ $item->next_diskon_rule->minimalBeli - $item->jumlah }}</strong> lagi untuk mendapat potongan <strong>{{ number_format($item->next_diskon_rule->diskon, 0) }}%</strong>!
-                                </div>
+                            <div style="margin-top: 0.45rem; background: var(--primary-light); border: 1px dashed rgba(37, 99, 235, 0.3); border-radius: 12px; padding: 0.5rem 0.75rem; font-size: 0.78rem; color: var(--primary-hover); width: fit-content; max-width: 100%; line-height: 1.5; box-sizing: border-box; font-weight: 600;">
+                                💡 Beli <strong>{{ $item->next_diskon_rule->minimalBeli - $item->jumlah }}</strong> lagi untuk mendapat potongan <strong>{{ number_format($item->next_diskon_rule->diskon, 0) }}%</strong>!
+                            </div>
                             @endif
                         </div>
-                        
+
                         <div class="item-actions-row">
                             <div class="item-price-info">
                                 <span class="item-unit-price">Harga satuan: Rp {{ number_format($item->produk->harga, 0, ',', '.') }}</span>
                                 @if($item->has_diskon)
-                                    <span class="item-subtotal">Subtotal: 
-                                        <del style="color: var(--text-muted); font-size: 0.9em; font-weight: normal; margin-right: 0.35rem;">Rp {{ number_format($item->subtotal_original, 0, ',', '.') }}</del>
-                                        <span style="color: var(--accent);">Rp {{ number_format($item->subtotal_discounted, 0, ',', '.') }}</span>
-                                    </span>
+                                <span class="item-subtotal">Subtotal:
+                                    <del style="color: var(--text-muted); font-size: 0.9em; font-weight: normal; margin-right: 0.35rem;">Rp {{ number_format($item->subtotal_original, 0, ',', '.') }}</del>
+                                    <span style="color: var(--accent);">Rp {{ number_format($item->subtotal_discounted, 0, ',', '.') }}</span>
+                                </span>
                                 @else
-                                    <span class="item-subtotal">Subtotal: Rp {{ number_format($item->subtotal_original, 0, ',', '.') }}</span>
+                                <span class="item-subtotal">Subtotal: Rp {{ number_format($item->subtotal_original, 0, ',', '.') }}</span>
                                 @endif
                             </div>
-                            
+
                             <div class="item-controls">
                                 <div class="qty-display-badge">
                                     <i class="fas fa-boxes"></i>
                                     <span>Jumlah: {{ $item->jumlah }}</span>
                                 </div>
-                                
+
                                 <form action="{{ route('removeItemKeranjang', ['id' => $item->id]) }}" method="post" class="btn-delete-form">
                                     @csrf
                                     @method('DELETE')
@@ -719,13 +745,13 @@
                 </article>
                 @endforeach
             </section>
- 
+
             <!-- Right Side: Sticky Checkout Card -->
             <aside class="cart-summary">
                 <h2 class="summary-header">
                     <i class="fas fa-receipt"></i> Ringkasan Belanja
                 </h2>
-                
+
                 <div class="summary-details">
                     <div class="summary-row">
                         <span>Total Barang</span>
@@ -745,7 +771,7 @@
                         <span>Estimasi Ongkos Kirim</span>
                         <span class="free-shipping-tag">Gratis Ongkir</span>
                     </div>
-                    
+
                     <div class="summary-row total-row">
                         <span>Total Bayar</span>
                         <span class="total-amount">Rp {{ number_format($total, 0, ',', '.') }}</span>
@@ -765,7 +791,7 @@
                     </div>
                     <div id="promo-status-msg" style="margin-top: 0.65rem; font-size: 0.8rem; font-weight: 600; display: none; line-height: 1.4;"></div>
                 </div>
-                
+
                 <div class="checkout-button-container">
                     <form action="{{ route('createPemesanan') }}" method="post" id="checkout-form">
                         @csrf
@@ -775,7 +801,7 @@
                         </button>
                     </form>
                 </div>
-                
+
                 <div class="checkout-tip">
                     <i class="fas fa-info-circle"></i>
                     <span>Coba masukkan kode promo <strong style="color: var(--primary);">SEHAT20</strong> atau <strong style="color: var(--primary);">DISKON10</strong> untuk mendapatkan potongan harga secara instan!</span>
@@ -789,8 +815,12 @@
                         const summaryDetails = document.querySelector('.summary-details');
                         const totalAmountEl = document.querySelector('.total-amount');
                         const hiddenPromoInput = document.getElementById('hidden-promo-code');
-                        
-                        const originalTotal = {{ $total }};
+
+                        const originalTotal = {
+                            {
+                                $total
+                            }
+                        };
                         let isPromoApplied = false;
 
                         // Quick input focus styles
@@ -806,7 +836,7 @@
                             }
                             this.style.boxShadow = 'none';
                         });
-                        
+
                         applyPromoBtn.addEventListener('click', function() {
                             if (isPromoApplied) {
                                 // Cancel promo
@@ -816,23 +846,23 @@
                                 promoInput.style.borderColor = 'var(--border-color)';
                                 promoInput.style.background = '#f8fafc';
                                 hiddenPromoInput.value = "";
-                                
+
                                 applyPromoBtn.textContent = "Terapkan";
                                 applyPromoBtn.style.background = "var(--primary-light)";
                                 applyPromoBtn.style.color = "var(--primary)";
                                 applyPromoBtn.style.borderColor = "rgba(37, 99, 235, 0.08)";
-                                
+
                                 promoStatusMsg.style.display = "none";
-                                
+
                                 // Remove promo row from summary
                                 const promoRow = document.getElementById('promo-summary-row');
                                 if (promoRow) promoRow.remove();
-                                
+
                                 // Reset Total Bayar
                                 totalAmountEl.textContent = "Rp " + originalTotal.toLocaleString('id-ID');
                                 return;
                             }
-                            
+
                             const code = promoInput.value.trim().toUpperCase();
                             if (code === "") {
                                 promoStatusMsg.textContent = "Silakan masukkan kode promo terlebih dahulu.";
@@ -840,7 +870,7 @@
                                 promoStatusMsg.style.display = "block";
                                 return;
                             }
-                            
+
                             // Validate codes
                             let discountPercent = 0;
                             if (code === 'SEHAT20') {
@@ -855,27 +885,27 @@
                                 promoStatusMsg.style.display = "block";
                                 return;
                             }
-                            
+
                             // Apply promo calculations
                             isPromoApplied = true;
                             const promoDiscount = Math.round(originalTotal * discountPercent);
                             const newTotal = originalTotal - promoDiscount;
                             hiddenPromoInput.value = code;
-                            
+
                             // Visual feedback
                             promoInput.disabled = true;
                             promoInput.style.background = '#f1f5f9';
                             promoInput.style.borderColor = '#cbd5e1';
-                            
+
                             applyPromoBtn.textContent = "Batal";
                             applyPromoBtn.style.background = "var(--danger-light)";
                             applyPromoBtn.style.color = "var(--danger)";
                             applyPromoBtn.style.borderColor = "rgba(239, 68, 68, 0.1)";
-                            
+
                             promoStatusMsg.innerHTML = `<i class="fas fa-check-circle" style="color: var(--accent);"></i> Voucher <strong>${code}</strong> berhasil digunakan! Potongan ${discountPercent * 100}%.`;
                             promoStatusMsg.style.color = "var(--accent)";
                             promoStatusMsg.style.display = "block";
-                            
+
                             // Insert Promo Discount Row in Cart Summary
                             let promoRow = document.getElementById('promo-summary-row');
                             if (!promoRow) {
@@ -884,17 +914,17 @@
                                 promoRow.className = 'summary-row';
                                 promoRow.style.color = 'var(--accent)';
                                 promoRow.style.fontWeight = '700';
-                                
+
                                 // Insert directly before the total row
                                 const totalRow = document.querySelector('.summary-row.total-row');
                                 summaryDetails.insertBefore(promoRow, totalRow);
                             }
-                            
+
                             promoRow.innerHTML = `
                                 <span>Potongan Voucher (${code})</span>
                                 <span>-Rp ${promoDiscount.toLocaleString('id-ID')}</span>
                             `;
-                            
+
                             // Update Total Bayar with recalculations
                             totalAmountEl.textContent = "Rp " + newTotal.toLocaleString('id-ID');
                         });

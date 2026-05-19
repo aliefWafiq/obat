@@ -38,22 +38,22 @@
             <a href="{{ route('listUser') }}" class="nav-item" data-section="user" style="padding-left: 2.5rem; font-size: 0.9rem;">
                 <i class="fas fa-user-md"></i> Data User
             </a>
+            @if(auth()->user()->role === 'SuperAdmin')
             <a href="{{ route('listKlinik') }}" class="nav-item" data-section="klinik" style="padding-left: 2.5rem; font-size: 0.9rem;">
                 <i class="fas fa-clinic-medical"></i> Data Klinik
             </a>
-            @if(auth()->user()->role === 'SuperAdmin')
-                <a href="{{ route('listProduk') }}" class="nav-item" data-section="obat">
-                    <i class="fas fa-capsules"></i> Data Obat
-                </a>
-                <a href="{{ route('listCategory') }}" class="nav-item" data-section="kategori">
-                    <i class="fas fa-tags"></i> Data Kategori
-                </a>
-                <a href="{{ route('listProgram') }}" class="nav-item" data-section="BuatProgram">
-                    <i class="fas fa-cog"></i> Buat Program
-                </a>
-                <a href="{{ route('listDiskon') }}" class="nav-item" data-section="BuatDiskon">
-                    <i class="fas fa-cog"></i> List Diskon
-                </a>
+            <a href="{{ route('listProduk') }}" class="nav-item" data-section="obat">
+                <i class="fas fa-capsules"></i> Data Obat
+            </a>
+            <a href="{{ route('listCategory') }}" class="nav-item" data-section="kategori">
+                <i class="fas fa-tags"></i> Data Kategori
+            </a>
+            <a href="{{ route('listProgram') }}" class="nav-item" data-section="BuatProgram">
+                <i class="fas fa-cog"></i> Buat Program
+            </a>
+            <a href="{{ route('listDiskon') }}" class="nav-item" data-section="BuatDiskon">
+                <i class="fas fa-cog"></i> List Diskon
+            </a>
             @endif
         </nav>
         <div class="sidebar-footer">

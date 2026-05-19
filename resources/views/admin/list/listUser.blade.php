@@ -153,7 +153,7 @@
     .main-row:hover {
         background-color: #f8fafc;
     }
-    
+
     .main-row.expanded {
         background-color: #f8fafc;
         border-bottom: none;
@@ -181,7 +181,7 @@
         font-size: 0.8rem;
         transition: transform 0.2s ease;
     }
-    
+
     .main-row.expanded .expand-indicator {
         transform: rotate(90deg);
     }
@@ -229,93 +229,95 @@
                 </thead>
                 <tbody>
                     @php
-                        $doctors = $users->where('role', 'User');
+                    $doctors = $users->where('role', 'User');
                     @endphp
-                    
+
                     @if($doctors->isEmpty())
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 3rem; color: #64748b;">
-                                <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; color: #cbd5e1; display: block;"></i>
-                                Belum ada data dokter terdaftar.
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 3rem; color: #64748b;">
+                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; color: #cbd5e1; display: block;"></i>
+                            Belum ada data dokter terdaftar.
+                        </td>
+                    </tr>
                     @else
-                        @foreach ($doctors as $item)
-                        <tr class="main-row searchable-row" onclick="toggleSubRow('sub-{{ $item->id }}', this)">
-                            <td style="text-align: center;">
-                                <i class="fas fa-chevron-right expand-indicator"></i>
-                            </td>
-                            <td>
-                                <div class="user-info-cell">
-                                    <div class="user-icon">
-                                        <i class="fas fa-user-md"></i>
-                                    </div>
-                                    <div class="user-details">
-                                        <h4 class="searchable-name">{{ $item->username }}</h4>
-                                        <span>ID: #{{ str_pad($item->id, 4, '0', STR_PAD_LEFT) }}</span>
-                                    </div>
+                    @foreach ($doctors as $item)
+                    @if(auth()->user()->role === 'SuperAdmin' || auth()->user()->idKlinik === $item->idKlinik)
+                    <tr class="main-row searchable-row" onclick="toggleSubRow('sub-{{ $item->id }}', this)">
+                        <td style="text-align: center;">
+                            <i class="fas fa-chevron-right expand-indicator"></i>
+                        </td>
+                        <td>
+                            <div class="user-info-cell">
+                                <div class="user-icon">
+                                    <i class="fas fa-user-md"></i>
                                 </div>
-                            </td>
-                            <td>
-                                <div style="color: #334155;"><i class="fas fa-phone-alt" style="color: #94a3b8; width: 20px;"></i> {{ $item->phoneNumber }}</div>
-                            </td>
-                            <td>
-                                @if($item->klinik)
-                                    <span class="clinic-badge">{{ $item->klinik->namaKlinik ?? 'Klinik Terkait' }} ({{ $item->klinik->kodeKlinik }})</span>
-                                @else
-                                    <span class="clinic-badge unassigned-badge">Belum Ditugaskan</span>
-                                @endif
-                            </td>
-                            <td onclick="event.stopPropagation()">
-                                <div class="action-links">
-                                    <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
-                                    <span style="color: #cbd5e1;">|</span>
-                                    <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');" style="margin: 0;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="action-link delete">Hapus</button>
-                                    </form>
+                                <div class="user-details">
+                                    <h4 class="searchable-name">{{ $item->username }}</h4>
+                                    <span>ID: #{{ str_pad($item->id, 4, '0', STR_PAD_LEFT) }}</span>
                                 </div>
-                            </td>
-                        </tr>
-                        <tr class="sub-row" id="sub-{{ $item->id }}">
-                            <td colspan="5" style="padding: 0;">
-                                <div class="sub-table-container">
-                                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1.25rem;">
-                                        <h5 style="margin: 0 0 1rem 0; color: #1e293b; font-size: 0.95rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">Detail Informasi Dokter</h5>
-                                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
-                                            <tr>
-                                                <td style="width: 180px; color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">Nama Lengkap</td>
-                                                <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 500; border-bottom: 1px solid #f8fafc;">{{ $item->username }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">ID Dokter</td>
-                                                <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 500; border-bottom: 1px solid #f8fafc;">#{{ str_pad($item->id, 4, '0', STR_PAD_LEFT) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">Nomor Handphone</td>
-                                                <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 500; border-bottom: 1px solid #f8fafc;">{{ $item->phoneNumber }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">Alamat Tinggal</td>
-                                                <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 500; border-bottom: 1px solid #f8fafc;">{{ $item->alamat ?: '-' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="color: #64748b; padding: 0.6rem 0;">Status Penugasan</td>
-                                                <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 500;">
-                                                    @if($item->klinik)
-                                                        Ditugaskan di <strong style="color: #0d9488;">{{ $item->klinik->namaKlinik }}</strong>
-                                                    @else
-                                                        <span style="color: #ef4444;">Belum ditugaskan (Pool)</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="color: #334155;"><i class="fas fa-phone-alt" style="color: #94a3b8; width: 20px;"></i> {{ $item->phoneNumber }}</div>
+                        </td>
+                        <td>
+                            @if($item->klinik)
+                            <span class="clinic-badge">{{ $item->klinik->namaKlinik ?? 'Klinik Terkait' }} ({{ $item->klinik->kodeKlinik }})</span>
+                            @else
+                            <span class="clinic-badge unassigned-badge">Belum Ditugaskan</span>
+                            @endif
+                        </td>
+                        <td onclick="event.stopPropagation()">
+                            <div class="action-links">
+                                <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
+                                <span style="color: #cbd5e1;">|</span>
+                                <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');" style="margin: 0;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="action-link delete">Hapus</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="sub-row" id="sub-{{ $item->id }}">
+                        <td colspan="5" style="padding: 0;">
+                            <div class="sub-table-container">
+                                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1.25rem;">
+                                    <h5 style="margin: 0 0 1rem 0; color: #1e293b; font-size: 0.95rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">Detail Informasi Dokter</h5>
+                                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                                        <tr>
+                                            <td style="width: 180px; color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">Nama Lengkap</td>
+                                            <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 500; border-bottom: 1px solid #f8fafc;">{{ $item->username }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">ID Dokter</td>
+                                            <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 500; border-bottom: 1px solid #f8fafc;">#{{ str_pad($item->id, 4, '0', STR_PAD_LEFT) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">Nomor Handphone</td>
+                                            <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 500; border-bottom: 1px solid #f8fafc;">{{ $item->phoneNumber }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">Alamat Tinggal</td>
+                                            <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 500; border-bottom: 1px solid #f8fafc;">{{ $item->alamat ?: '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color: #64748b; padding: 0.6rem 0;">Status Penugasan</td>
+                                            <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 500;">
+                                                @if($item->klinik)
+                                                Ditugaskan di <strong style="color: #0d9488;">{{ $item->klinik->namaKlinik }}</strong>
+                                                @else
+                                                <span style="color: #ef4444;">Belum ditugaskan (Pool)</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </div>
-                            </td>
-                        </tr>
-                        @endforeach
+                            </div>
+                        </td>
+                    </tr>
+                    @endif
+                    @endforeach
                     @endif
                 </tbody>
             </table>
@@ -338,7 +340,7 @@
     document.getElementById('searchInput').addEventListener('keyup', function() {
         const query = this.value.toLowerCase();
         const rows = document.querySelectorAll('.searchable-row');
-        
+
         rows.forEach(row => {
             const name = row.querySelector('.searchable-name').textContent.toLowerCase();
             const subRowId = 'sub-' + row.getAttribute('onclick').match(/'([^']+)'/)[1];
@@ -348,7 +350,7 @@
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
-                if(subRow) {
+                if (subRow) {
                     subRow.classList.remove('active');
                     row.classList.remove('expanded');
                 }
