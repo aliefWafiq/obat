@@ -74,6 +74,22 @@
                     </select>
                 </div>
 
+                @if(auth()->user()->role === 'SuperAdmin' && $users->role === 'User')
+                <div class="form-group" id="clinic-group">
+                    <label for="idKlinik">
+                        <i class="fas fa-clinic-medical"></i> Klinik / Admin Pengampu <span style="color: #ff4757;">*</span>
+                    </label>
+                    <select id="idKlinik" name="idKlinik">
+                        <option value="">Pilih Klinik...</option>
+                        @foreach($clinics as $clinic)
+                            <option value="{{ $clinic->id }}" {{ old('idKlinik', $users->idKlinik) == $clinic->id ? 'selected' : '' }}>
+                                {{ $clinic->namaKlinik }} ({{ $clinic->kodeKlinik }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+
                 <div class="form-actions" style="margin-top: 1.8rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: flex-end;">
                     <a href="{{ route('listUser') }}" class="btn btn-secondary" style="padding: 0.95rem 1.4rem; display: inline-flex; align-items: center; gap: 0.5rem;">
                         <i class="fas fa-times"></i> Batal

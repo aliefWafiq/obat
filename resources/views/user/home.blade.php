@@ -91,6 +91,7 @@
                     data-name="{{ $e->namaProduk }}"
                     data-desc="{{ $e->deskripsi }}"
                     data-harga="Rp {{ number_format($e->harga, 0, ',', '.') }}"
+                    data-raw-harga="{{ $e->harga }}"
                     data-stok="{{ $e->stok }}"
                     data-gambar="{{ asset('storage/' . $e->gambar) }}">
                     Tambah ke Keranjang

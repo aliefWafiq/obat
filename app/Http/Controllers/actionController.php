@@ -91,8 +91,10 @@ class actionController extends Controller
 
         $password = Hash::make($request->input('password'));
 
+        $num = KodeKlinik::count() + 1;
         do {
-            $kodeKlinik = 'KNK-' . strtoupper(Str::random(5));
+            $kodeKlinik = str_pad($num, 2, '0', STR_PAD_LEFT);
+            $num++;
         } while (KodeKlinik::where('kodeKlinik', $kodeKlinik)->exists());
 
         DB::beginTransaction();
@@ -239,7 +241,8 @@ class actionController extends Controller
             'username' => 'required',
             'alamat' => 'required',
             'phoneNumber' => 'required|unique:users,phoneNumber,' . $id,
-            'role' => 'required'
+            'role' => 'required',
+            'idKlinik' => 'nullable|exists:kodeKlinik,id'
         ], [
             'username.required' => 'Username wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
@@ -256,16 +259,36 @@ class actionController extends Controller
                 return redirect()->back()->with('error', 'Anda tidak dapat mengubah role Anda sendiri dari Admin ke User untuk menghindari kehilangan akses.');
             }
 
-            $user->update([
+            $updateData = [
                 'username' => $request->input('username'),
                 'alamat' => $request->input('alamat'),
                 'phoneNumber' => $request->input('phoneNumber'),
                 'role' => $role
-            ]);
+            ];
+
+            if (auth()->user()->role === 'SuperAdmin') {
+                $updateData['idKlinik'] = $request->input('idKlinik');
+            }
+
+            $user->update($updateData);
             return redirect('/dashboard/user')->with('success', 'User berhasil diperbarui.');
         } else {
             return redirect('/dashboard/user')->with('error', 'User tidak ditemukan.');
         }
+    }
+
+    public function reassignUserClinic(Request $request, $id)
+    {
+        $request->validate([
+            'idKlinik' => 'required|exists:kodeKlinik,id'
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->update([
+            'idKlinik' => $request->input('idKlinik')
+        ]);
+
+        return redirect()->back()->with('success', 'Pengguna ' . $user->username . ' berhasil dipindahkan.');
     }
 
     public function deleteUser($id)

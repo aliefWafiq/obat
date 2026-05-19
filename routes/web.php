@@ -62,6 +62,7 @@ Route::put('/pemesanan/update/{id}', [actionController::class, 'updatePemesanan'
 Route::put('/category/update/{id}', [actionController::class, 'updateCategory']);
 Route::put('/produk/update/{id}', [actionController::class, 'updateProduk']);
 Route::put('/user/update/{id}', [actionController::class, 'updateUser'])->name('updateUser');
+Route::put('/user/reassign/{id}', [actionController::class, 'reassignUserClinic'])->name('reassignUserClinic')->middleware(['auth', 'admin']);
 Route::put('/program/update/{id}', [actionController::class, 'updateProgram'])->name('updateProgram');
 Route::put('/diskon/update/{id}', [actionController::class, 'updateDiskon'])->name('updateDiskon');
 

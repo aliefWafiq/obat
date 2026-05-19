@@ -13,6 +13,7 @@ use App\Models\Category;
 use App\Models\Pemesanan;
 use App\Models\BuatProgram;
 use App\Models\DetailPemesanan;
+use App\Models\KodeKlinik;
 use App\Models\KuantitasDiskon;
 
 class mainController extends Controller
@@ -65,32 +66,33 @@ class mainController extends Controller
     {
         $idUser = Auth::id();
         $items = Keranjang::with(['produk.kuantitasDiskon'])->where('idUser', $idUser)->get();
-
+        
         $total = 0;
         foreach ($items as $item) {
-            $item->subtotal_original = $item->produk->harga * $item->jumlah;
-            $item->diskon_nominal = 0;
-            $item->has_diskon = false;
-
-            // Find best matching tiered rule & next progressive rule
+            $subtotalOriginal = $item->produk->harga * $item->jumlah;
+            $item->subtotal_original = $subtotalOriginal;
+            
             $allRules = $item->produk->kuantitasDiskon;
             $bestRule = $allRules ? $allRules->where('minimalBeli', '<=', $item->jumlah)->sortByDesc('minimalBeli')->first() : null;
-            $nextRule = $allRules ? $allRules->where('minimalBeli', '>', $item->jumlah)->sortBy('minimalBeli')->first() : null;
-
-            $item->diskon_rule = $bestRule;
-            $item->next_diskon_rule = $nextRule;
-
-            if ($item->diskon_rule) {
-                $item->diskon_nominal = ($item->diskon_rule->diskon / 100 * $item->subtotal_original);
+            
+            if ($bestRule) {
                 $item->has_diskon = true;
-                $item->subtotal_discounted = max(0, $item->subtotal_original - $item->diskon_nominal);
+                $item->diskon_rule = $bestRule;
+                $item->diskon_nominal = $bestRule->diskon / 100 * $subtotalOriginal;
+                $item->subtotal_discounted = max(0, $subtotalOriginal - $item->diskon_nominal);
+                $total += $item->subtotal_discounted;
             } else {
-                $item->subtotal_discounted = $item->subtotal_original;
+                $item->has_diskon = false;
+                $item->diskon_nominal = 0;
+                $item->subtotal_discounted = $subtotalOriginal;
+                $total += $subtotalOriginal;
             }
-
-            $total += $item->subtotal_discounted;
+            
+            // hint for next discount tier
+            $nextRule = $allRules ? $allRules->where('minimalBeli', '>', $item->jumlah)->sortBy('minimalBeli')->first() : null;
+            $item->next_diskon_rule = $nextRule;
         }
-
+        
         return view('user.keranjang', compact('items', 'total'));
     }
 
@@ -248,13 +250,15 @@ class mainController extends Controller
     public function listUser()
     {
         $users = User::all();
-        return view('admin.list.listUser', compact('users'));
+        $clinics = KodeKlinik::all();
+        return view('admin.list.listUser', compact('users', 'clinics'));
     }
 
     public function viewEditUser($id)
     {
         $users = User::findOrFail($id);
-        return view('admin.edit.editUser', compact('users'));
+        $clinics = KodeKlinik::all();
+        return view('admin.edit.editUser', compact('users', 'clinics'));
     }
 
     public function listCategory()
@@ -335,3 +339,4 @@ class mainController extends Controller
         return view('admin.edit.editDiskon', compact('produk', 'buatDiskon'));
     }
 }
+

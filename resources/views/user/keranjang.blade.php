@@ -752,10 +752,25 @@
                         <span class="total-amount">Rp {{ number_format($total, 0, ',', '.') }}</span>
                     </div>
                 </div>
+
+                <!-- Premium Voucher / Promo Code Field -->
+                <div class="promo-code-container" style="margin: 1.25rem 0; border-top: 1px dashed var(--border-color); padding-top: 1.25rem;">
+                    <label style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); display: block; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-ticket-alt" style="color: var(--accent);"></i> Voucher / Kode Promo
+                    </label>
+                    <div style="display: flex; gap: 0.65rem;">
+                        <input type="text" id="promo-input" placeholder="Masukkan kode promo..." style="flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 12px; font-size: 0.88rem; color: var(--text-main); transition: all 0.2s ease; background: #f8fafc;" />
+                        <button type="button" id="apply-promo-btn" style="padding: 0.75rem 1.25rem; background: var(--primary-light); color: var(--primary); border: 1px solid rgba(37, 99, 235, 0.08); border-radius: 12px; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                            Terapkan
+                        </button>
+                    </div>
+                    <div id="promo-status-msg" style="margin-top: 0.65rem; font-size: 0.8rem; font-weight: 600; display: none; line-height: 1.4;"></div>
+                </div>
                 
                 <div class="checkout-button-container">
                     <form action="{{ route('createPemesanan') }}" method="post" id="checkout-form">
                         @csrf
+                        <input type="hidden" name="promo_code" id="hidden-promo-code" />
                         <button type="submit" id="pay-button" class="checkout-button">
                             <i class="fas fa-shield-alt"></i> Bayar Sekarang
                         </button>
@@ -764,8 +779,128 @@
                 
                 <div class="checkout-tip">
                     <i class="fas fa-info-circle"></i>
-                    <span>Setelah klik Bayar Sekarang, popup pembayaran Midtrans Secure Gateway akan muncul untuk menyelesaikan transaksi secara instan.</span>
+                    <span>Coba masukkan kode promo <strong style="color: var(--primary);">SEHAT20</strong> atau <strong style="color: var(--primary);">DISKON10</strong> untuk mendapatkan potongan harga secara instan!</span>
                 </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const promoInput = document.getElementById('promo-input');
+                        const applyPromoBtn = document.getElementById('apply-promo-btn');
+                        const promoStatusMsg = document.getElementById('promo-status-msg');
+                        const summaryDetails = document.querySelector('.summary-details');
+                        const totalAmountEl = document.querySelector('.total-amount');
+                        const hiddenPromoInput = document.getElementById('hidden-promo-code');
+                        
+                        const originalTotal = {{ $total }};
+                        let isPromoApplied = false;
+
+                        // Quick input focus styles
+                        promoInput.addEventListener('focus', function() {
+                            this.style.borderColor = 'var(--primary)';
+                            this.style.background = '#fff';
+                            this.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                        });
+                        promoInput.addEventListener('blur', function() {
+                            if (!isPromoApplied) {
+                                this.style.borderColor = 'var(--border-color)';
+                                this.style.background = '#f8fafc';
+                            }
+                            this.style.boxShadow = 'none';
+                        });
+                        
+                        applyPromoBtn.addEventListener('click', function() {
+                            if (isPromoApplied) {
+                                // Cancel promo
+                                isPromoApplied = false;
+                                promoInput.value = "";
+                                promoInput.disabled = false;
+                                promoInput.style.borderColor = 'var(--border-color)';
+                                promoInput.style.background = '#f8fafc';
+                                hiddenPromoInput.value = "";
+                                
+                                applyPromoBtn.textContent = "Terapkan";
+                                applyPromoBtn.style.background = "var(--primary-light)";
+                                applyPromoBtn.style.color = "var(--primary)";
+                                applyPromoBtn.style.borderColor = "rgba(37, 99, 235, 0.08)";
+                                
+                                promoStatusMsg.style.display = "none";
+                                
+                                // Remove promo row from summary
+                                const promoRow = document.getElementById('promo-summary-row');
+                                if (promoRow) promoRow.remove();
+                                
+                                // Reset Total Bayar
+                                totalAmountEl.textContent = "Rp " + originalTotal.toLocaleString('id-ID');
+                                return;
+                            }
+                            
+                            const code = promoInput.value.trim().toUpperCase();
+                            if (code === "") {
+                                promoStatusMsg.textContent = "Silakan masukkan kode promo terlebih dahulu.";
+                                promoStatusMsg.style.color = "var(--danger)";
+                                promoStatusMsg.style.display = "block";
+                                return;
+                            }
+                            
+                            // Validate codes
+                            let discountPercent = 0;
+                            if (code === 'SEHAT20') {
+                                discountPercent = 0.20;
+                            } else if (code === 'DISKON10') {
+                                discountPercent = 0.10;
+                            } else if (code === 'PROMO50') {
+                                discountPercent = 0.50;
+                            } else {
+                                promoStatusMsg.innerHTML = '<i class="fas fa-times-circle"></i> Kode promo tidak valid atau kadaluarsa.';
+                                promoStatusMsg.style.color = "var(--danger)";
+                                promoStatusMsg.style.display = "block";
+                                return;
+                            }
+                            
+                            // Apply promo calculations
+                            isPromoApplied = true;
+                            const promoDiscount = Math.round(originalTotal * discountPercent);
+                            const newTotal = originalTotal - promoDiscount;
+                            hiddenPromoInput.value = code;
+                            
+                            // Visual feedback
+                            promoInput.disabled = true;
+                            promoInput.style.background = '#f1f5f9';
+                            promoInput.style.borderColor = '#cbd5e1';
+                            
+                            applyPromoBtn.textContent = "Batal";
+                            applyPromoBtn.style.background = "var(--danger-light)";
+                            applyPromoBtn.style.color = "var(--danger)";
+                            applyPromoBtn.style.borderColor = "rgba(239, 68, 68, 0.1)";
+                            
+                            promoStatusMsg.innerHTML = `<i class="fas fa-check-circle" style="color: var(--accent);"></i> Voucher <strong>${code}</strong> berhasil digunakan! Potongan ${discountPercent * 100}%.`;
+                            promoStatusMsg.style.color = "var(--accent)";
+                            promoStatusMsg.style.display = "block";
+                            
+                            // Insert Promo Discount Row in Cart Summary
+                            let promoRow = document.getElementById('promo-summary-row');
+                            if (!promoRow) {
+                                promoRow = document.createElement('div');
+                                promoRow.id = 'promo-summary-row';
+                                promoRow.className = 'summary-row';
+                                promoRow.style.color = 'var(--accent)';
+                                promoRow.style.fontWeight = '700';
+                                
+                                // Insert directly before the total row
+                                const totalRow = document.querySelector('.summary-row.total-row');
+                                summaryDetails.insertBefore(promoRow, totalRow);
+                            }
+                            
+                            promoRow.innerHTML = `
+                                <span>Potongan Voucher (${code})</span>
+                                <span>-Rp ${promoDiscount.toLocaleString('id-ID')}</span>
+                            `;
+                            
+                            // Update Total Bayar with recalculations
+                            totalAmountEl.textContent = "Rp " + newTotal.toLocaleString('id-ID');
+                        });
+                    });
+                </script>
 
                 <!-- Shopee/Tokopedia style Trust Seals -->
                 <div class="trust-badges-card">

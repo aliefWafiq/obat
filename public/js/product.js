@@ -272,6 +272,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const openButtons = document.querySelectorAll(".open-drawer-btn");
     let currentMaxStock = 999;
+    let currentRawHarga = 0;
+
+    function updateDrawerTotalPrice() {
+        const qty = parseInt(drawerQtyInput.value) || 1;
+        const total = currentRawHarga * qty;
+        // Format to Indonesian Rupiah representation: Rp XX.XXX
+        drawerProductPrice.textContent = "Rp " + total.toLocaleString('id-ID');
+    }
 
     // Open Drawer
     openButtons.forEach(btn => {
@@ -283,10 +291,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const name = btn.dataset.name;
             const desc = btn.dataset.desc;
             const harga = btn.dataset.harga;
+            const rawHarga = parseInt(btn.dataset.rawHarga) || 0;
             const stok = parseInt(btn.dataset.stok) || 0;
             const gambar = btn.dataset.gambar;
 
             currentMaxStock = stok;
+            currentRawHarga = rawHarga;
 
             // Populate Drawer Fields
             drawerProductId.value = id;
@@ -294,11 +304,13 @@ document.addEventListener("DOMContentLoaded", () => {
             drawerProductImg.alt = name;
             drawerProductName.textContent = name;
             drawerProductDesc.textContent = desc;
-            drawerProductPrice.textContent = harga;
             drawerProductStock.textContent = `Stok: ${stok}`;
 
             // Reset quantity to 1
             drawerQtyInput.value = 1;
+            
+            // Initial Total Price Calculation
+            updateDrawerTotalPrice();
 
             // Show Drawer
             drawerOverlay.classList.add("active");
@@ -334,6 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let val = parseInt(drawerQtyInput.value) || 1;
             if (val > 1) {
                 drawerQtyInput.value = val - 1;
+                updateDrawerTotalPrice();
             }
         });
 
@@ -343,6 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let val = parseInt(drawerQtyInput.value) || 1;
             if (val < currentMaxStock) {
                 drawerQtyInput.value = val + 1;
+                updateDrawerTotalPrice();
             } else {
                 alert(`Maaf, jumlah pembelian melebihi stok yang tersedia (${currentMaxStock} pcs).`);
             }
