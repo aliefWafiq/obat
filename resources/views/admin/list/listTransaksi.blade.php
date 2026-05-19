@@ -43,6 +43,7 @@
                     <tr>
                         <th>Kode Pesanan</th>
                         <th>Nama Pembeli</th>
+                        <th>Klinik</th>
                         <th>Nomor HP</th>
                         <th>Total Harga</th>
                         <th>Status</th>
@@ -57,6 +58,7 @@
                             <strong>{{ $item->kodePemesanan }}</strong>
                         </td>
                         <td>{{ $item->user->username ?? '-' }}</td>
+                        <td>{{ $item->user->klinik->namaKlinik ?? '-' }}</td>
                         <td>{{ $item->user->phoneNumber ?? '-' }}</td>
                         <td>Rp {{ number_format($item->totalHarga, 0, ',', '.') }}</td>
                         <td>

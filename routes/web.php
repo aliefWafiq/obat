@@ -20,9 +20,15 @@ Route::get('/dashboard', [mainController::class, 'dashboard'])->name('dashboard'
 Route::get('/dashboard/produk', [mainController::class, 'listProduk'])->name('listProduk')->middleware(['auth', 'admin']);
 Route::get('/dashboard/produk/edit/{id}', [mainController::class, 'viewEditProduk'])->name('viewEditProduk')->middleware(['auth', 'admin']);
 
+// Data Akun
+Route::get('/dashboard/akun', [mainController::class, 'listAkun'])->name('listAkun')->middleware(['auth', 'admin']);
+
 // List User
 Route::get('/dashboard/user', [mainController::class, 'listUser'])->name('listUser')->middleware(['auth', 'admin']);
 Route::get('/dashboard/user/edit/{id}', [mainController::class, 'viewEditUser'])->name('viewEditUser')->middleware(['auth', 'admin']);
+
+// List Klinik
+Route::get('/dashboard/klinik', [mainController::class, 'listKlinik'])->name('listKlinik')->middleware(['auth', 'admin']);
 
 // list Category
 Route::get('/dashboard/category', [mainController::class, 'listCategory'])->name('listCategory')->middleware(['auth', 'admin']);

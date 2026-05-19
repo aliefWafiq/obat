@@ -76,15 +76,15 @@
         .navbar-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.35rem;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.02em;
+            height: 52px;
         }
 
-        .navbar-brand i {
-            color: var(--accent);
+        .navbar-brand img {
+            height: 120px;
+            transform: scale(1.5);
+            object-fit: contain;
+            pointer-events: none;
+            margin-left: -20px;
         }
 
         .btn-back-link {
@@ -611,8 +611,7 @@
     <header class="cart-navbar">
         <div class="navbar-container">
             <a href="{{ route('home') }}" class="navbar-brand">
-                <i class="fas fa-prescription-bottle-alt"></i>
-                <span>ObatKita</span>
+                <img src="{{ asset('img/obatkitalogo.png') }}" alt="ObatKita">
             </a>
             <a href="{{ route('home') }}" class="btn-back-link">
                 <i class="fas fa-arrow-left"></i> Kembali Belanja

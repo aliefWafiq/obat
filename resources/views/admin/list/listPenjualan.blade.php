@@ -9,7 +9,6 @@
             </button>
             <div>
                 <h1 id="page-title">Laporan Penjualan</h1>
-                <p style="margin: 0.3rem 0 0; color: #6b7280;">Pantau hasil penjualan, transaksi, dan performa program promo secara lengkap.</p>
             </div>
         </div>
         <div class="header-actions" style="display: flex; gap: 0.75rem; align-items: center;">
@@ -25,12 +24,12 @@
     <section class="content-section active" style="padding: 1.5rem 2rem 2rem;">
         <div class="section-header">
             <h2>Ringkasan Penjualan</h2>
-            <!-- <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
                 <input type="date" class="date-filter" style="padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid #e5e7eb;" />
                 <input type="date" class="date-filter" style="padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid #e5e7eb;" />
                 <button class="filter-btn">Filter</button>
                 <button class="export-btn">Export</button>
-            </div> -->
+            </div>
         </div>
 
         <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">
@@ -72,6 +71,7 @@
                         <th>Tanggal</th>
                         <th>Kode Pesanan</th>
                         <th>Pembeli</th>
+                        <th>Klinik</th>
                         <th>Total Harga</th>
                         <th>Status</th>
                     </tr>
@@ -82,12 +82,13 @@
                         <td>{{ $item->created_at->format('d/m/Y') }}</td>
                         <td><strong>{{ $item->kodePemesanan }}</strong></td>
                         <td>{{ $item->user->username ?? '-' }}</td>
+                        <td>{{ $item->user->klinik->namaKlinik ?? '-' }}</td>
                         <td>Rp {{ number_format($item->totalHarga, 0, ',', '.') }}</td>
                         <td>{{ ucfirst($item->status) }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 2rem 0; color: #6b7280;">Belum ada transaksi.</td>
+                        <td colspan="6" style="text-align: center; padding: 2rem 0; color: #6b7280;">Belum ada transaksi.</td>
                     </tr>
                     @endforelse
                 </tbody>

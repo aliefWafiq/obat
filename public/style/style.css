@@ -117,20 +117,20 @@ h3 {
     margin: 15px;
     left: 50%;
     transform: translateX(-50%);
-    width: auto;
-    max-width: none;
+    width: fit-content;
+    max-width: 95vw;
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     padding: 12px 30px;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     z-index: 1000;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    gap: 20px;
+    border-radius: 100px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 24px;
     padding-top: 15px;
 }
 
@@ -221,33 +221,67 @@ h3 {
 .search-box {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    background: var(--gray-100);
-    border-radius: 100px;
-    transition: var(--transition);
-    width: 280px;
-}
-
-.search-box:focus-within {
-    background: var(--white);
-    box-shadow: 0 0 0 2px var(--black);
-}
-
-.search-icon {
-    width: 20px;
-    height: 20px;
-    color: var(--gray-500);
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 50%;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    padding: 0;
+    cursor: pointer;
     flex-shrink: 0;
 }
 
+.search-box:hover,
+.search-box:focus-within,
+.search-box.active {
+    width: 250px;
+    border-radius: 100px;
+    background: var(--white);
+    border-color: rgba(0, 0, 0, 0.15);
+    padding: 0 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.search-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--gray-600);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+.search-box:hover .search-icon,
+.search-box:focus-within .search-icon,
+.search-box.active .search-icon {
+    color: var(--black);
+    margin: 0;
+}
+
 .search-input {
-    flex: 1;
+    width: 0;
+    opacity: 0;
     border: none;
     background: transparent;
     font-size: 0.875rem;
     color: var(--gray-900);
     outline: none;
+    padding: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.search-box:hover .search-input,
+.search-box:focus-within .search-input,
+.search-box.active .search-input {
+    width: 100%;
+    opacity: 1;
+    padding-left: 10px;
+    pointer-events: auto;
 }
 
 .search-input::placeholder {

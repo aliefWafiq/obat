@@ -14,8 +14,13 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-        <div class="sidebar-header">
-            <h2><i class="fas fa-pills"></i> ObatKita Admin</h2>
+        <div class="sidebar-header" style="flex-direction: column; align-items: flex-start; gap: 4px; padding: 1.5rem 1.75rem;">
+            <div style="height: 35px; display: flex; align-items: center; justify-content: flex-start;">
+                <img src="{{ asset('img/obatkitalogo.png') }}" alt="ObatKita" style="height: 100px; transform: scale(1.5); transform-origin: left center; object-fit: contain; margin-left: -20px;">
+            </div>
+            <div style="font-size: 0.85rem; color: #818cf8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; margin-left: 2px;">
+                {{ auth()->user()->role === 'SuperAdmin' ? 'Super Admin' : 'Admin' }}
+            </div>
         </div>
         <nav class="sidebar-nav">
             <a href="{{ route('dashboard') }}" class="nav-item" data-section="dashboard">
@@ -27,8 +32,14 @@
             <a href="{{ route('listPenjualan') }}" class="nav-item" data-section="penjualan">
                 <i class="fas fa-chart-line"></i> Laporan Penjualan
             </a>
-            <a href="{{ route('listUser') }}" class="nav-item" data-section="admin">
+            <a href="{{ route('listAkun') }}" class="nav-item" data-section="akun">
                 <i class="fas fa-users-cog"></i> Data Akun
+            </a>
+            <a href="{{ route('listUser') }}" class="nav-item" data-section="user" style="padding-left: 2.5rem; font-size: 0.9rem;">
+                <i class="fas fa-user-md"></i> Data User
+            </a>
+            <a href="{{ route('listKlinik') }}" class="nav-item" data-section="klinik" style="padding-left: 2.5rem; font-size: 0.9rem;">
+                <i class="fas fa-clinic-medical"></i> Data Klinik
             </a>
             @if(auth()->user()->role === 'SuperAdmin')
                 <a href="{{ route('listProduk') }}" class="nav-item" data-section="obat">

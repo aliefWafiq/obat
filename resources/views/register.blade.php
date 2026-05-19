@@ -11,6 +11,7 @@
 </head>
 
 <body>
+
     <!-- Main Auth Container -->
     <div class="auth-wrapper">
         <div class="auth-container">
@@ -47,6 +48,11 @@
 
             <!-- Right Side -->
             <div class="auth-right">
+                <div class="auth-brand">
+                    <a href="/">
+                        <img src="{{ asset('img/obatkitalogo.png') }}" alt="ObatKita Logo" class="auth-logo-img">
+                    </a>
+                </div>
                 <h3>Buat Akun Baru</h3>
                 <p class="auth-right-subtitle">Isi data diri Anda dengan lengkap dan benar</p>
 

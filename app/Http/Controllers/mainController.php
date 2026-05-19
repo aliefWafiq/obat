@@ -247,11 +247,25 @@ class mainController extends Controller
         return view('admin.edit.editProduk', compact('produk', 'categories'));
     }
 
+    public function listAkun()
+    {
+        $users = User::all();
+        $clinics = KodeKlinik::all();
+        return view('admin.list.listAkun', compact('users', 'clinics'));
+    }
+
     public function listUser()
     {
         $users = User::all();
         $clinics = KodeKlinik::all();
         return view('admin.list.listUser', compact('users', 'clinics'));
+    }
+
+    public function listKlinik()
+    {
+        $users = User::all();
+        $clinics = KodeKlinik::all();
+        return view('admin.list.listKlinik', compact('users', 'clinics'));
     }
 
     public function viewEditUser($id)
@@ -280,13 +294,13 @@ class mainController extends Controller
 
     public function listTransaksi()
     {
-        $pemesanan = Pemesanan::with('user')->orderBy('created_at', 'desc')->get();
+        $pemesanan = Pemesanan::with('user.klinik')->orderBy('created_at', 'desc')->get();
         return view('admin.list.listTransaksi', compact('pemesanan'));
     }
 
     public function listPenjualan()
     {
-        $pemesanan = Pemesanan::with('user')->orderBy('created_at', 'desc')->get();
+        $pemesanan = Pemesanan::with('user.klinik')->orderBy('created_at', 'desc')->get();
         $totalPendapatan = $pemesanan->where('status', 'Lunas')->sum('totalHarga');
         $totalTransaksi = $pemesanan->count();
         $totalProdukTerjual = DetailPemesanan::whereHas('pemesanan', function ($query) {

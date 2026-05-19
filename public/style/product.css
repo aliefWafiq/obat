@@ -37,20 +37,20 @@ body {
     margin: 15px;
     left: 50%;
     transform: translateX(-50%);
-    width: auto;
-    max-width: none;
+    width: fit-content;
+    max-width: 95vw;
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     padding: 12px 30px;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     z-index: 1000;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    gap: 20px;
+    border-radius: 100px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 24px;
     padding-top: 15px;
 }
 
@@ -147,33 +147,67 @@ body {
 .search-box {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    background: var(--gray-100);
-    border-radius: 100px;
-    transition: var(--transition);
-    width: 280px;
-}
-
-.search-box:focus-within {
-    background: var(--white);
-    box-shadow: 0 0 0 2px var(--black);
-}
-
-.search-icon {
-    width: 20px;
-    height: 20px;
-    color: var(--gray-500);
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 50%;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    padding: 0;
+    cursor: pointer;
     flex-shrink: 0;
 }
 
+.search-box:hover,
+.search-box:focus-within,
+.search-box.active {
+    width: 250px;
+    border-radius: 100px;
+    background: var(--white);
+    border-color: rgba(0, 0, 0, 0.15);
+    padding: 0 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.search-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--gray-600);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+.search-box:hover .search-icon,
+.search-box:focus-within .search-icon,
+.search-box.active .search-icon {
+    color: var(--black);
+    margin: 0;
+}
+
 .search-input {
-    flex: 1;
+    width: 0;
+    opacity: 0;
     border: none;
     background: transparent;
     font-size: 0.875rem;
     color: var(--gray-900);
     outline: none;
+    padding: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.search-box:hover .search-input,
+.search-box:focus-within .search-input,
+.search-box.active .search-input {
+    width: 100%;
+    opacity: 1;
+    padding-left: 10px;
+    pointer-events: auto;
 }
 
 .search-input::placeholder {
@@ -923,36 +957,99 @@ footer strong {
     .navbar {
         position: fixed !important;
         top: 10px !important;
-        left: 10px !important;
-        right: 10px !important;
-        width: auto !important;
-        transform: none !important;
+        left: 50% !important;
+        right: auto !important;
+        width: fit-content !important;
+        max-width: 95vw !important;
+        transform: translateX(-50%) !important;
         margin: 0 !important;
         padding: 8px 15px !important;
         height: auto !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
-        border-radius: 16px !important;
-        gap: 10px !important;
+        border-radius: 100px !important;
+        gap: 16px !important;
         z-index: 1000 !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .logo {
         margin: 0;
-        height: 40px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
     }
 
     .logo img {
-        height: 40px !important;
-        transform: none !important;
+        height: 110px !important;
+        transform: scale(1.6) !important;
     }
 
     .search-box {
-        width: auto !important;
-        flex: 1 !important;
-        padding: 8px 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 40px !important;
+        height: 40px !important;
+        background: rgba(0, 0, 0, 0.05) !important;
+        border: 1px solid rgba(0, 0, 0, 0.05) !important;
+        border-radius: 50% !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
         margin: 0 !important;
+    }
+
+    .search-box.active,
+    .search-box:focus-within {
+        width: 160px !important;
+        border-radius: 100px !important;
+        background: var(--white) !important;
+        border-color: rgba(0, 0, 0, 0.15) !important;
+        padding: 0 10px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .search-box .search-icon {
+        width: 16px !important;
+        height: 16px !important;
+        color: var(--gray-600) !important;
+        transition: all 0.3s ease !important;
+        pointer-events: none !important;
+        margin: 0 auto !important;
+        flex-shrink: 0 !important;
+    }
+
+    .search-box.active .search-icon,
+    .search-box:focus-within .search-icon {
+        color: var(--black) !important;
+        margin: 0 !important;
+    }
+
+    .search-box .search-input {
+        width: 0 !important;
+        opacity: 0 !important;
+        border: none !important;
+        background: transparent !important;
+        font-size: 0.8rem !important;
+        color: var(--gray-900) !important;
+        outline: none !important;
+        padding: 0 !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        pointer-events: none !important;
+    }
+
+    .search-box.active .search-input,
+    .search-box:focus-within .search-input {
+        width: 100% !important;
+        opacity: 1 !important;
+        padding-left: 6px !important;
+        pointer-events: auto !important;
     }
 
     .mobile-toggle {

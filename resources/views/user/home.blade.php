@@ -21,7 +21,7 @@
             @foreach($BuatProgram as $index => $program)
             <div class="program-slide {{ $index === 0 ? 'active' : '' }}">
                 <div class="slide-content">
-                    <span class="program-badge"><i class="fas fa-percentage"></i> {{ $program->tagProgram }}</span>
+                    <span class="program-badge"><i class="fas fa-ticket"></i> {{ $program->tagProgram }}</span>
                     <h2 class="program-title">{{ $program->judul }}</h2>
                     <p class="program-desc">{{ $program->deskripsi }}</p>
                     <a href="#catalog-title" class="btn-program">Belanja Sekarang</a>
@@ -51,7 +51,7 @@
 <section class="catalog">
     <div class="catalog-header">
         <div>
-            <span class="eyebrow">Koleksi Kami</span>
+            <span class="eyebrow">Obat Kita</span>
             <h2 class="catalog-h2" id="catalog-title">Semua <em>Produk</em></h2>
         </div>
     </div>

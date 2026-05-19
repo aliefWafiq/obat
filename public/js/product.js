@@ -362,4 +362,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // Automatically focus input when clicking anywhere on the search bubble capsule
+    const searchBox = document.querySelector(".search-box");
+    const searchInput = document.getElementById("search-input");
+    if (searchBox && searchInput) {
+        searchBox.addEventListener("click", (e) => {
+            searchInput.focus();
+        });
+    }
 });

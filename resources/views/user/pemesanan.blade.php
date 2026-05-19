@@ -286,7 +286,7 @@
                 <div class="order-card-header">
                     <div>
                         <h2>Pesanan #{{ $item->kodePemesanan }}</h2>
-                        <p style="margin: 0.5rem 0 0; color: #64748b;">Dibuat pada {{ $item->created_at->format('d M Y H:i') }}</p>
+                        <p style="margin: 0.5rem 0 0; color: #64748b;">Dipesan pada {{ $item->created_at->format('d M Y H:i') }}</p>
                     </div>
                     <span class="order-status {{ strtolower($item->status) == 'lunas' ? 'status-lunas' : (strtolower($item->status) == 'pending' ? 'status-pending' : 'status-cancelled') }}">
                         {{ ucfirst($item->status) }}

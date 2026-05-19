@@ -28,6 +28,8 @@ function initActiveNav() {
             const itemPath = new URL(item.href).pathname;
             if (currentPath === itemPath) {
                 item.classList.add('active');
+                const group = item.closest('.nav-group');
+                if (group) group.classList.add('active');
             } else {
                 item.classList.remove('active');
             }
@@ -52,8 +54,8 @@ function initCharts() {
                         1200000, 1900000, 1500000, 2300000, 2800000, 2200000,
                         3000000,
                     ],
-                    borderColor: "#00d4aa",
-                    backgroundColor: "rgba(0, 212, 170, 0.1)",
+                    borderColor: "#6366f1",
+                    backgroundColor: "rgba(99, 102, 241, 0.1)",
                     tension: 0.4,
                     fill: true,
                 },
@@ -98,7 +100,7 @@ function initCharts() {
                         45000000, 52000000, 48000000, 61000000, 58000000,
                         67000000,
                     ],
-                    backgroundColor: "#00d4aa",
+                    backgroundColor: "#6366f1",
                     borderRadius: 8,
                 },
             ],
@@ -188,7 +190,7 @@ function initCharts() {
                 datasets: [{
                     data: window.chartData.kategoriData,
                     backgroundColor: [
-                        "#00d4aa", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"
+                        "#6366f1", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"
                     ],
                     borderWidth: 0
                 }]

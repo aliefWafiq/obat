@@ -47,6 +47,11 @@
 
             <!-- Right Side -->
             <div class="auth-right">
+                <div class="auth-brand">
+                    <a href="/">
+                        <img src="{{ asset('img/obatkitalogo.png') }}" alt="ObatKita Logo" class="auth-logo-img">
+                    </a>
+                </div>
                 <h3>Masuk ke Akun Anda</h3>
                 <p class="auth-right-subtitle">Gunakan nomor HP dan password Anda</p>
 
@@ -117,7 +122,7 @@
         <p style="margin-top: 15px;">&copy; 2026 ObatKita. Semua hak dilindungi.</p>
     </footer>
 
-    <script src="{{ asset('script/login.js') }}"></script>
+    <script src="{{ asset('js/login.js') }}"></script>
 </body>
 
 </html>
