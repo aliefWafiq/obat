@@ -561,7 +561,7 @@ class actionController extends Controller
         }
 
         $pdf = Pdf::loadView('struk_pembayaran', compact('pesanan'));
-        $pdf->setPaper([0, 0, 226, 600], 'potrait');
+        $pdf->setPaper('a5', 'landscape');
 
         return $pdf->stream('struk-' . $pesanan->kodePemesanan . '.pdf');
     }
@@ -692,5 +692,46 @@ class actionController extends Controller
         $diskon->delete();
 
         return redirect('/dashboard/listDiskon')->with('success', 'Diskon berhasil dihapus.');
+    }
+
+    public function updateStokMassal(Request $request)
+    {
+        $request->validate([
+            'items' => 'required|array',
+            'items.*.kode' => 'required|string',
+            'items.*.qty' => 'required|integer|min:0'
+        ]);
+
+        $items = $request->input('items');
+        $updated = [];
+        $notFound = [];
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($items, &$updated, &$notFound) {
+            foreach ($items as $item) {
+                $produk = \App\Models\Produk::where('kodeProduk', $item['kode'])->first();
+                if ($produk) {
+                    $oldStok = $produk->stok;
+                    $newStok = $oldStok + $item['qty'];
+                    $produk->update([
+                        'stok' => $newStok
+                    ]);
+                    $updated[] = [
+                        'kode' => $item['kode'],
+                        'nama' => $produk->namaProduk,
+                        'stok_lama' => $oldStok,
+                        'tambahan' => $item['qty'],
+                        'stok_baru' => $newStok
+                    ];
+                } else {
+                    $notFound[] = $item['kode'];
+                }
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'updated' => $updated,
+            'not_found' => $notFound
+        ]);
     }
 }

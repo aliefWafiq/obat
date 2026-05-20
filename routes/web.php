@@ -18,6 +18,7 @@ Route::get('/pemesanan', [mainController::class, 'pemesanan'])->name('pemesanan'
 //Admin
 Route::get('/dashboard', [mainController::class, 'dashboard'])->name('dashboard')->middleware(['auth', 'admin']);
 Route::get('/dashboard/produk', [mainController::class, 'listProduk'])->name('listProduk')->middleware(['auth', 'admin']);
+Route::get('/dashboard/produk/edit/stok', [mainController::class, 'viewEditStok'])->name('viewEditStok')->middleware(['auth', 'admin']);
 Route::get('/dashboard/produk/edit/{id}', [mainController::class, 'viewEditProduk'])->name('viewEditProduk')->middleware(['auth', 'admin']);
 
 // Data Akun
@@ -62,6 +63,7 @@ Route::post('/category/create', [actionController::class, 'createCategory']);
 Route::post('/produk/create', [actionController::class, 'createProduk'])->name('produk.store');
 Route::post('/program/create', [actionController::class, 'buatProgram']);
 Route::post('/buatDiskon/create', [actionController::class,'buatDiskon'])->name('buatDiskon')->middleware('auth');
+Route::post('/dashboard/produk/edit/stok/bulk', [actionController::class, 'updateStokMassal'])->name('produk.updateStokMassal')->middleware(['auth', 'admin']);
 // Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPemesanan']);
 
 Route::put('/pemesanan/update/{id}', [actionController::class, 'updatePemesanan'])->name('updatePemesanan');

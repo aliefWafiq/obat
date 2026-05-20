@@ -9,6 +9,9 @@
         <div class="page-header">
             <h1>Daftar Produk</h1>
 
+            <a href="{{ route('viewEditStok') }}" class="back-btn">
+                ← Edit Stok
+            </a>
             <a href="{{ route('dashboard') }}" class="back-btn">
                 ← Back Dashboard
             </a>

@@ -354,5 +354,10 @@ class mainController extends Controller
         $buatDiskon = KuantitasDiskon::findOrFail($id);
         return view('admin.edit.editDiskon', compact('produk', 'buatDiskon'));
     }
+
+    public function viewEditStok()
+    {
+        return view('admin.edit.editStok');
+    }
 }
 
