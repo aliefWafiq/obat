@@ -29,7 +29,7 @@
                 </div>
             </div>
 
-            <div class="account-management-grid">
+            <div class="account-management-grid{{ auth()->user()->role !== 'SuperAdmin' ? ' full-width' : '' }}">
                 <div class="account-main-panel">
                     <div class="account-summary-grid">
                         <div class="account-summary-card primary">
@@ -87,16 +87,13 @@
                                                 <span class="role-badge role-superadmin">Super Admin</span>
                                             </td>
                                             <td>
-                                                <div class="action-dropdown-container">
-                                                    <button class="action-dropdown-trigger" onclick="toggleActionDropdown(event, this)">
-                                                        :
-                                                    </button>
-                                                    <div class="action-dropdown-menu" style="display: none;">
-                                                        <a href="{{ route('viewEditUser', $item->id) }}" class="dropdown-item">
-                                                            <i class="fas fa-edit"></i> Edit
-                                                        </a>
+                                                @if(auth()->user()->role === 'SuperAdmin')
+                                                    <div class="action-links">
+                                                        <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
                                                     </div>
-                                                </div>
+                                                @else
+                                                    -
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -121,23 +118,19 @@
                                                 <span class="role-badge role-admin">Admin</span>
                                             </td>
                                             <td>
-                                                <div class="action-dropdown-container">
-                                                    <button class="action-dropdown-trigger" onclick="toggleActionDropdown(event, this)">
-                                                        :
-                                                    </button>
-                                                    <div class="action-dropdown-menu" style="display: none;">
-                                                        <a href="{{ route('viewEditUser', $item->id) }}" class="dropdown-item">
-                                                            <i class="fas fa-edit"></i> Edit
-                                                        </a>
-                                                        <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Menghapus Admin ini juga akan menghapus klinik terkait. Lanjutkan?');">
+                                                @if(auth()->user()->role === 'SuperAdmin')
+                                                    <div class="action-links">
+                                                        <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Menghapus Admin ini juga akan menghapus klinik terkait. Lanjutkan?');" style="display: inline;">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="dropdown-item delete-item">
-                                                                <i class="fas fa-trash"></i> Hapus
-                                                            </button>
+                                                            <button type="submit" class="action-link delete">Hapus</button>
                                                         </form>
+                                                        <span class="action-divider">|</span>
+                                                        <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
                                                     </div>
-                                                </div>
+                                                @else
+                                                    -
+                                                @endif
                                             </td>
                                         </tr>
 
@@ -178,36 +171,36 @@
                                                                         <td>{{ $doc->phoneNumber }}</td>
                                                                         <td>{{ $doc->alamat ?: '-' }}</td>
                                                                         <td>
-                                                                            <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" class="quick-reassign-form">
-                                                                                @csrf
-                                                                                @method('PUT')
-                                                                                <select name="idKlinik" onchange="this.form.submit()" class="quick-select">
-                                                                                    @foreach($clinics as $c)
-                                                                                        <option value="{{ $c->id }}" {{ $doc->idKlinik == $c->id ? 'selected' : '' }}>
-                                                                                            {{ $c->namaKlinik }}
-                                                                                        </option>
-                                                                                    @endforeach
-                                                                                </select>
-                                                                            </form>
+                                                                            @if(auth()->user()->role === 'SuperAdmin')
+                                                                                <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" class="quick-reassign-form">
+                                                                                    @csrf
+                                                                                    @method('PUT')
+                                                                                    <select name="idKlinik" onchange="this.form.submit()" class="quick-select">
+                                                                                        @foreach($clinics as $c)
+                                                                                            <option value="{{ $c->id }}" {{ $doc->idKlinik == $c->id ? 'selected' : '' }}>
+                                                                                                {{ $c->namaKlinik }}
+                                                                                            </option>
+                                                                                        @endforeach
+                                                                                    </select>
+                                                                                </form>
+                                                                            @else
+                                                                                <span>{{ $doc->klinik->namaKlinik ?? 'Belum Ditugaskan' }}</span>
+                                                                            @endif
                                                                         </td>
                                                                         <td>
-                                                                            <div class="action-dropdown-container">
-                                                                                <button class="action-dropdown-trigger" onclick="toggleActionDropdown(event, this)">
-                                                                                    :
-                                                                                </button>
-                                                                                <div class="action-dropdown-menu" style="display: none;">
-                                                                                    <a href="{{ route('viewEditUser', $doc->id) }}" class="dropdown-item">
-                                                                                        <i class="fas fa-edit"></i> Edit
-                                                                                    </a>
-                                                                                    <form action="{{ route('deleteUser', $doc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');">
+                                                                            @if(auth()->user()->role === 'SuperAdmin')
+                                                                                <div class="action-links">
+                                                                                    <form action="{{ route('deleteUser', $doc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');" style="display: inline;">
                                                                                         @csrf
                                                                                         @method('DELETE')
-                                                                                        <button type="submit" class="dropdown-item delete-item">
-                                                                                            <i class="fas fa-trash"></i> Hapus
-                                                                                        </button>
+                                                                                        <button type="submit" class="action-link delete">Hapus</button>
                                                                                     </form>
+                                                                                    <span class="action-divider">|</span>
+                                                                                    <a href="{{ route('viewEditUser', $doc->id) }}" class="action-link">Edit</a>
                                                                                 </div>
-                                                                            </div>
+                                                                            @else
+                                                                                -
+                                                                            @endif
                                                                         </td>
                                                                     </tr>
                                                                 @endforeach
@@ -267,37 +260,37 @@
                                                                     <td>{{ $doc->phoneNumber }}</td>
                                                                     <td>{{ $doc->alamat ?: '-' }}</td>
                                                                     <td>
-                                                                        <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" class="quick-reassign-form">
-                                                                            @csrf
-                                                                            @method('PUT')
-                                                                            <select name="idKlinik" onchange="this.form.submit()" class="quick-select" style="border-color: rgba(239, 68, 68, 0.3);">
-                                                                                <option value="">Pilih Klinik...</option>
-                                                                                @foreach($clinics as $c)
-                                                                                    <option value="{{ $c->id }}">
-                                                                                        {{ $c->namaKlinik }}
-                                                                                    </option>
-                                                                                @endforeach
-                                                                            </select>
-                                                                        </form>
+                                                                        @if(auth()->user()->role === 'SuperAdmin')
+                                                                            <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" class="quick-reassign-form">
+                                                                                @csrf
+                                                                                @method('PUT')
+                                                                                <select name="idKlinik" onchange="this.form.submit()" class="quick-select" style="border-color: rgba(239, 68, 68, 0.3);">
+                                                                                    <option value="">Pilih Klinik...</option>
+                                                                                    @foreach($clinics as $c)
+                                                                                        <option value="{{ $c->id }}">
+                                                                                            {{ $c->namaKlinik }}
+                                                                                        </option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            </form>
+                                                                        @else
+                                                                            <span style="color: #ef4444; font-weight: 500;">Belum Ditugaskan</span>
+                                                                        @endif
                                                                     </td>
                                                                     <td>
-                                                                        <div class="action-dropdown-container">
-                                                                            <button class="action-dropdown-trigger" onclick="toggleActionDropdown(event, this)">
-                                                                                :
-                                                                            </button>
-                                                                            <div class="action-dropdown-menu" style="display: none;">
-                                                                                <a href="{{ route('viewEditUser', $doc->id) }}" class="dropdown-item">
-                                                                                    <i class="fas fa-edit"></i> Edit
-                                                                                </a>
-                                                                                <form action="{{ route('deleteUser', $doc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');">
+                                                                        @if(auth()->user()->role === 'SuperAdmin')
+                                                                            <div class="action-links">
+                                                                                <form action="{{ route('deleteUser', $doc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');" style="display: inline;">
                                                                                     @csrf
                                                                                     @method('DELETE')
-                                                                                    <button type="submit" class="dropdown-item delete-item">
-                                                                                        <i class="fas fa-trash"></i> Hapus
-                                                                                    </button>
+                                                                                    <button type="submit" class="action-link delete">Hapus</button>
                                                                                 </form>
+                                                                                <span class="action-divider">|</span>
+                                                                                <a href="{{ route('viewEditUser', $doc->id) }}" class="action-link">Edit</a>
                                                                             </div>
-                                                                        </div>
+                                                                        @else
+                                                                            -
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
                                                             @endforeach

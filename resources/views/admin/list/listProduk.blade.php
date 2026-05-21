@@ -7,7 +7,12 @@
 @section('content')
     <div class="main-content">
         <div class="page-header">
-            <h1>Daftar Produk</h1>
+            <div class="header-left-wrapper" style="display: flex; align-items: center; gap: 1rem;">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Daftar Produk</h1>
+            </div>
 
             <a href="{{ route('dashboard') }}" class="back-btn">
                 ← Back Dashboard
@@ -47,6 +52,7 @@
                                 <th>Kategori</th>
                                 <th>Harga</th>
                                 <th>Stok</th>
+                                <th>Update Stok</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -78,6 +84,20 @@
                                         <span class="status {{ $item->stok > 0 ? 'active' : 'completed' }}">
                                             {{ $item->stok }} unit
                                         </span>
+                                    </td>
+                                    <td>
+                                        <form action="{{ route('produk.updateStok', $item->id) }}" method="POST" style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="number" name="stok" value="{{ $item->stok }}" min="0" 
+                                                style="width: 70px; padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem; text-align: center; font-weight: 500; outline: none; transition: border-color 0.2s;"
+                                                onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
+                                            <button type="submit" class="action-btn" title="Simpan Stok" 
+                                                style="color: #10b981; border-color: #10b981; background: #ecfdf5; transition: all 0.2s;"
+                                                onmouseover="this.style.background='#d1fae5'" onmouseout="this.style.background='#ecfdf5'">
+                                                <i class="fas fa-save"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                     <td>
                                         <a href="{{ route('viewEditProduk', $item->id) }}" class="action-btn" title="Edit">

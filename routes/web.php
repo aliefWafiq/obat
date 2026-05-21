@@ -67,6 +67,7 @@ Route::post('/buatDiskon/create', [actionController::class,'buatDiskon'])->name(
 Route::put('/pemesanan/update/{id}', [actionController::class, 'updatePemesanan'])->name('updatePemesanan');
 Route::put('/category/update/{id}', [actionController::class, 'updateCategory']);
 Route::put('/produk/update/{id}', [actionController::class, 'updateProduk']);
+Route::put('/produk/update-stock/{id}', [actionController::class, 'updateStok'])->name('produk.updateStok');
 Route::put('/user/update/{id}', [actionController::class, 'updateUser'])->name('updateUser');
 Route::put('/user/reassign/{id}', [actionController::class, 'reassignUserClinic'])->name('reassignUserClinic')->middleware(['auth', 'admin']);
 Route::put('/program/update/{id}', [actionController::class, 'updateProgram'])->name('updateProgram');

@@ -12,8 +12,10 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: #f8fafc; /* Slate 50 background */
-    color: #334155;      /* Slate 700 text */
+    background: #f8fafc;
+    /* Slate 50 background */
+    color: #334155;
+    /* Slate 700 text */
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
 }
@@ -27,8 +29,10 @@ body {
     top: 0;
     width: 280px;
     height: 100vh;
-    background: #0f172a; /* Slate 900 */
-    color: #f1f5f9;      /* Slate 100 */
+    background: #0f172a;
+    /* Slate 900 */
+    color: #f1f5f9;
+    /* Slate 100 */
     z-index: 1000;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
@@ -63,7 +67,8 @@ body {
 }
 
 .sidebar-header h2 i {
-    color: #6366f1; /* Modern Indigo Accent */
+    color: #6366f1;
+    /* Modern Indigo Accent */
     font-size: 1.25rem;
 }
 
@@ -81,7 +86,8 @@ body {
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
-    color: #94a3b8; /* Slate 400 */
+    color: #94a3b8;
+    /* Slate 400 */
     text-decoration: none;
     border-radius: 8px;
     font-size: 0.9rem;
@@ -107,8 +113,10 @@ body {
 }
 
 .nav-item.active {
-    background: rgba(99, 102, 241, 0.12); /* Light Indigo tint */
-    color: #a5b4fc;                        /* Light Indigo text */
+    background: rgba(99, 102, 241, 0.12);
+    /* Light Indigo tint */
+    color: #a5b4fc;
+    /* Light Indigo text */
     font-weight: 600;
 }
 
@@ -363,23 +371,31 @@ body {
 
 /* Accent Palette for Stat Icons */
 .stat-card:nth-child(1) .stat-icon {
-    background: #eff6ff; /* Blue 50 */
-    color: #3b82f6;      /* Blue 500 */
+    background: #eff6ff;
+    /* Blue 50 */
+    color: #3b82f6;
+    /* Blue 500 */
 }
 
 .stat-card:nth-child(2) .stat-icon {
-    background: #f0fdf4; /* Green 50 */
-    color: #10b981;      /* Green 500 */
+    background: #f0fdf4;
+    /* Green 50 */
+    color: #10b981;
+    /* Green 500 */
 }
 
 .stat-card:nth-child(3) .stat-icon {
-    background: #fffbeb; /* Yellow 50 */
-    color: #f59e0b;      /* Yellow 500 */
+    background: #fffbeb;
+    /* Yellow 50 */
+    color: #f59e0b;
+    /* Yellow 500 */
 }
 
 .stat-card:nth-child(4) .stat-icon {
-    background: #faf5ff; /* Purple 50 */
-    color: #8b5cf6;      /* Purple 500 */
+    background: #faf5ff;
+    /* Purple 50 */
+    color: #8b5cf6;
+    /* Purple 500 */
 }
 
 .stat-info h3 {
@@ -683,24 +699,35 @@ body {
     align-items: center;
 }
 
-.status.completed, .status.lunas {
-    background: #ecfdf5; /* Green 50 */
-    color: #065f46;      /* Green 800 */
+.status.completed,
+.status.lunas {
+    background: #ecfdf5;
+    /* Green 50 */
+    color: #065f46;
+    /* Green 800 */
 }
 
 .status.pending {
-    background: #fffbeb; /* Yellow 50 */
-    color: #92400e;      /* Yellow 800 */
+    background: #fffbeb;
+    /* Yellow 50 */
+    color: #92400e;
+    /* Yellow 800 */
 }
 
 .status.active {
-    background: #eff6ff; /* Blue 50 */
-    color: #1e40af;      /* Blue 800 */
+    background: #eff6ff;
+    /* Blue 50 */
+    color: #1e40af;
+    /* Blue 800 */
 }
 
-.status.cancelled, .status.failed, .status.gagal {
-    background: #fff1f2; /* Red 50 */
-    color: #991b1b;      /* Red 800 */
+.status.cancelled,
+.status.failed,
+.status.gagal {
+    background: #fff1f2;
+    /* Red 50 */
+    color: #991b1b;
+    /* Red 800 */
 }
 
 .action-btn {
@@ -741,7 +768,12 @@ body {
     border-radius: 12px;
     border: 1px solid #e2e8f0;
     background: #ffffff;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.account-summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
 }
 
 .account-summary-card h3 {
@@ -836,13 +868,19 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.account-main-panel, .account-sidebar {
+.account-management-grid.full-width {
+    grid-template-columns: 1fr;
+}
+
+.account-main-panel,
+.account-sidebar {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.admin-add-card, .role-edit-card {
+.admin-add-card,
+.role-edit-card {
     background: #ffffff;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
@@ -1018,7 +1056,9 @@ body {
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-.filter-btn, .export-btn, .add-btn {
+.filter-btn,
+.export-btn,
+.add-btn {
     padding: 0.5rem 1rem;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
@@ -1090,7 +1130,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(15, 23, 42, 0.4); /* soft slate backdrop */
+    background: rgba(15, 23, 42, 0.4);
+    /* soft slate backdrop */
     z-index: 2000;
     align-items: center;
     justify-content: center;
@@ -1274,16 +1315,33 @@ body {
 }
 
 @media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .header-left {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .search-box {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+
+    .search-box input {
+        width: 100% !important;
+    }
+
     .content-section {
-        padding: 1.25rem;
+        padding: 1rem;
     }
 
     .stats-grid {
         grid-template-columns: 1fr;
-    }
-
-    .search-box input {
-        width: 180px;
     }
 
     .chart-card {
@@ -1293,4 +1351,58 @@ body {
     .account-management-grid {
         grid-template-columns: 1fr;
     }
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        min-width: 600px;
+    }
+
+    .detail-panel-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .detail-list-card {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+.action-links {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-link {
+    color: #4f46e5;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.action-link:hover {
+    color: #312e81;
+}
+
+.action-link.delete {
+    color: #ef4444;
+}
+
+.action-link.delete:hover {
+    color: #b91c1c;
+}
+
+.action-divider {
+    color: #cbd5e1;
 }

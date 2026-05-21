@@ -1,28 +1,25 @@
-// DOM Elements
-const sidebar = document.querySelector(".sidebar");
-const menuToggle = document.querySelector(".menu-toggle");
-const navItems = document.querySelectorAll(".nav-item");
-const contentSections = document.querySelectorAll(".content-section");
-const pageTitle = document.getElementById("page-title");
-const addBtn = document.querySelector(".add-btn");
-const adminModal = document.getElementById("adminModal");
-const closeModal = document.querySelector(".close-modal");
-const adminForm = document.querySelector(".admin-form");
-
 // Charts
 let dailyChart, monthlyChart;
 
 // Initialize Dashboard
-document.addEventListener("DOMContentLoaded", function () {
+function init() {
     initCharts();
     initMobileMenu();
     initModals();
     initSearch();
     initActiveNav();
-});
+    initPrintButtons();
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+} else {
+    init();
+}
 
 function initActiveNav() {
     const currentPath = window.location.pathname;
+    const navItems = document.querySelectorAll(".nav-item");
     navItems.forEach(item => {
         try {
             const itemPath = new URL(item.href).pathname;
@@ -209,14 +206,25 @@ function initCharts() {
 }
 
 function initMobileMenu() {
+    const sidebar = document.querySelector(".sidebar");
+    const menuToggle = document.querySelector(".menu-toggle");
     if (menuToggle && sidebar) {
-        menuToggle.addEventListener("click", () => {
+        menuToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
             sidebar.classList.toggle("active");
+        });
+        document.addEventListener("click", (e) => {
+            if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && e.target !== menuToggle && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove("active");
+            }
         });
     }
 }
 
 function initModals() {
+    const addBtn = document.querySelector(".add-btn");
+    const adminModal = document.getElementById("adminModal");
+    const closeModal = document.querySelector(".close-modal");
     if (addBtn && adminModal) {
         addBtn.addEventListener("click", () => {
             adminModal.style.display = "flex";
@@ -240,11 +248,13 @@ function initModals() {
     }
 }
 
-document.querySelectorAll(".print-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        window.print();
+function initPrintButtons() {
+    document.querySelectorAll(".print-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            window.print();
+        });
     });
-});
+}
 
 
 

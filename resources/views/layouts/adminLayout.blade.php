@@ -15,8 +15,8 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header" style="flex-direction: column; align-items: flex-start; gap: 4px; padding: 1.5rem 1.75rem;">
-            <div style="height: 35px; display: flex; align-items: center; justify-content: flex-start;">
-                <img src="{{ asset('img/obatkitalogo.png') }}" alt="ObatKita" style="height: 100px; transform: scale(1.5); transform-origin: left center; object-fit: contain; margin-left: -20px;">
+            <div style="height: 45px; width: 100%; display: flex; align-items: center; justify-content: flex-start; overflow: hidden;">
+                <img src="{{ asset('img/obatkitaputih.png') }}" alt="ObatKita" style="height: 280px; object-fit: contain; margin-left: -50px; margin-right: -50px;">
             </div>
             <div style="font-size: 0.85rem; color: #818cf8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; margin-left: 2px;">
                 {{ auth()->user()->role === 'SuperAdmin' ? 'Super Admin' : 'Admin' }}

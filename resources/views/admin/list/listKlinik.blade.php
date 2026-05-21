@@ -38,7 +38,8 @@
         border-radius: 12px;
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
         margin-bottom: 2rem;
-        overflow: hidden;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .section-title {
@@ -237,6 +238,20 @@
         box-shadow: none;
         background: #ffffff;
     }
+
+    @media (max-width: 768px) {
+        .formal-page-wrapper {
+            padding: 1rem;
+        }
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .sub-table-container {
+            padding: 0 1rem 1rem 1rem;
+        }
+    }
 </style>
 @endpush
 
@@ -272,7 +287,9 @@
                         <th>Informasi Klinik</th>
                         <th>Kontak & Lokasi</th>
                         <th>Status</th>
-                        <th>Aksi</th>
+                        @if(auth()->user()->role === 'SuperAdmin')
+                            <th>Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -282,7 +299,7 @@
 
                     @if($clinicsOnly->isEmpty())
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 3rem; color: #64748b;">
+                            <td colspan="{{ auth()->user()->role === 'SuperAdmin' ? 5 : 4 }}" style="text-align: center; padding: 3rem; color: #64748b;">
                                 Belum ada data klinik terdaftar.
                             </td>
                         </tr>
@@ -313,20 +330,22 @@
                             <td>
                                 <span class="doctor-count">{{ $doctorsInClinic->count() }} Dokter</span>
                             </td>
-                            <td onclick="event.stopPropagation()">
-                                <div class="action-links">
-                                    <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
-                                    <span style="color: #cbd5e1;">|</span>
-                                    <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Menghapus Admin ini juga akan menghapus klinik terkait. Lanjutkan?');" style="margin: 0;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="action-link delete">Hapus</button>
-                                    </form>
-                                </div>
-                            </td>
+                            @if(auth()->user()->role === 'SuperAdmin')
+                                <td onclick="event.stopPropagation()">
+                                    <div class="action-links">
+                                        <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
+                                        <span style="color: #cbd5e1;">|</span>
+                                        <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Menghapus Admin ini juga akan menghapus klinik terkait. Lanjutkan?');" style="margin: 0;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="action-link delete">Hapus</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                         <tr class="sub-row" id="sub-{{ $item->id }}">
-                            <td colspan="5" style="padding: 0;">
+                            <td colspan="{{ auth()->user()->role === 'SuperAdmin' ? 5 : 4 }}" style="padding: 0;">
                                 <div class="sub-table-container">
                                     <div style="margin-bottom: 1.5rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1.25rem;">
                                         <h5 style="margin: 0 0 1rem 0; color: #1e293b; font-size: 0.95rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">Detail Informasi Klinik</h5>
@@ -361,7 +380,9 @@
                                                 <tr>
                                                     <th>Nama Dokter</th>
                                                     <th>Kontak</th>
-                                                    <th>Pindah Penugasan</th>
+                                                    @if(auth()->user()->role === 'SuperAdmin')
+                                                        <th>Pindah Penugasan</th>
+                                                    @endif
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -374,20 +395,22 @@
                                                         </div>
                                                     </td>
                                                     <td>{{ $doc->phoneNumber }}</td>
-                                                    <td>
-                                                        <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" style="margin: 0;">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <select name="idKlinik" class="formal-select" onchange="this.form.submit()">
-                                                                <option value="">-- Pindah Klinik --</option>
-                                                                @foreach($clinics as $c)
-                                                                    <option value="{{ $c->id }}" {{ $doc->idKlinik == $c->id ? 'selected' : '' }}>
-                                                                        {{ $c->namaKlinik }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </form>
-                                                    </td>
+                                                    @if(auth()->user()->role === 'SuperAdmin')
+                                                        <td>
+                                                            <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" style="margin: 0;">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <select name="idKlinik" class="formal-select" onchange="this.form.submit()">
+                                                                    <option value="">-- Pindah Klinik --</option>
+                                                                    @foreach($clinics as $c)
+                                                                        <option value="{{ $c->id }}" {{ $doc->idKlinik == $c->id ? 'selected' : '' }}>
+                                                                            {{ $c->namaKlinik }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </form>
+                                                        </td>
+                                                    @endif
                                                 </tr>
                                                 @endforeach
                                             </tbody>
@@ -419,7 +442,9 @@
                     <tr>
                         <th>Nama Dokter</th>
                         <th>Kontak</th>
-                        <th>Tentukan Penugasan</th>
+                        @if(auth()->user()->role === 'SuperAdmin')
+                            <th>Tentukan Penugasan</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -432,20 +457,22 @@
                             </div>
                         </td>
                         <td>{{ $doc->phoneNumber }}</td>
-                        <td>
-                            <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" style="margin: 0;">
-                                @csrf
-                                @method('PUT')
-                                <select name="idKlinik" class="formal-select" onchange="this.form.submit()">
-                                    <option value="">Pilih Klinik...</option>
-                                    @foreach($clinics as $c)
-                                        <option value="{{ $c->id }}">
-                                            {{ $c->namaKlinik }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </form>
-                        </td>
+                        @if(auth()->user()->role === 'SuperAdmin')
+                            <td>
+                                <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" style="margin: 0;">
+                                    @csrf
+                                    @method('PUT')
+                                    <select name="idKlinik" class="formal-select" onchange="this.form.submit()">
+                                        <option value="">Pilih Klinik...</option>
+                                        @foreach($clinics as $c)
+                                            <option value="{{ $c->id }}">
+                                                {{ $c->namaKlinik }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </form>
+                            </td>
+                        @endif
                     </tr>
                     @endforeach
                 </tbody>

@@ -223,6 +223,27 @@ class actionController extends Controller
         }
     }
 
+    public function updateStok(Request $request, $id)
+    {
+        $request->validate([
+            'stok' => 'required|numeric|min:0'
+        ], [
+            'stok.required' => 'Stok wajib diisi.',
+            'stok.numeric' => 'Stok harus berupa angka.',
+            'stok.min' => 'Stok tidak boleh kurang dari 0.'
+        ]);
+
+        $produk = Produk::find($id);
+        if ($produk) {
+            $produk->update([
+                'stok' => $request->input('stok')
+            ]);
+            return redirect()->back()->with('success', 'Stok produk ' . $produk->namaProduk . ' berhasil diperbarui.');
+        } else {
+            return redirect()->back()->with('error', 'Produk tidak ditemukan.');
+        }
+    }
+
     public function deleteProduk($id)
     {
         $produk = Produk::find($id);
@@ -279,6 +300,10 @@ class actionController extends Controller
 
     public function reassignUserClinic(Request $request, $id)
     {
+        if (auth()->user()->role !== 'SuperAdmin') {
+            abort(403, 'Hanya Super Admin yang dapat memindahkan lokasi klinik pengguna.');
+        }
+
         $request->validate([
             'idKlinik' => 'required|exists:kodeKlinik,id'
         ]);

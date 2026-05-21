@@ -9,7 +9,6 @@
             </button>
             <div>
                 <h1 id="page-title">Program ObatKita</h1>
-                <p style="margin: 0.3rem 0 0; color: #6b7280;">Kelola program promosi, diskon, dan penawaran khusus untuk ObatKita.com.</p>
             </div>
         </div>
         <a href="{{ route('viewBuatProgram') }}" class="btn btn-primary" style="padding: 0.9rem 1.4rem; display: inline-flex; align-items: center; gap: 0.6rem;">

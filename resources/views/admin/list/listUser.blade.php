@@ -37,7 +37,8 @@
         border: 1px solid #e2e8f0;
         border-radius: 12px;
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-        overflow: hidden;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .formal-table {
@@ -192,6 +193,20 @@
         box-shadow: none;
         background: #ffffff;
     }
+
+    @media (max-width: 768px) {
+        .formal-page-wrapper {
+            padding: 1rem;
+        }
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .sub-table-container {
+            padding: 0 1rem 1rem 1rem;
+        }
+    }
 </style>
 @endpush
 
@@ -224,7 +239,9 @@
                         <th>Profil Dokter</th>
                         <th>Kontak</th>
                         <th>Penugasan Klinik</th>
-                        <th>Aksi</th>
+                        @if(auth()->user()->role === 'SuperAdmin')
+                            <th>Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -234,7 +251,7 @@
                     
                     @if($doctors->isEmpty())
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 3rem; color: #64748b;">
+                            <td colspan="{{ auth()->user()->role === 'SuperAdmin' ? 5 : 4 }}" style="text-align: center; padding: 3rem; color: #64748b;">
                                 <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; color: #cbd5e1; display: block;"></i>
                                 Belum ada data dokter terdaftar.
                             </td>
@@ -266,20 +283,22 @@
                                     <span class="clinic-badge unassigned-badge">Belum Ditugaskan</span>
                                 @endif
                             </td>
-                            <td onclick="event.stopPropagation()">
-                                <div class="action-links">
-                                    <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
-                                    <span style="color: #cbd5e1;">|</span>
-                                    <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');" style="margin: 0;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="action-link delete">Hapus</button>
-                                    </form>
-                                </div>
-                            </td>
+                            @if(auth()->user()->role === 'SuperAdmin')
+                                <td onclick="event.stopPropagation()">
+                                    <div class="action-links">
+                                        <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
+                                        <span style="color: #cbd5e1;">|</span>
+                                        <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');" style="margin: 0;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="action-link delete">Hapus</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                         <tr class="sub-row" id="sub-{{ $item->id }}">
-                            <td colspan="5" style="padding: 0;">
+                            <td colspan="{{ auth()->user()->role === 'SuperAdmin' ? 5 : 4 }}" style="padding: 0;">
                                 <div class="sub-table-container">
                                     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1.25rem;">
                                         <h5 style="margin: 0 0 1rem 0; color: #1e293b; font-size: 0.95rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">Detail Informasi Dokter</h5>
