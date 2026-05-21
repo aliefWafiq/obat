@@ -55,266 +55,441 @@
                         </div>
                     </div>
 
-                @if($users->isEmpty())
-                <div class="table-container">
-                    <div class="admin-form">
-                        <p>Belum ada akun pengguna.</p>
+                    {{-- Tabs Navigation --}}
+                    <div class="tabs-container" style="margin-top: 1.5rem; margin-bottom: 0.5rem; display: flex; gap: 8px; border-bottom: 2px solid #e2e8f0;">
+                        <button class="tab-btn active" onclick="switchTab(event, 'akun-tab')" style="background: none; border: none; padding: 10px 16px; font-weight: 600; font-size: 0.9rem; color: #6366f1; border-bottom: 2px solid #6366f1; cursor: pointer; transition: all 0.2s; margin-bottom: -2px;">
+                            <i class="fas fa-users-cog" style="margin-right: 6px;"></i> Daftar Akun
+                        </button>
+                        <button class="tab-btn" onclick="switchTab(event, 'klinik-tab')" style="background: none; border: none; padding: 10px 16px; font-weight: 600; font-size: 0.9rem; color: #64748b; cursor: pointer; transition: all 0.2s; margin-bottom: -2px;">
+                            <i class="fas fa-clinic-medical" style="margin-right: 6px;"></i> Data Klinik
+                        </button>
                     </div>
-                </div>
-                @else
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nama / Klinik</th>
-                                <th>Nomor HP</th>
-                                <th>Alamat</th>
-                                <th>Role</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{-- 1. DISPLAY SUPER ADMINS --}}
-                            @if(auth()->user()->role === 'SuperAdmin')
-                            @foreach ($users->where('role', 'SuperAdmin') as $item)
-                            <tr style="background: rgba(99, 102, 241, 0.03);">
-                                <td>
-                                    <i class="fas fa-crown" style="color: #f59e0b; margin-right: 8px;"></i>
-                                    <strong>{{ $item->username }}</strong>
-                                </td>
-                                <td>{{ $item->phoneNumber }}</td>
-                                <td>{{ $item->alamat ?: '-' }}</td>
-                                <td>
-                                    <span class="role-badge role-superadmin">Super Admin</span>
-                                </td>
-                                <td>
-                                    <div class="action-dropdown-container">
-                                        <button class="action-dropdown-trigger" onclick="toggleActionDropdown(event, this)">
-                                            :
-                                        </button>
-                                        <div class="action-dropdown-menu" style="display: none;">
-                                            <a href="{{ route('viewEditUser', $item->id) }}" class="dropdown-item">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                            @endif
 
-                            {{-- 2. DISPLAY ADMINS WITH EXPANDABLE SUB-USERS --}}
-                            @foreach ($users->where('role', 'Admin') as $item)
-                            @if (auth()->user()->role === 'SuperAdmin' || auth()->user()->idKlinik === $item->idKlinik)
-                            <tr class="admin-row" data-admin-id="{{ $item->id }}">
-                                <td>
-                                    <i class="fas fa-chevron-right toggle-icon" style="margin-right: 8px; transition: transform 0.2s; color: #888;"></i>
-                                    @if($item->klinik)
-                                    <span class="clinic-code-badge">[ {{ $item->klinik->kodeKlinik }} ]</span>
-                                    @endif
-                                    <strong class="clinic-title-text">{{ $item->username }}</strong>
-                                    @php
-                                    $clinicDoctorsCount = $users->where('role', 'User')->where('idKlinik', $item->idKlinik)->count();
-                                    @endphp
-                                    <span class="badge-count">{{ $clinicDoctorsCount }} Dokter</span>
-                                </td>
-                                <td>{{ $item->phoneNumber }}</td>
-                                <td>{{ $item->alamat ?: '-' }}</td>
-                                <td>
-                                    <span class="role-badge role-admin">Admin</span>
-                                </td>
-                                <td>
-                                    <div class="action-dropdown-container">
-                                        <button class="action-dropdown-trigger" onclick="toggleActionDropdown(event, this)">
-                                            :
-                                        </button>
-                                        <div class="action-dropdown-menu" style="display: none;">
-                                            <a href="{{ route('viewEditUser', $item->id) }}" class="dropdown-item">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
-                                            <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Menghapus Admin ini juga akan menghapus klinik terkait. Lanjutkan?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="dropdown-item delete-item">
-                                                    <i class="fas fa-trash"></i> Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            {{-- Expanded Doctors Row --}}
-                            <tr class="users-sub-row" id="users-of-{{ $item->id }}" style="display: none; background: #fafbfc;">
-                                <td colspan="5" style="padding: 20px 30px; border-left: 4px solid #6366f1;">
-                                    <div class="sub-table-container">
-                                        <h4 class="sub-table-title">
-                                            <i class="fas fa-user-md" style="color: #6366f1;"></i>
-                                            Daftar Dokter Terdaftar di <span>{{ $item->username }}</span>
-                                        </h4>
-                                        @php
-                                        $clinicDoctors = $users->where('role', 'User')->where('idKlinik', $item->idKlinik);
-                                        @endphp
-
-                                        @if($clinicDoctors->isEmpty())
-                                        <div class="empty-sub-state">
-                                            <i class="fas fa-info-circle"></i> Belum ada dokter di klinik ini.
-                                        </div>
-                                        @else
-                                        <table class="data-table sub-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Nama Dokter</th>
-                                                    <th>Nomor HP</th>
-                                                    <th>Alamat</th>
-                                                    <th>Lokasi Klinik (Admin)</th>
-                                                    <th>Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($clinicDoctors as $doc)
-                                                <tr>
-                                                    <td>
-                                                        <i class="fas fa-user-md" style="color: #4b5563; margin-right: 6px;"></i>
-                                                        <strong>{{ $doc->username }}</strong>
-                                                    </td>
-                                                    <td>{{ $doc->phoneNumber }}</td>
-                                                    <td>{{ $doc->alamat ?: '-' }}</td>
-                                                    <td>
-                                                        <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" class="quick-reassign-form">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <select name="idKlinik" onchange="this.form.submit()" class="quick-select">
-                                                                @foreach($clinics as $c)
-                                                                <option value="{{ $c->id }}" {{ $doc->idKlinik == $c->id ? 'selected' : '' }}>
-                                                                    {{ $c->namaKlinik }}
-                                                                </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </form>
-                                                    </td>
-                                                    <td>
-                                                        <div class="action-dropdown-container">
-                                                            <button class="action-dropdown-trigger" onclick="toggleActionDropdown(event, this)">
-                                                                :
-                                                            </button>
-                                                            <div class="action-dropdown-menu" style="display: none;">
-                                                                <a href="{{ route('viewEditUser', $doc->id) }}" class="dropdown-item">
-                                                                    <i class="fas fa-edit"></i> Edit
-                                                                </a>
-                                                                <form action="{{ route('deleteUser', $doc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit" class="dropdown-item delete-item">
-                                                                        <i class="fas fa-trash"></i> Hapus
-                                                                    </button>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                    <div id="akun-tab" class="tab-pane">
+                        @if($users->isEmpty())
+                        <div class="data-card" style="margin-top: 1.5rem; padding: 3rem; text-align: center; color: #64748b;">
+                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; color: #cbd5e1; display: block;"></i>
+                            Belum ada akun pengguna.
+                        </div>
+                        @else
+                        <div class="data-card" style="margin-top: 1rem;">
+                            <table class="formal-table" id="accountsTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"></th>
+                                        <th>Profil Akun / Klinik</th>
+                                        <th>Kontak & Lokasi</th>
+                                        <th>Status / Peran</th>
+                                        @if(auth()->user()->role === 'SuperAdmin')
+                                        <th>Aksi</th>
                                         @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            @endif
-                            @endforeach
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{-- 1. DISPLAY SUPER ADMINS --}}
+                                    @if(auth()->user()->role === 'SuperAdmin')
+                                    @foreach ($users->where('role', 'SuperAdmin') as $item)
+                                    <tr class="main-row searchable-row" style="background: rgba(99, 102, 241, 0.02);">
+                                        <td style="text-align: center;">
+                                            <i class="fas fa-lock" style="color: #cbd5e1; font-size: 0.8rem;"></i>
+                                        </td>
+                                        <td>
+                                            <div class="user-info-cell">
+                                                <div class="user-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+                                                    <i class="fas fa-crown"></i>
+                                                </div>
+                                                <div class="user-details">
+                                                    <h4 class="searchable-name">{{ $item->username }}</h4>
+                                                    <span>ID: #{{ str_pad($item->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="color: #334155;"><i class="fas fa-phone-alt" style="color: #94a3b8; width: 20px;"></i> {{ $item->phoneNumber }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="role-badge role-superadmin">Super Admin</span>
+                                        </td>
+                                        <td>
+                                            <div class="action-links">
+                                                <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                    @endif
 
-                            {{-- 3. DISPLAY UNASSIGNED DOCTORS (POOL) --}}
-                            @php
-                            $unassignedDoctors = $users->where('role', 'User')->whereNull('idKlinik');
-                            @endphp
-                            @if($unassignedDoctors->isNotEmpty())
-                            <tr class="admin-row" data-admin-id="unassigned" style="background: rgba(239, 68, 68, 0.02);">
-                                <td>
-                                    <i class="fas fa-chevron-right toggle-icon" style="margin-right: 8px; transition: transform 0.2s; color: #888;"></i>
-                                    <i class="fas fa-question-circle" style="color: #ef4444; margin-right: 6px;"></i>
-                                    <strong class="clinic-title-text" style="color: #ef4444;">Dokter Tanpa Klinik (Pool)</strong>
-                                    <span class="badge-count" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">{{ $unassignedDoctors->count() }} Dokter</span>
-                                </td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>
-                                    <span class="role-badge role-unassigned">Pool</span>
-                                </td>
-                                <td>-</td>
-                            </tr>
+                                    {{-- 2. DISPLAY ADMINS WITH EXPANDABLE SUB-USERS --}}
+                                    @foreach ($users->where('role', 'Admin') as $item)
+                                    @if (auth()->user()->role === 'SuperAdmin' || auth()->user()->idKlinik === $item->idKlinik)
+                                    @php
+                                    $clinicDoctors = $users->where('role', 'User')->where('idKlinik', $item->idKlinik);
+                                    @endphp
+                                    <tr class="main-row searchable-row" data-admin-id="{{ $item->id }}" onclick="toggleSubRow('users-of-{{ $item->id }}', this)">
+                                        <td style="text-align: center;">
+                                            <i class="fas fa-chevron-right expand-indicator"></i>
+                                        </td>
+                                        <td>
+                                            <div class="user-info-cell">
+                                                <div class="user-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 8px;">
+                                                    <i class="fas fa-hospital"></i>
+                                                </div>
+                                                <div class="user-details">
+                                                    <h4 class="searchable-name">{{ $item->username }}</h4>
+                                                    <span>Kode: {{ $item->klinik ? $item->klinik->kodeKlinik : '-' }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="color: #334155; margin-bottom: 2px;"><i class="fas fa-phone-alt" style="color: #94a3b8; width: 20px;"></i> {{ $item->phoneNumber }}</div>
+                                            <div style="font-size: 0.8rem; color: #64748b; padding-left: 20px;">{{ $item->alamat ?: '-' }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="role-badge role-admin" style="margin-right: 5px;">Admin</span>
+                                            <span class="clinic-badge">{{ $clinicDoctors->count() }} Dokter</span>
+                                        </td>
+                                        @if(auth()->user()->role === 'SuperAdmin')
+                                        <td onclick="event.stopPropagation()">
+                                            <div class="action-links">
+                                                <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
+                                                <span style="color: #cbd5e1;">|</span>
+                                                <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Menghapus Admin ini juga akan menghapus klinik terkait. Lanjutkan?');" style="margin: 0; display: inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="action-link delete">Hapus</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                        @endif
+                                    </tr>
 
-                            {{-- Expanded Pool Row --}}
-                            <tr class="users-sub-row" id="users-of-unassigned" style="display: none; background: #fafbfc;">
-                                <td colspan="5" style="padding: 20px 30px; border-left: 4px solid #ef4444;">
-                                    <div class="sub-table-container">
-                                        <h4 class="sub-table-title" style="color: #ef4444;">
-                                            <i class="fas fa-exclamation-triangle"></i>
-                                            Daftar Dokter Belum Terdistribusi
-                                        </h4>
-                                        <table class="data-table sub-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Nama Dokter</th>
-                                                    <th>Nomor HP</th>
-                                                    <th>Alamat</th>
-                                                    <th>Tentukan Klinik (Admin)</th>
-                                                    <th>Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($unassignedDoctors as $doc)
-                                                <tr>
-                                                    <td>
-                                                        <i class="fas fa-user-md" style="color: #ef4444; margin-right: 6px;"></i>
-                                                        <strong>{{ $doc->username }}</strong>
-                                                    </td>
-                                                    <td>{{ $doc->phoneNumber }}</td>
-                                                    <td>{{ $doc->alamat ?: '-' }}</td>
-                                                    <td>
-                                                        <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" class="quick-reassign-form">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <select name="idKlinik" onchange="this.form.submit()" class="quick-select" style="border-color: rgba(239, 68, 68, 0.3);">
-                                                                <option value="">Pilih Klinik...</option>
-                                                                @foreach($clinics as $c)
-                                                                <option value="{{ $c->id }}">
-                                                                    {{ $c->namaKlinik }}
-                                                                </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </form>
-                                                    </td>
-                                                    <td>
-                                                        <div class="action-dropdown-container">
-                                                            <button class="action-dropdown-trigger" onclick="toggleActionDropdown(event, this)">
-                                                                :
-                                                            </button>
-                                                            <div class="action-dropdown-menu" style="display: none;">
-                                                                <a href="{{ route('viewEditUser', $doc->id) }}" class="dropdown-item">
-                                                                    <i class="fas fa-edit"></i> Edit
-                                                                </a>
-                                                                <form action="{{ route('deleteUser', $doc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');">
+                                    {{-- Expanded Doctors Row --}}
+                                    <tr class="sub-row" id="users-of-{{ $item->id }}">
+                                        <td colspan="{{ auth()->user()->role === 'SuperAdmin' ? 5 : 4 }}" style="padding: 0;">
+                                            <div class="sub-table-container">
+                                                <h5 style="margin: 0 0 0.75rem 0; color: #1e293b; font-size: 0.9rem;">
+                                                    <i class="fas fa-user-md" style="color: #6366f1; margin-right: 6px;"></i>
+                                                    Daftar Dokter Bertugas di {{ $item->username }}
+                                                </h5>
+
+                                                @if($clinicDoctors->isEmpty())
+                                                <div class="empty-sub-state" style="padding: 1.5rem; text-align: center; color: #64748b; border: 1px dashed #e2e8f0; border-radius: 8px;">
+                                                    Tidak ada dokter ditugaskan di klinik ini.
+                                                </div>
+                                                @else
+                                                <table class="sub-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nama Dokter</th>
+                                                            <th>Kontak</th>
+                                                            <th>Alamat</th>
+                                                            @if(auth()->user()->role === 'SuperAdmin')
+                                                            <th>Pindah Penugasan</th>
+                                                            <th>Aksi</th>
+                                                            @endif
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($clinicDoctors as $doc)
+                                                        <tr>
+                                                            <td>
+                                                                <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: #0f172a;">
+                                                                    <i class="fas fa-user-md" style="color: #94a3b8;"></i>
+                                                                    {{ $doc->username }}
+                                                                </div>
+                                                            </td>
+                                                            <td>{{ $doc->phoneNumber }}</td>
+                                                            <td>{{ $doc->alamat ?: '-' }}</td>
+                                                            @if(auth()->user()->role === 'SuperAdmin')
+                                                            <td>
+                                                                <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" style="margin: 0;">
                                                                     @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit" class="dropdown-item delete-item">
-                                                                        <i class="fas fa-trash"></i> Hapus
-                                                                    </button>
+                                                                    @method('PUT')
+                                                                    <select name="idKlinik" class="formal-select" onchange="this.form.submit()">
+                                                                        <option value="">-- Pindah Klinik --</option>
+                                                                        @foreach($clinics as $c)
+                                                                        <option value="{{ $c->id }}" {{ $doc->idKlinik == $c->id ? 'selected' : '' }}>
+                                                                            {{ $c->namaKlinik }}
+                                                                        </option>
+                                                                        @endforeach
+                                                                    </select>
                                                                 </form>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
-                @endif
+                                                            </td>
+                                                            <td>
+                                                                <div class="action-links">
+                                                                    <a href="{{ route('viewEditUser', $doc->id) }}" class="action-link">Edit</a>
+                                                                    <span style="color: #cbd5e1;">|</span>
+                                                                    <form action="{{ route('deleteUser', $doc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');" style="margin: 0; display: inline;">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit" class="action-link delete">Hapus</button>
+                                                                    </form>
+                                                                </div>
+                                                            </td>
+                                                            @endif
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endif
+                                    @endforeach
+
+                                    {{-- 3. DISPLAY UNASSIGNED DOCTORS (POOL) --}}
+                                    @php
+                                    $unassignedDoctors = $users->where('role', 'User')->whereNull('idKlinik');
+                                    @endphp
+                                    @if($unassignedDoctors->isNotEmpty())
+                                    <tr class="main-row searchable-row" data-admin-id="unassigned" onclick="toggleSubRow('users-of-unassigned', this)" style="background: rgba(239, 68, 68, 0.01);">
+                                        <td style="text-align: center;">
+                                            <i class="fas fa-chevron-right expand-indicator" style="color: #ef4444;"></i>
+                                        </td>
+                                        <td>
+                                            <div class="user-info-cell">
+                                                <div class="user-icon" style="background: #fff1f2; color: #ef4444; border-radius: 8px;">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </div>
+                                                <div class="user-details">
+                                                    <h4 class="searchable-name" style="color: #b91c1c;">Dokter Tanpa Klinik (Pool)</h4>
+                                                    <span style="color: #ef4444;">Status: Belum Terdistribusi</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>-</td>
+                                        <td>
+                                            <span class="role-badge role-unassigned" style="margin-right: 5px;">Pool</span>
+                                            <span class="clinic-badge unassigned-badge">{{ $unassignedDoctors->count() }} Dokter</span>
+                                        </td>
+                                        @if(auth()->user()->role === 'SuperAdmin')
+                                        <td>-</td>
+                                        @endif
+                                    </tr>
+
+                                    {{-- Expanded Pool Row --}}
+                                    <tr class="sub-row" id="users-of-unassigned">
+                                        <td colspan="{{ auth()->user()->role === 'SuperAdmin' ? 5 : 4 }}" style="padding: 0;">
+                                            <div class="sub-table-container">
+                                                <h5 style="margin: 0 0 0.75rem 0; color: #b91c1c; font-size: 0.9rem;">
+                                                    <i class="fas fa-exclamation-circle" style="color: #ef4444; margin-right: 6px;"></i>
+                                                    Daftar Dokter Belum Ditugaskan
+                                        </h5>
+                                                <table class="sub-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nama Dokter</th>
+                                                            <th>Kontak</th>
+                                                            <th>Alamat</th>
+                                                            @if(auth()->user()->role === 'SuperAdmin')
+                                                            <th>Tentukan Penugasan</th>
+                                                            <th>Aksi</th>
+                                                            @endif
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($unassignedDoctors as $doc)
+                                                        <tr>
+                                                            <td>
+                                                                <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: #0f172a;">
+                                                                    <i class="fas fa-user-md" style="color: #f87171;"></i>
+                                                                    {{ $doc->username }}
+                                                                </div>
+                                                            </td>
+                                                            <td>{{ $doc->phoneNumber }}</td>
+                                                            <td>{{ $doc->alamat ?: '-' }}</td>
+                                                            @if(auth()->user()->role === 'SuperAdmin')
+                                                            <td>
+                                                                <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" style="margin: 0;">
+                                                                    @csrf
+                                                                    @method('PUT')
+                                                                    <select name="idKlinik" class="formal-select" onchange="this.form.submit()">
+                                                                        <option value="">Pilih Klinik...</option>
+                                                                        @foreach($clinics as $c)
+                                                                        <option value="{{ $c->id }}">
+                                                                            {{ $c->namaKlinik }}
+                                                                        </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </form>
+                                                            </td>
+                                                            <td>
+                                                                <div class="action-links">
+                                                                    <a href="{{ route('viewEditUser', $doc->id) }}" class="action-link">Edit</a>
+                                                                    <span style="color: #cbd5e1;">|</span>
+                                                                    <form action="{{ route('deleteUser', $doc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');" style="margin: 0; display: inline;">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit" class="action-link delete">Hapus</button>
+                                                                    </form>
+                                                                </div>
+                                                            </td>
+                                                            @endif
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                        @endif
+                    </div>
+
+                    <div id="klinik-tab" class="tab-pane" style="display: none;">
+                        <div class="data-card" style="margin-top: 1rem;">
+                            <table class="formal-table" id="clinicsTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"></th>
+                                        <th>Informasi Klinik</th>
+                                        <th>Kontak & Lokasi</th>
+                                        <th>Status</th>
+                                        @if(auth()->user()->role === 'SuperAdmin')
+                                        <th>Aksi</th>
+                                        @endif
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                    $clinicsOnly = $users->where('role', 'Admin');
+                                    @endphp
+
+                                    @if($clinicsOnly->isEmpty())
+                                    <tr>
+                                        <td colspan="{{ auth()->user()->role === 'SuperAdmin' ? 5 : 4 }}" style="text-align: center; padding: 3rem; color: #64748b;">
+                                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; color: #cbd5e1; display: block;"></i>
+                                            Belum ada data klinik terdaftar.
+                                        </td>
+                                    </tr>
+                                    @else
+                                    @foreach ($clinicsOnly as $item)
+                                    @if (auth()->user()->role === 'SuperAdmin' || auth()->user()->idKlinik === $item->idKlinik)
+                                    @php
+                                    $doctorsInClinic = $users->where('role', 'User')->where('idKlinik', $item->idKlinik);
+                                    @endphp
+                                    <tr class="main-row searchable-row" onclick="toggleSubRow('clinic-detail-{{ $item->id }}', this)">
+                                        <td style="text-align: center;">
+                                            <i class="fas fa-chevron-right expand-indicator"></i>
+                                        </td>
+                                        <td>
+                                            <div class="user-info-cell">
+                                                <div class="user-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 8px;">
+                                                    <i class="fas fa-hospital"></i>
+                                                </div>
+                                                <div class="user-details">
+                                                    <h4 class="searchable-name">{{ $item->username }}</h4>
+                                                    <span>Kode: {{ $item->klinik ? $item->klinik->kodeKlinik : '-' }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="color: #334155; margin-bottom: 2px;"><i class="fas fa-phone-alt" style="color: #94a3b8; width: 20px;"></i> {{ $item->phoneNumber }}</div>
+                                            <div style="font-size: 0.8rem; color: #64748b; padding-left: 20px;">{{ $item->alamat ?: '-' }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="clinic-badge">{{ $doctorsInClinic->count() }} Dokter Bertugas</span>
+                                        </td>
+                                        @if(auth()->user()->role === 'SuperAdmin')
+                                        <td onclick="event.stopPropagation()">
+                                            <div class="action-links">
+                                                <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
+                                                <span style="color: #cbd5e1;">|</span>
+                                                <form action="{{ route('deleteUser', $item->id) }}" method="POST" onsubmit="return confirm('Menghapus Admin ini juga akan menghapus klinik terkait. Lanjutkan?');" style="margin: 0; display: inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="action-link delete">Hapus</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                        @endif
+                                    </tr>
+                                    <tr class="sub-row" id="clinic-detail-{{ $item->id }}">
+                                        <td colspan="{{ auth()->user()->role === 'SuperAdmin' ? 5 : 4 }}" style="padding: 0;">
+                                            <div class="sub-table-container">
+                                                <div style="margin-bottom: 1.5rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                                    <h5 style="margin: 0 0 1rem 0; color: #1e293b; font-size: 0.95rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; font-weight: 700;">Detail Informasi Klinik</h5>
+                                                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                                                        <tr>
+                                                            <td style="width: 180px; color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">Nama Klinik (Akun Admin)</td>
+                                                            <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 600; border-bottom: 1px solid #f8fafc;">{{ $item->username }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">Kode Klinik</td>
+                                                            <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 600; border-bottom: 1px solid #f8fafc;">{{ $item->klinik ? $item->klinik->kodeKlinik : '-' }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="color: #64748b; padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;">Kontak (No. HP)</td>
+                                                            <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 600; border-bottom: 1px solid #f8fafc;">{{ $item->phoneNumber }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="color: #64748b; padding: 0.6rem 0;">Alamat Lengkap</td>
+                                                            <td style="color: #0f172a; padding: 0.6rem 0; font-weight: 600;">{{ $item->alamat ?: '-' }}</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+
+                                                <h5 style="margin: 0 0 0.75rem 0; color: #1e293b; font-size: 0.95rem; font-weight: 700;">Daftar Dokter Bertugas</h5>
+                                                @if($doctorsInClinic->isEmpty())
+                                                <div style="padding: 1.5rem; color: #64748b; font-size: 0.9rem; border: 1px dashed #e2e8f0; border-radius: 8px; text-align: center; background: #fff;">
+                                                    Tidak ada dokter ditugaskan di klinik ini.
+                                                </div>
+                                                @else
+                                                <table class="sub-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nama Dokter</th>
+                                                            <th>Kontak</th>
+                                                            @if(auth()->user()->role === 'SuperAdmin')
+                                                            <th>Pindah Penugasan</th>
+                                                            @endif
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($doctorsInClinic as $doc)
+                                                        <tr>
+                                                            <td>
+                                                                <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: #0f172a;">
+                                                                    <i class="fas fa-user-md" style="color: #94a3b8;"></i>
+                                                                    {{ $doc->username }}
+                                                                </div>
+                                                            </td>
+                                                            <td>{{ $doc->phoneNumber }}</td>
+                                                            @if(auth()->user()->role === 'SuperAdmin')
+                                                            <td>
+                                                                <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" style="margin: 0;">
+                                                                    @csrf
+                                                                    @method('PUT')
+                                                                    <select name="idKlinik" class="formal-select" onchange="this.form.submit()">
+                                                                        <option value="">-- Pindah Klinik --</option>
+                                                                        @foreach($clinics as $c)
+                                                                        <option value="{{ $c->id }}" {{ $doc->idKlinik == $c->id ? 'selected' : '' }}>
+                                                                            {{ $c->namaKlinik }}
+                                                                        </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </form>
+                                                            </td>
+                                                            @endif
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endif
+                                    @endforeach
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
             </div>
 
             @if(auth()->user()->role === 'SuperAdmin')
@@ -370,82 +545,60 @@
     </section>
 </div>
 
-{{-- Dropdown Action Menu Script --}}
+{{-- Toggle Expand/Collapse Sub-Table Script --}}
 <script>
-    function toggleActionDropdown(event, button) {
-        event.stopPropagation();
-
-        // Close all other open action dropdowns first
-        document.querySelectorAll('.action-dropdown-menu').forEach(menu => {
-            if (menu !== button.nextElementSibling) {
-                menu.style.display = 'none';
-            }
+    function switchTab(event, tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.color = '#64748b';
+            btn.style.borderBottom = 'none';
         });
+        event.currentTarget.classList.add('active');
+        event.currentTarget.style.color = '#6366f1';
+        event.currentTarget.style.borderBottom = '2px solid #6366f1';
 
-        // Toggle the current dropdown
-        const menu = button.nextElementSibling;
-        if (menu.style.display === 'none' || menu.style.display === '') {
-            menu.style.display = 'block';
-        } else {
-            menu.style.display = 'none';
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.style.display = 'none';
+        });
+        document.getElementById(tabId).style.display = 'block';
+    }
+
+    function toggleSubRow(id, rowElement) {
+        const subRow = document.getElementById(id);
+        if (subRow) {
+            if (subRow.classList.contains('active')) {
+                subRow.classList.remove('active');
+                rowElement.classList.remove('expanded');
+            } else {
+                subRow.classList.add('active');
+                rowElement.classList.add('expanded');
+            }
         }
     }
 
-    // Close dropdowns if clicked anywhere else on the document
-    document.addEventListener('click', function() {
-        document.querySelectorAll('.action-dropdown-menu').forEach(menu => {
-            menu.style.display = 'none';
-        });
-    });
-</script>
-
-{{-- Toggle Expand/Collapse Sub-Table Script --}}
-<script>
     document.addEventListener('DOMContentLoaded', function() {
-        const adminRows = document.querySelectorAll('.admin-row');
-
-        adminRows.forEach(row => {
-            row.addEventListener('click', function(e) {
-                // Prevent toggle when clicking actions, buttons, select, forms, or triggers
-                if (e.target.closest('.action-dropdown-container') || e.target.closest('.quick-select') || e.target.closest('form')) {
-                    return;
-                }
-
-                const adminId = this.dataset.adminId;
-                const subRow = document.getElementById('users-of-' + adminId);
-                const chevron = this.querySelector('.toggle-icon');
-
-                if (subRow) {
-                    if (subRow.style.display === 'none') {
-                        subRow.style.display = 'table-row';
-                        chevron.style.transform = 'rotate(90deg)';
-                        this.classList.add('active-expanded');
-                    } else {
-                        subRow.style.display = 'none';
-                        chevron.style.transform = 'rotate(0deg)';
-                        this.classList.remove('active-expanded');
-                    }
-                }
-            });
-        });
-
         // Quick live filter search box
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.addEventListener('keyup', function() {
-                const value = this.value.toLowerCase();
-                const adminRows = document.querySelectorAll('.admin-row');
+                const query = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.searchable-row');
 
-                adminRows.forEach(row => {
-                    const titleText = row.querySelector('.clinic-title-text').innerText.toLowerCase();
-                    const adminId = row.dataset.adminId;
-                    const subRow = document.getElementById('users-of-' + adminId);
+                rows.forEach(row => {
+                    const name = row.querySelector('.searchable-name').textContent.toLowerCase();
+                    const onclickAttr = row.getAttribute('onclick');
+                    const match = onclickAttr ? onclickAttr.match(/'([^']+)'/) : null;
+                    const subRowId = match ? match[1] : null;
+                    const subRow = subRowId ? document.getElementById(subRowId) : null;
 
-                    if (titleText.indexOf(value) > -1) {
-                        row.style.display = "";
+                    if (name.includes(query)) {
+                        row.style.display = '';
                     } else {
-                        row.style.display = "none";
-                        if (subRow) subRow.style.display = "none";
+                        row.style.display = 'none';
+                        if (subRow) {
+                            subRow.classList.remove('active');
+                            row.classList.remove('expanded');
+                        }
                     }
                 });
             });
@@ -453,118 +606,207 @@
     });
 </script>
 
-{{-- Styling for expandable sub-tables & action dropdowns --}}
+{{-- Styling for expandable sub-tables & formal layout --}}
 <style>
-    .admin-row {
-        cursor: pointer;
-        transition: background 0.2s ease;
+    .data-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
-    .admin-row:hover {
-        background: #f8fafc !important;
+    .formal-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
     }
 
-    .admin-row.active-expanded {
-        background: #f8fafc !important;
-        border-bottom-color: transparent;
+    .formal-table th {
+        background-color: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
     }
 
-    .clinic-code-badge {
-        background: rgba(99, 102, 241, 0.08);
-        color: #6366f1;
-        font-weight: 700;
-        padding: 3px 8px;
-        border-radius: 8px;
-        margin-right: 6px;
-        font-size: 12px;
-        border: 1px solid rgba(99, 102, 241, 0.15);
-        font-family: monospace;
-        display: inline-block;
-    }
-
-    .badge-count {
-        background: rgba(99, 102, 241, 0.08);
-        color: #4f46e5;
-        padding: 4px 8px;
-        font-size: 11px;
-        font-weight: 700;
-        border-radius: 99px;
-        margin-left: 8px;
+    .formal-table td {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        color: #334155;
+        font-size: 0.875rem;
         vertical-align: middle;
     }
 
-    .sub-table-container {
-        padding: 10px 0;
+    .formal-table tr:last-child td {
+        border-bottom: none;
     }
 
-    .sub-table-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: #374151;
-        margin-bottom: 12px;
+    .formal-table tr:hover {
+        background-color: #f8fafc;
+    }
+
+    .user-info-cell {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 1rem;
     }
 
-    .sub-table-title span {
-        color: #6366f1;
+    .user-icon {
+        width: 40px;
+        height: 40px;
+        background: #eff6ff;
+        color: #2563eb;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
     }
 
-    .empty-sub-state {
-        padding: 20px;
-        text-align: center;
-        color: #6b7280;
-        font-size: 13px;
-        background: #fff;
-        border: 1px dashed #e5e7eb;
-        border-radius: 12px;
+    .user-details h4 {
+        margin: 0;
+        color: #0f172a;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .user-details span {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .clinic-badge {
+        display: inline-block;
+        padding: 0.25rem 0.6rem;
+        background: #eff6ff;
+        color: #1e40af;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid #dbeafe;
+    }
+
+    .unassigned-badge {
+        background: #fff1f2;
+        color: #991b1b;
+        border-color: #fecdd3;
+    }
+
+    .action-links {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .action-link {
+        color: #64748b;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .action-link:hover {
+        color: #3b82f6;
+    }
+
+    .action-link.delete:hover {
+        color: #ef4444;
+    }
+
+    .main-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .main-row:hover {
+        background-color: #f8fafc;
+    }
+
+    .main-row.expanded {
+        background-color: #f8fafc;
+        border-bottom: none;
+    }
+
+    .main-row.expanded td {
+        border-bottom: none;
+    }
+
+    .sub-row {
+        display: none;
+        background-color: #f8fafc;
+    }
+
+    .sub-row.active {
+        display: table-row;
+    }
+
+    .sub-table-container {
+        padding: 1.5rem 1.5rem 1.5rem 4rem;
+    }
+
+    .expand-indicator {
+        color: #94a3b8;
+        font-size: 0.8rem;
+        transition: transform 0.2s ease;
+    }
+
+    .main-row.expanded .expand-indicator {
+        transform: rotate(90deg);
+    }
+
+    .formal-select {
+        padding: 0.4rem 0.65rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: #334155;
+        background-color: #fff;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .formal-select:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     }
 
     .sub-table {
         width: 100%;
-        background: #fff !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
+        border-collapse: collapse;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
         overflow: hidden;
     }
 
     .sub-table th {
-        background: #f9fafb !important;
-        padding: 12px 16px !important;
-        font-size: 12px !important;
-        font-weight: 600 !important;
-        color: #4b5563 !important;
-        border-bottom: 1px solid #e5e7eb !important;
+        background-color: #f8fafc;
+        padding: 0.75rem 1rem;
+        font-size: 0.75rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #e2e8f0;
     }
 
     .sub-table td {
-        padding: 12px 16px !important;
-        font-size: 13px !important;
-        border-bottom: 1px solid #f3f4f6 !important;
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
     }
 
-    .sub-table tr:hover {
-        background: #fafbfc !important;
-    }
-
-    .quick-select {
-        padding: 6px 12px;
-        border: 1px solid #cbd5e1;
-        background: #fff;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 500;
-        color: #374151;
-        outline: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .quick-select:focus {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    .sub-table tr:last-child td {
+        border-bottom: none;
     }
 
     .role-badge {
@@ -593,91 +835,6 @@
     .role-unassigned {
         background: rgba(239, 68, 68, 0.1);
         color: #ef4444;
-    }
-
-    /* Action Dropdown Styles */
-    .action-dropdown-container {
-        position: relative;
-        display: inline-block;
-    }
-
-    .action-dropdown-trigger {
-        background: none;
-        border: none;
-        font-size: 20px;
-        font-weight: bold;
-        color: #4b5563;
-        padding: 4px 12px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1;
-    }
-
-    .action-dropdown-trigger:hover {
-        background: #f1f5f9;
-        color: #111827;
-    }
-
-    .action-dropdown-menu {
-        position: absolute;
-        right: 0;
-        top: 100%;
-        margin-top: 6px;
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-        z-index: 100;
-        min-width: 140px;
-        overflow: hidden;
-        animation: dropdownFadeIn 0.15s ease-out;
-    }
-
-    .dropdown-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
-        padding: 10px 16px;
-        font-size: 13px;
-        font-weight: 500;
-        color: #374151;
-        text-decoration: none;
-        border: none;
-        background: none;
-        text-align: left;
-        cursor: pointer;
-        transition: background 0.15s ease;
-    }
-
-    .dropdown-item:hover {
-        background: #f8fafc;
-        color: #111827;
-    }
-
-    .dropdown-item.delete-item {
-        color: #ef4444;
-    }
-
-    .dropdown-item.delete-item:hover {
-        background: rgba(239, 68, 68, 0.05);
-        color: #ef4444;
-    }
-
-    @keyframes dropdownFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-5px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 </style>
 @endsection

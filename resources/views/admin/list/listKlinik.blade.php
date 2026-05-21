@@ -305,6 +305,7 @@
                         </tr>
                     @else
                         @foreach ($clinicsOnly as $item)
+                        @if (auth()->user()->role === 'SuperAdmin' || auth()->user()->idKlinik === $item->idKlinik)
                         @php
                             $doctorsInClinic = $users->where('role', 'User')->where('idKlinik', $item->idKlinik);
                         @endphp
@@ -419,6 +420,7 @@
                                 </div>
                             </td>
                         </tr>
+                        @endif
                         @endforeach
                     @endif
                 </tbody>
@@ -426,6 +428,7 @@
         </div>
 
         <!-- Unassigned Doctors Pool -->
+        @if(auth()->user()->role === 'SuperAdmin')
         @php
             $unassignedDoctors = $users->where('role', 'User')->whereNull('idKlinik');
         @endphp
@@ -478,6 +481,7 @@
                 </tbody>
             </table>
         </div>
+        @endif
         @endif
 
     </div>

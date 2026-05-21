@@ -14,9 +14,11 @@
                 <h1>Daftar Produk</h1>
             </div>
 
+            @if(auth()->user()->role === 'SuperAdmin')
             <a href="{{ route('viewEditStok') }}" class="back-btn">
                 ← Edit Stok
             </a>
+            @endif
             <a href="{{ route('dashboard') }}" class="back-btn">
                 ← Back Dashboard
             </a>
@@ -25,7 +27,7 @@
         <div class="main-container">
 
             <!-- LEFT -->
-            <div class="produk-list">
+            <div class="produk-list" @if(auth()->user()->role !== 'SuperAdmin') style="margin-right: 20px;" @endif>
                 @if (session('success'))
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle"></i> {{ session('success') }}
@@ -55,8 +57,10 @@
                                 <th>Kategori</th>
                                 <th>Harga</th>
                                 <th>Stok</th>
+                                @if(auth()->user()->role === 'SuperAdmin')
                                 <th>Update Stok</th>
                                 <th>Aksi</th>
+                                @endif
                             </tr>
                         </thead>
 
@@ -88,6 +92,7 @@
                                             {{ $item->stok }} unit
                                         </span>
                                     </td>
+                                    @if(auth()->user()->role === 'SuperAdmin')
                                     <td>
                                         <form action="{{ route('produk.updateStok', $item->id) }}" method="POST" style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
                                             @csrf
@@ -115,6 +120,7 @@
                                             </button>
                                         </form>
                                     </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
@@ -123,6 +129,7 @@
             </div>
 
             <!-- RIGHT -->
+            @if(auth()->user()->role === 'SuperAdmin')
             <div class="create-box">
 
                 <h2>Create Produk</h2>
@@ -200,6 +207,7 @@
                 </form>
 
             </div>
+            @endif
 
         </div>
     </div>

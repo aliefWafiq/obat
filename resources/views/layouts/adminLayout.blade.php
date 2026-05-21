@@ -23,36 +23,71 @@
             </div>
         </div>
         <nav class="sidebar-nav">
+            <!-- CORE MENU -->
+            <div class="nav-section-title">Core / Utama</div>
             <a href="{{ route('dashboard') }}" class="nav-item" data-section="dashboard">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
+
+            <!-- SALES & TRANSACTIONS -->
+            <div class="nav-section-title">Transaksi & Penjualan</div>
             <a href="{{ route('listTransaksi') }}" class="nav-item" data-section="transaksi">
                 <i class="fas fa-exchange-alt"></i> Transaksi
             </a>
             <a href="{{ route('listPenjualan') }}" class="nav-item" data-section="penjualan">
                 <i class="fas fa-chart-line"></i> Laporan Penjualan
             </a>
-            <a href="{{ route('listAkun') }}" class="nav-item" data-section="akun">
-                <i class="fas fa-users-cog"></i> Data Akun
+            <a href="{{ route('listInvoice') }}" class="nav-item" data-section="invoices">
+                <i class="fas fa-file-invoice-dollar"></i> Invoice & Tagihan
             </a>
-            <a href="{{ route('listUser') }}" class="nav-item" data-section="user" style="padding-left: 2.5rem; font-size: 0.9rem;">
-                <i class="fas fa-user-md"></i> Data User
-            </a>
-            @if(auth()->user()->role === 'SuperAdmin')
-            <a href="{{ route('listKlinik') }}" class="nav-item" data-section="klinik" style="padding-left: 2.5rem; font-size: 0.9rem;">
-                <i class="fas fa-clinic-medical"></i> Data Klinik
-            </a>
+
+            <!-- INVENTORY & MEDICINES -->
+            <div class="nav-section-title">Inventaris & Produk</div>
             <a href="{{ route('listProduk') }}" class="nav-item" data-section="obat">
                 <i class="fas fa-capsules"></i> Data Obat
             </a>
+            @if(auth()->user()->role === 'SuperAdmin')
             <a href="{{ route('listCategory') }}" class="nav-item" data-section="kategori">
-                <i class="fas fa-tags"></i> Data Kategori
+                <i class="fas fa-tags"></i> Kategori Obat
             </a>
+            @endif
+            <a href="#" class="nav-item" data-section="supplier" onclick="alert('coming soon ya geng :>')">
+                <i class="fas fa-truck-loading"></i> Data Supplier
+            </a>
+
+            <!-- USER & CLINIC MANAGEMENT -->
+            <div class="nav-section-title">Manajemen Klinik & User</div>
+            <a href="{{ route('listAkun') }}" class="nav-item" data-section="akun">
+                <i class="fas fa-users-cog"></i> Data Akun
+            </a>
+            <a href="{{ route('listUser') }}" class="nav-item" data-section="user" style="padding-left: 2rem; font-size: 0.85rem;">
+                <i class="fas fa-user-md"></i> Daftar Dokter
+            </a>
+            @if(auth()->user()->role === 'SuperAdmin' || auth()->user()->role === 'Admin')
+            <a href="{{ route('listKlinik') }}" class="nav-item" data-section="klinik" style="padding-left: 2rem; font-size: 0.85rem;">
+                <i class="fas fa-clinic-medical"></i> Daftar Klinik
+            </a>
+            @endif
+
+            <!-- PROMOTIONS & MARKETING -->
+            @if(auth()->user()->role === 'SuperAdmin')
+            <div class="nav-section-title">Promosi & Program</div>
             <a href="{{ route('listProgram') }}" class="nav-item" data-section="BuatProgram">
-                <i class="fas fa-cog"></i> Buat Program
+                <i class="fas fa-gift"></i> Buat Program
             </a>
             <a href="{{ route('listDiskon') }}" class="nav-item" data-section="BuatDiskon">
-                <i class="fas fa-cog"></i> List Diskon
+                <i class="fas fa-percentage"></i> List Diskon
+            </a>
+            @endif
+
+            <!-- SYSTEM & SUPPORT -->
+            @if(auth()->user()->role === 'SuperAdmin')
+            <div class="nav-section-title">Sistem & Bantuan</div>
+            <a href="{{ route('viewSettings') }}" class="nav-item" data-section="settings">
+                <i class="fas fa-sliders-h"></i> Pengaturan
+            </a>
+            <a href="{{ route('viewActivityLogs') }}" class="nav-item" data-section="activity-logs">
+                <i class="fas fa-history"></i> Log Aktivitas
             </a>
             @endif
         </nav>

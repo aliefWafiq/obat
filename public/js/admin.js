@@ -22,6 +22,11 @@ function initActiveNav() {
     const navItems = document.querySelectorAll(".nav-item");
     navItems.forEach(item => {
         try {
+            const hrefAttr = item.getAttribute('href');
+            if (!hrefAttr || hrefAttr === '#' || hrefAttr.startsWith('javascript:')) {
+                item.classList.remove('active');
+                return;
+            }
             const itemPath = new URL(item.href).pathname;
             if (currentPath === itemPath) {
                 item.classList.add('active');

@@ -125,21 +125,25 @@ body {
 }
 
 /* Custom Highlight item */
-.nav-item[data-section="penjualan"] {
+.nav-item[data-section="penjualan"],
+.nav-item[data-section="invoices"] {
     background: rgba(245, 158, 11, 0.08);
     color: #fcd34d;
 }
 
-.nav-item[data-section="penjualan"] i {
+.nav-item[data-section="penjualan"] i,
+.nav-item[data-section="invoices"] i {
     color: #fbbf24;
 }
 
-.nav-item[data-section="penjualan"]:hover {
+.nav-item[data-section="penjualan"]:hover,
+.nav-item[data-section="invoices"]:hover {
     background: rgba(245, 158, 11, 0.12);
     color: #fef08a;
 }
 
-.nav-item[data-section="penjualan"] .nav-badge {
+.nav-item[data-section="penjualan"] .nav-badge,
+.nav-item[data-section="invoices"] .nav-badge {
     margin-left: auto;
     font-size: 0.75rem;
     color: #fef3c7;
@@ -1405,4 +1409,15 @@ body {
 
 .action-divider {
     color: #cbd5e1;
+}
+
+/* Sidebar Nav Section Header style */
+.nav-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #475569; /* Slate 600 */
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 1.2rem 1rem 0.4rem 1rem;
+    user-select: none;
 }

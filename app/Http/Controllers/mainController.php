@@ -359,5 +359,39 @@ class mainController extends Controller
     {
         return view('admin.edit.editStok');
     }
+
+    public function listInvoice()
+    {
+        $users = User::all();
+        $clinics = KodeKlinik::all();
+
+        if (auth()->user()->role === 'SuperAdmin') {
+            $pemesanan = Pemesanan::with(['user.klinik', 'details.produk'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $clinicId = auth()->user()->idKlinik;
+            $pemesanan = Pemesanan::whereHas('user', function ($query) use ($clinicId) {
+                $query->where('idKlinik', $clinicId);
+            })->with(['user.klinik', 'details.produk'])
+              ->orderBy('created_at', 'desc')
+              ->get();
+        }
+
+        return view('admin.list.listInvoice', compact('pemesanan', 'clinics', 'users'));
+    }
+
+    public function viewSettings()
+    {
+        return view('admin.list.settings');
+    }
+
+    public function viewActivityLogs()
+    {
+        $recentUsers = User::orderBy('created_at', 'desc')->take(10)->get();
+        $recentOrders = Pemesanan::with('user.klinik')->orderBy('created_at', 'desc')->take(10)->get();
+        
+        return view('admin.list.activityLogs', compact('recentUsers', 'recentOrders'));
+    }
 }
 

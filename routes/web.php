@@ -54,6 +54,11 @@ Route::get('/dashboard/buatDiskon/edit/{id}', [mainController::class, 'viewEditD
 
 Route::get('/logOut', [actionController::class, 'signOut'])->name('logOut')->middleware('auth');
 
+// New Routes for Billing, Settings, and Activity Logs
+Route::get('/dashboard/invoice', [mainController::class, 'listInvoice'])->name('listInvoice')->middleware(['auth', 'admin']);
+Route::get('/dashboard/settings', [mainController::class, 'viewSettings'])->name('viewSettings')->middleware(['auth', 'admin']);
+Route::get('/dashboard/activity-logs', [mainController::class, 'viewActivityLogs'])->name('viewActivityLogs')->middleware(['auth', 'admin']);
+
 Route::post('/register/action', [actionController::class, 'register']);
 Route::post('/registerKlinik/action', [actionController::class, 'registerKlinik'])->name('registerKlinik');
 Route::post('/login/action', [actionController::class,  'login']);
