@@ -79,6 +79,9 @@ Route::put('/user/update/{id}', [actionController::class, 'updateUser'])->name('
 Route::put('/user/reassign/{id}', [actionController::class, 'reassignUserClinic'])->name('reassignUserClinic')->middleware(['auth', 'admin']);
 Route::put('/program/update/{id}', [actionController::class, 'updateProgram'])->name('updateProgram');
 Route::put('/diskon/update/{id}', [actionController::class, 'updateDiskon'])->name('updateDiskon');
+Route::put('/admin/settings/update', [actionController::class, 'updateSettings'])->name('admin.settings.update')->middleware(['auth', 'admin']);
+Route::post('/admin/settings/backup', [actionController::class, 'backupDatabase'])->name('admin.settings.backup')->middleware(['auth', 'admin']);
+Route::post('/admin/settings/restore', [actionController::class, 'restoreDatabase'])->name('admin.settings.restore')->middleware(['auth', 'admin']);
 
 Route::delete('/removeItemKeranjang/{id}', [actionController::class, 'removeItemKeranjang'])->name('removeItemKeranjang');
 Route::delete('/produk/delete/{id}', [actionController::class, 'deleteProduk'])->name('deleteProduk');

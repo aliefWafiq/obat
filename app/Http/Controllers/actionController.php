@@ -22,6 +22,7 @@ use App\Models\DetailPemesanan;
 use App\Models\BuatProgram;
 use App\Models\KodeKlinik;
 use App\Models\KuantitasDiskon;
+use App\Models\Setting;
 
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -39,18 +40,34 @@ class actionController extends Controller
 
     public function register(Request $request)
     {
+        if (Setting::get('pendaftaranMandiriDokter', 'false') === 'true' || Setting::get('pendaftaranMandiriDokter', 'false') === '1') {
+            return redirect()->route('login')->with('error', 'Fitur registrasi mandiri sedang dinonaktifkan.');
+        }
+
+        $passwordRules = ['required'];
+        $passwordMessages = [
+            'password.required' => 'Password wajib diisi.'
+        ];
+
+        if (Setting::get('paksaKebijakanSandi') === 'true' || Setting::get('paksaKebijakanSandi') === '1') {
+            $passwordRules[] = \Illuminate\Validation\Rules\Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers()
+                ->symbols();
+        }
+
         $request->validate([
             'username' => 'required',
             'alamat' => 'required',
             'phoneNumber' => 'required|unique:users,phoneNumber',
-            'password' => 'required'
-        ], [
+            'password' => $passwordRules
+        ], array_merge([
             'username.required' => 'Username wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
             'phoneNumber.required' => 'Nomor telepon wajib diisi.',
-            'phoneNumber.unique' => 'Nomor telepon sudah terdaftar.',
-            'password.required' => 'Password wajib diisi.'
-        ]);
+            'phoneNumber.unique' => 'Nomor telepon sudah terdaftar.'
+        ], $passwordMessages));
 
         $password = Hash::make($request->input('password'));
 
@@ -62,7 +79,7 @@ class actionController extends Controller
             return redirect('/register')->with('error', 'Kode klinik tidak terdaftar.');
         }
 
-        User::create([
+        $newUser = User::create([
             'username' => $request->input('username'),
             'alamat' => $request->input('alamat'),
             'phoneNumber' => $request->input('phoneNumber'),
@@ -71,23 +88,37 @@ class actionController extends Controller
             'idKlinik' => $selectedKlinik->id
         ]);
 
+        logActivity('auth', "Registrasi pengguna baru: {$newUser->username}", User::class, $newUser->id);
+
         return redirect('/')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
     }
 
     public function registerKlinik(Request $request)
     {
+        $passwordRules = ['required'];
+        $passwordMessages = [
+            'password.required' => 'Password wajib diisi.'
+        ];
+
+        if (Setting::get('paksaKebijakanSandi') === 'true' || Setting::get('paksaKebijakanSandi') === '1') {
+            $passwordRules[] = \Illuminate\Validation\Rules\Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers()
+                ->symbols();
+        }
+
         $request->validate([
             'username' => 'required',
             'alamat' => 'required',
             'phoneNumber' => 'required|unique:users,phoneNumber',
-            'password' => 'required'
-        ], [
+            'password' => $passwordRules
+        ], array_merge([
             'username.required' => 'Username wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
             'phoneNumber.required' => 'Nomor telepon wajib diisi.',
-            'phoneNumber.unique' => 'Nomor telepon sudah terdaftar.',
-            'password.required' => 'Password wajib diisi.'
-        ]);
+            'phoneNumber.unique' => 'Nomor telepon sudah terdaftar.'
+        ], $passwordMessages));
 
         $password = Hash::make($request->input('password'));
 
@@ -116,6 +147,8 @@ class actionController extends Controller
 
             DB::commit();
 
+            logActivity('auth', "Registrasi klinik baru: {$klinik->namaKlinik} dan admin: {$user->username}", User::class, $user->id, ['klinik_id' => $klinik->id]);
+
             return redirect('/dashboard/user')->with('success', 'Akun admin berhasil dibuat dengan Kode Klinik: ' . $kodeKlinik);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -132,6 +165,7 @@ class actionController extends Controller
         $check = User::where('phoneNumber', $data['phoneNumber'])->first();
 
         if (Auth::attempt($data)) {
+            logActivity('auth', "Pengguna login: {$check->username}", User::class, $check->id);
             if ($check->role == 'SuperAdmin' || $check->role == 'Admin') {
                 return redirect('/dashboard');
             } else {
@@ -144,6 +178,10 @@ class actionController extends Controller
 
     public function signOut()
     {
+        $user = Auth::user();
+        if ($user) {
+            logActivity('auth', "Pengguna logout: {$user->username}", User::class, $user->id);
+        }
         Auth::logout();
         return redirect('/')->with('success', 'Anda berhasil keluar.');
     }
@@ -169,9 +207,7 @@ class actionController extends Controller
             'stok.required' => 'Stok produk wajib diisi.',
         ]);
 
-        $request->file('gambar')->store('images', 'public');
-
-        Produk::create([
+        $produk = Produk::create([
             'kodeProduk' => $request->input('kodeProduk'),
             'namaProduk' => $request->input('namaProduk'),
             'deskripsi' => $request->input('deskripsi'),
@@ -180,6 +216,8 @@ class actionController extends Controller
             'stok' => $request->input('stok'),
             'gambar' => $request->file('gambar')->store('images', 'public')
         ]);
+
+        logActivity('product', "Menambahkan produk baru: {$produk->namaProduk} (Stok: {$produk->stok}, Harga: Rp " . number_format($produk->harga, 0, ',', '.') . ")", Produk::class, $produk->id, ['stok' => $produk->stok, 'harga' => $produk->harga]);
 
         return redirect('/dashboard/produk')->with('success', 'Produk berhasil ditambahkan.');
     }
@@ -209,6 +247,7 @@ class actionController extends Controller
         }
 
         if ($produk) {
+            $oldNama = $produk->namaProduk;
             $produk->update([
                 'gambar' => $gambar,
                 'namaProduk' => $request->input('namaProduk'),
@@ -217,6 +256,7 @@ class actionController extends Controller
                 'harga' => $request->input('harga'),
                 'stok' => $request->input('stok')
             ]);
+            logActivity('product', "Memperbarui data produk: {$oldNama} menjadi {$produk->namaProduk}", Produk::class, $produk->id);
             return redirect('/dashboard/produk')->with('success', 'Produk berhasil diperbarui.');
         } else {
             return redirect('/dashboard/produk')->with('error', 'Produk tidak ditemukan.');
@@ -235,9 +275,12 @@ class actionController extends Controller
 
         $produk = Produk::find($id);
         if ($produk) {
+            $oldStok = $produk->stok;
+            $newStok = $request->input('stok');
             $produk->update([
-                'stok' => $request->input('stok')
+                'stok' => $newStok
             ]);
+            logActivity('stock', "Memperbarui stok produk {$produk->namaProduk}: {$oldStok} -> {$newStok}", Produk::class, $produk->id, ['old_stock' => $oldStok, 'new_stock' => $newStok]);
             return redirect()->back()->with('success', 'Stok produk ' . $produk->namaProduk . ' berhasil diperbarui.');
         } else {
             return redirect()->back()->with('error', 'Produk tidak ditemukan.');
@@ -249,7 +292,10 @@ class actionController extends Controller
         $produk = Produk::find($id);
         if ($produk) {
             Storage::disk('public')->delete($produk->gambar);
+            $namaProduk = $produk->namaProduk;
+            $produkId = $produk->id;
             $produk->delete();
+            logActivity('product', "Menghapus produk: {$namaProduk}", Produk::class, $produkId);
             return redirect('/dashboard/produk')->with('success', 'Produk berhasil dihapus.');
         } else {
             return redirect('/dashboard/produk')->with('error', 'Produk tidak ditemukan.');
@@ -440,7 +486,37 @@ class actionController extends Controller
             return redirect('/keranjang')->with('error', 'Stok produk tidak mencukupi untuk jumlah yang Anda pesan.');
         }
 
-        $kodePemesanan = 'PM' . time() . rand(1000, 9999);
+        $format = Setting::get('formatKode', 'ORD-{YEAR}-{MONTH}-{RAND:4}');
+        $year = date('Y');
+        $month = date('m');
+        $day = date('d');
+        
+        $kodePemesanan = str_replace(
+            ['{YEAR}', '{MONTH}', '{DAY}'],
+            [$year, $month, $day],
+            $format
+        );
+        
+        // Tangani {RAND:N}
+        $kodePemesanan = preg_replace_callback('/\{RAND:(\d+)\}/', function ($matches) {
+            $length = (int)$matches[1];
+            if ($length <= 0) return '';
+            $min = pow(10, $length - 1);
+            $max = pow(10, $length) - 1;
+            return (string)rand($min, $max);
+        }, $kodePemesanan);
+        
+        if (empty($kodePemesanan)) {
+            $kodePemesanan = 'PM' . time() . rand(1000, 9999);
+        }
+
+        // Pastikan kodePemesanan unik di database
+        $baseKode = $kodePemesanan;
+        $counter = 1;
+        while (Pemesanan::where('kodePemesanan', $kodePemesanan)->exists()) {
+            $kodePemesanan = $baseKode . '-' . $counter;
+            $counter++;
+        }
         $estimasiPembayaran = now()->addDays(21)->format('Y-m-d');
         $estimasiPengiriman = now()->addDays(5)->format('Y-m-d');
 
@@ -452,6 +528,14 @@ class actionController extends Controller
             'estimasipembayaran' => $estimasiPembayaran,
             'estimasiPengantaran' => $estimasiPengiriman
         ]);
+
+        logActivity(
+            'transaction', 
+            "Membuat transaksi baru dengan kode: {$pemesanan->kodePemesanan} sebesar Rp " . number_format($pemesanan->totalHarga, 0, ',', '.'),
+            Pemesanan::class,
+            $pemesanan->id,
+            ['totalHarga' => $pemesanan->totalHarga]
+        );
 
         foreach ($itemKeranjang as $item) {
             $subtotal = $item->produk->harga * $item->jumlah;
@@ -508,8 +592,22 @@ class actionController extends Controller
 
             if ($request->transaction_status == 'capture' || $request->transaction_status == 'settlement') {
                 $order->update(['status' => 'Lunas']);
+                logActivity(
+                    'transaction',
+                    "Status transaksi {$order->kodePemesanan} diperbarui menjadi: Lunas via Midtrans",
+                    Pemesanan::class,
+                    $order->id,
+                    ['status' => 'Lunas']
+                );
             } elseif (in_array($request->transaction_status, ['deny', 'expire', 'cancel'])) {
                 $order->update(['status' => 'Gagal']);
+                logActivity(
+                    'transaction',
+                    "Status transaksi {$order->kodePemesanan} diperbarui menjadi: Gagal ({$request->transaction_status}) via Midtrans",
+                    Pemesanan::class,
+                    $order->id,
+                    ['status' => 'Gagal', 'transaction_status' => $request->transaction_status]
+                );
             }
 
             return response()->json(['message' => 'Success']);
@@ -581,7 +679,7 @@ class actionController extends Controller
             return redirect()->back()->with('error', 'Struk hanya dapat dicetak untuk pesanan yang sudah lunas.');
         }
 
-        if ($pesanan->idUser !== Auth::id() && Auth::user()->role !== 'Admin') {
+        if (Auth::user()->role !== 'SuperAdmin' && Auth::user()->role !== 'Admin' &&  $pesanan->idUser !== Auth::id()) {
             return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mencetak struk ini.');
         }
 
@@ -741,6 +839,7 @@ class actionController extends Controller
                         'stok' => $newStok
                     ]);
                     $updated[] = [
+                        'id' => $produk->id,
                         'kode' => $item['kode'],
                         'nama' => $produk->namaProduk,
                         'stok_lama' => $oldStok,
@@ -753,10 +852,178 @@ class actionController extends Controller
             }
         });
 
+        if (!empty($updated)) {
+            $updatedNames = array_map(function($u) {
+                return $u['nama'] . " (+{$u['tambahan']})";
+            }, $updated);
+            logActivity(
+                'stock',
+                "Pembaruan stok massal untuk produk: " . implode(', ', $updatedNames),
+                null,
+                null,
+                ['updated_items' => $updated]
+            );
+        }
+
         return response()->json([
             'success' => true,
             'updated' => $updated,
             'not_found' => $notFound
         ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $inputs = $request->except(['_token', '_method', '_checkboxes']);
+        $changedSettings = [];
+
+        if ($request->has('_checkboxes')) {
+            $checkboxKeys = explode(',', $request->input('_checkboxes'));
+            foreach ($checkboxKeys as $cbKey) {
+                $cbKey = trim($cbKey);
+                if (!empty($cbKey) && !$request->has($cbKey)) {
+                    $oldVal = Setting::get($cbKey);
+                    if ($oldVal !== '0') {
+                        Setting::set($cbKey, '0');
+                        $changedSettings[$cbKey] = ['old' => $oldVal, 'new' => '0'];
+                    }
+                }
+            }
+        }
+
+        foreach ($inputs as $key => $value) {
+            $oldVal = Setting::get($key);
+            if ($request->hasFile($key) && $request->file($key)->isValid()) {
+                $oldFile = Setting::get($key);
+                if ($oldFile) {
+                    Storage::disk('public')->delete($oldFile);
+                }
+                
+                $path = $request->file($key)->store('settings', 'public');
+                Setting::set($key, $path);
+                $changedSettings[$key] = ['old' => $oldVal, 'new' => $path];
+                continue;
+            }
+
+            if ($oldVal !== $value) {
+                Setting::set($key, $value);
+                $changedSettings[$key] = ['old' => $oldVal, 'new' => $value];
+            }
+        }
+
+        if (!empty($changedSettings)) {
+            $keysChanged = implode(', ', array_keys($changedSettings));
+            logActivity(
+                'setting',
+                "Memperbarui pengaturan website: {$keysChanged}",
+                null,
+                null,
+                ['changes' => $changedSettings]
+            );
+        }
+
+        return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui!');
+    }
+
+    public function backupDatabase()
+    {
+        if (!auth()->check() || (auth()->user()->role !== 'SuperAdmin' && auth()->user()->role !== 'Admin')) {
+            abort(403);
+        }
+
+        try {
+            $tables = [];
+            $query = DB::select('SHOW TABLES');
+            if (empty($query)) {
+                return redirect()->back()->with('error', 'Tidak ada tabel untuk di-backup.');
+            }
+            $firstRow = (array)$query[0];
+            $dbNameKey = array_keys($firstRow)[0];
+            
+            foreach ($query as $row) {
+                $tables[] = $row->$dbNameKey;
+            }
+
+            $sql = "-- Database Backup for " . config('database.connections.mysql.database') . "\n";
+            $sql .= "-- Generated at: " . now()->toDateTimeString() . "\n\n";
+            $sql .= "SET FOREIGN_KEY_CHECKS=0;\n\n";
+
+            foreach ($tables as $table) {
+                $sql .= "DROP TABLE IF EXISTS `$table`;\n";
+                
+                $createTableQuery = DB::select("SHOW CREATE TABLE `$table`")[0];
+                $createTableKey = 'Create Table';
+                $sql .= $createTableQuery->$createTableKey . ";\n\n";
+                
+                $rows = DB::table($table)->get();
+                if ($rows->count() > 0) {
+                    $sql .= "INSERT INTO `$table` VALUES ";
+                    $insertRows = [];
+                    foreach ($rows as $row) {
+                        $values = [];
+                        foreach ((array)$row as $column => $value) {
+                            if (is_null($value)) {
+                                $values[] = 'NULL';
+                            } else {
+                                $value = addslashes($value);
+                                $value = str_replace("\n", "\\n", $value);
+                                $value = str_replace("\r", "\\r", $value);
+                                $values[] = "'" . $value . "'";
+                            }
+                        }
+                        $insertRows[] = "(" . implode(', ', $values) . ")";
+                    }
+                    $sql .= implode(",\n", $insertRows) . ";\n\n";
+                }
+            }
+
+            $sql .= "SET FOREIGN_KEY_CHECKS=1;\n";
+
+            logActivity('setting', "Melakukan backup database");
+
+            $filename = 'backup-' . config('database.connections.mysql.database') . '-' . date('Y-m-d-H-i-s') . '.sql';
+
+            return response($sql, 200, [
+                'Content-Type' => 'application/octet-stream',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal memproses backup database: ' . $e->getMessage());
+        }
+    }
+
+    public function restoreDatabase(Request $request)
+    {
+        if (!auth()->check() || (auth()->user()->role !== 'SuperAdmin' && auth()->user()->role !== 'Admin')) {
+            abort(403);
+        }
+
+        $request->validate([
+            'backup_file' => 'required|file',
+        ]);
+
+        try {
+            $file = $request->file('backup_file');
+            
+            if ($file->getClientOriginalExtension() !== 'sql') {
+                return redirect()->back()->with('error', 'File harus berupa format .sql');
+            }
+
+            $sql = file_get_contents($file->getRealPath());
+            
+            if (empty($sql)) {
+                return redirect()->back()->with('error', 'File backup kosong.');
+            }
+
+            DB::unprepared($sql);
+
+            logActivity('setting', "Melakukan restore database");
+
+            return redirect()->back()->with('success', 'Database berhasil dipulihkan dari file backup!');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal memproses restore database: ' . $e->getMessage());
+        }
     }
 }

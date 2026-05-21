@@ -104,9 +104,11 @@
                     </button>
                 </div> -->
 
+                @if(setting('pendaftaranMandiriDokter', 'false') !== 'true' && setting('pendaftaranMandiriDokter', 'false') !== '1')
                 <div class="auth-footer">
                     Belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a>
                 </div>
+                @endif
             </div>
         </div>
     </div>

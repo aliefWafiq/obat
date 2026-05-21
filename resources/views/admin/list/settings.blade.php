@@ -288,6 +288,15 @@
             <p>Konfigurasi parameter aplikasi, sistem notifikasi, dan manajemen keamanan.</p>
         </div>
 
+        @if(session('success'))
+            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.25rem;"></i>
+                <div>
+                    {{ session('success') }}
+                </div>
+            </div>
+        @endif
+
         <div class="settings-grid">
             <!-- Sidebar navigasi setting -->
             <div class="settings-menu">
@@ -310,22 +319,25 @@
                     <h3 class="settings-section-title"><i class="fas fa-desktop" style="color: #6366f1;"></i> Profil Sistem Aplikasi</h3>
                     <p class="settings-section-subtitle">Atur data utama dan preferensi global sistem ObatKita.</p>
                     
-                    <form onsubmit="event.preventDefault(); alert('Pengaturan Profil Aplikasi berhasil disimpan!');">
+                    <form method="POST" action="{{ route('admin.settings.update') }}">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="_checkboxes" value="modePemeliharaan,pendaftaranMandiriDokter">
                         <div class="settings-form-group">
                             <label>Nama Aplikasi / Portal</label>
-                            <input type="text" class="settings-form-control" value="ObatKita - Portal Apotek & Klinik Terintegrasi">
+                            <input type="text" name="namaAplikasi" class="settings-form-control" value="{{ setting('namaAplikasi', 'Apotek Default') }}">
                         </div>
                         <div class="settings-form-group">
                             <label>Instansi Penyelenggara</label>
-                            <input type="text" class="settings-form-control" value="Dinas Kesehatan Kabupaten / Kota">
+                            <input type="text" name="instansiPenyelenggara" class="settings-form-control" value="{{ setting('instansiPenyelenggara', 'Dinas Kesehatan Kabupaten / Kota') }}">
                         </div>
                         <div class="settings-form-group">
                             <label>Alamat Surel Hubungan Masyarakat (Email Support)</label>
-                            <input type="email" class="settings-form-control" value="support@obatkita.go.id">
+                            <input type="email" name="alamatEmailSupport" class="settings-form-control" value="{{ setting('alamatEmailSupport', '') }}">
                         </div>
                         <div class="settings-form-group">
                             <label>Format Kode Invoice / Transaksi</label>
-                            <input type="text" class="settings-form-control" value="ORD-{YEAR}-{MONTH}-{RAND:4}">
+                            <input type="text" name="formatKode" class="settings-form-control" value="{{ setting('formatKode', 'ORD-{YEAR}-{MONTH}-{RAND:4}') }}">
                             <small style="color: #64748b; font-size: 0.75rem;">Contoh output: ORD-2026-05-4921</small>
                         </div>
                         
@@ -335,7 +347,7 @@
                                 <span class="toggle-desc">Matikan portal sementara untuk pengguna umum guna pembaruan sistem.</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox">
+                                <input type="checkbox" name="modePemeliharaan" value="true" {{ setting('modePemeliharaan', 'false') === 'true' ? 'checked' : '' }}>
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -346,7 +358,7 @@
                                 <span class="toggle-desc">Izinkan pengguna umum mendaftar sebagai dokter/klinik secara langsung.</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" name="pendaftaranMandiriDokter" value="true" {{ setting('pendaftaranMandiriDokter', 'false') === 'true' ? 'checked' : '' }}>
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -362,7 +374,10 @@
                     <h3 class="settings-section-title"><i class="fas fa-bell" style="color: #6366f1;"></i> Notifikasi & WhatsApp Gateway</h3>
                     <p class="settings-section-subtitle">Atur integrasi pengiriman notifikasi instan kepada pasien dan dokter.</p>
                     
-                    <form onsubmit="event.preventDefault(); alert('Integrasi notifikasi berhasil diperbarui!');">
+                    <form method="POST" action="{{ route('admin.settings.update') }}">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="_checkboxes" value="kirimInvoiceOtomatis,pengingatStok">
                         <div class="alert-settings">
                             <i class="fas fa-info-circle" style="font-size: 1.25rem;"></i>
                             <div>
@@ -372,12 +387,12 @@
 
                         <div class="settings-form-group">
                             <label>Token WhatsApp API (Fonnte)</label>
-                            <input type="password" class="settings-form-control" value="API_KEY_TOKEN_FONNTE_OBSCURED_12345">
+                            <input type="password" name="tokenWhatsapp" class="settings-form-control" value="{{ setting('tokenWhatsapp', '') }}">
                         </div>
 
                         <div class="settings-form-group">
                             <label>Nomor Pengirim (WA Sender Number)</label>
-                            <input type="text" class="settings-form-control" value="+6281234567890">
+                            <input type="text" name="nomorWhatsapp" class="settings-form-control" value="{{ setting('nomorWhatsapp', '') }}">
                         </div>
 
                         <div class="toggle-container">
@@ -386,7 +401,7 @@
                                 <span class="toggle-desc">Kirim PDF bukti pembayaran / struk langsung ke WhatsApp pasien setelah transaksi Lunas.</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" name="kirimInvoiceOtomatis" value="true" {{ setting('kirimInvoiceOtomatis', 'false') === 'true' ? 'checked' : '' }}>
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -397,7 +412,7 @@
                                 <span class="toggle-desc">Kirim notifikasi email kepada Admin jika stok obat di bawah batas minimum (10 unit).</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" name="pengingatStok" value="true" {{ setting('pengingatStok', 'false') === 'true' ? 'checked' : '' }}>
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -413,21 +428,39 @@
                     <h3 class="settings-section-title"><i class="fas fa-shield-alt" style="color: #6366f1;"></i> Keamanan & Cadangan Data</h3>
                     <p class="settings-section-subtitle">Lakukan pencadangan database manual dan kelola keamanan sistem.</p>
                     
-                    <div style="margin-bottom: 2rem; padding: 1.5rem; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;">
-                        <div>
+                    <div style="margin-bottom: 2rem; padding: 1.5rem; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 250px;">
                             <h4 style="margin: 0; font-size: 0.95rem; color: #581c87; font-weight: 700;">Cadangkan Database Sekarang</h4>
-                            <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: #7e22ce;">Ekspor semua data transaksi, obat, klinik, dan akun dalam format .sql (kompresi .zip).</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: #7e22ce;">Ekspor semua data transaksi, obat, klinik, dan akun dalam format .sql.</p>
                         </div>
-                        <button onclick="alert('Database backup sedang diproses. Unduhan akan segera dimulai!');" class="save-btn" style="background: #a855f7; white-space: nowrap;"><i class="fas fa-download"></i> Buat Backup</button>
+                        <form method="POST" action="{{ route('admin.settings.backup') }}" style="margin: 0;">
+                            @csrf
+                            <button type="submit" class="save-btn" style="background: #a855f7; white-space: nowrap;"><i class="fas fa-download"></i> Buat Backup</button>
+                        </form>
                     </div>
 
-                    <form onsubmit="event.preventDefault(); alert('Kebijakan keamanan sistem berhasil diperbarui!');">
+                    <div style="margin-bottom: 2rem; padding: 1.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 250px;">
+                            <h4 style="margin: 0; font-size: 0.95rem; color: #166534; font-weight: 700;">Pulihkan Database (Restore)</h4>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: #15803d;">Unggah file database (.sql) untuk memulihkan seluruh data aplikasi.</p>
+                        </div>
+                        <form method="POST" action="{{ route('admin.settings.restore') }}" enctype="multipart/form-data" style="margin: 0; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;" onsubmit="return confirm('Peringatan: Memulihkan database akan menimpa seluruh data saat ini. Apakah Anda yakin ingin melanjutkan?')">
+                            @csrf
+                            <input type="file" name="backup_file" accept=".sql" required style="font-size: 0.8rem; color: #475569; max-width: 200px;">
+                            <button type="submit" class="save-btn" style="background: #22c55e; white-space: nowrap;"><i class="fas fa-upload"></i> Pulihkan</button>
+                        </form>
+                    </div>
+
+                    <form method="POST" action="{{ route('admin.settings.update') }}">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="_checkboxes" value="paksaKebijakanSandi,logAktivitas">
                         <div class="settings-form-group">
                             <label>Masa Kadaluarsa Sesi Login (Session Lifetime)</label>
-                            <select class="settings-form-control">
-                                <option value="120">120 Menit (2 Jam)</option>
-                                <option value="240">240 Menit (4 Jam)</option>
-                                <option value="1440">1440 Menit (24 Jam / 1 Hari)</option>
+                            <select name="masaKadaluarsaSesi" class="settings-form-control">
+                                <option value="120" {{ setting('masaKadaluarsaSesi', '120') === '120' ? 'selected' : '' }}>120 Menit (2 Jam)</option>
+                                <option value="240" {{ setting('masaKadaluarsaSesi', '120') === '240' ? 'selected' : '' }}>240 Menit (4 Jam)</option>
+                                <option value="1440" {{ setting('masaKadaluarsaSesi', '120') === '1440' ? 'selected' : '' }}>1440 Menit (24 Jam / 1 Hari)</option>
                             </select>
                         </div>
 
@@ -437,7 +470,7 @@
                                 <span class="toggle-desc">Kata sandi baru pengguna wajib mengandung minimal 8 karakter, huruf besar, huruf kecil, angka, dan simbol.</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" name="paksaKebijakanSandi" value="true" {{ setting('paksaKebijakanSandi', 'false') === 'true' ? 'checked' : '' }}>
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -448,7 +481,7 @@
                                 <span class="toggle-desc">Catat semua aksi pembuatan, pembaruan, dan penghapusan data oleh administrator ke database.</span>
                             </div>
                             <label class="switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" name="logAktivitas" value="true" {{ setting('logAktivitas', 'false') === 'true' ? 'checked' : '' }}>
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -470,13 +503,35 @@
         document.querySelectorAll('.settings-menu-item').forEach(item => {
             item.classList.remove('active');
         });
-        element.classList.add('active');
+        
+        if (element) {
+            element.classList.add('active');
+        } else {
+            // Find button by its onclick containing sectionId
+            const btn = Array.from(document.querySelectorAll('.settings-menu-item')).find(item => {
+                const attr = item.getAttribute('onclick');
+                return attr && attr.includes("'" + sectionId + "'");
+            });
+            if (btn) btn.classList.add('active');
+        }
 
         // Toggle sections visibility
         document.querySelectorAll('.settings-pane').forEach(pane => {
             pane.style.display = 'none';
         });
-        document.getElementById('section-' + sectionId).style.display = 'block';
+        const target = document.getElementById('section-' + sectionId);
+        if (target) target.style.display = 'block';
+
+        // Save active tab
+        localStorage.setItem('active_settings_tab', sectionId);
     }
+
+    // Restore active tab on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const activeTab = localStorage.getItem('active_settings_tab');
+        if (activeTab && document.getElementById('section-' + activeTab)) {
+            switchSection(activeTab, null);
+        }
+    });
 </script>
 @endsection

@@ -15,6 +15,7 @@ use App\Models\BuatProgram;
 use App\Models\DetailPemesanan;
 use App\Models\KodeKlinik;
 use App\Models\KuantitasDiskon;
+use App\Models\Settings;
 
 class mainController extends Controller
 {
@@ -32,6 +33,10 @@ class mainController extends Controller
 
     public function viewRegister()
     {
+        if (setting('pendaftaranMandiriDokter', 'false') === 'true' || setting('pendaftaranMandiriDokter', 'false') === '1') {
+            return redirect()->route('login')->with('error', 'Fitur registrasi mandiri sedang dinonaktifkan oleh administrator.');
+        }
+
         if (Auth::check()) {
             return redirect('/home');
         } else {
@@ -388,10 +393,11 @@ class mainController extends Controller
 
     public function viewActivityLogs()
     {
-        $recentUsers = User::orderBy('created_at', 'desc')->take(10)->get();
-        $recentOrders = Pemesanan::with('user.klinik')->orderBy('created_at', 'desc')->take(10)->get();
+        $logs = \App\Models\ActivityLog::with('user.klinik')
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
         
-        return view('admin.list.activityLogs', compact('recentUsers', 'recentOrders'));
+        return view('admin.list.activityLogs', compact('logs'));
     }
 }
 

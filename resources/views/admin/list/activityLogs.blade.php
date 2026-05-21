@@ -159,6 +159,57 @@
         box-shadow: none;
         background: #ffffff;
     }
+
+    /* Pagination Styling */
+    .pagination-wrapper {
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: center;
+        padding-bottom: 1.5rem;
+    }
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 0.35rem;
+    }
+    .page-item {
+        display: inline-block;
+    }
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #64748b;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .page-link:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+        border-color: #cbd5e1;
+    }
+    .page-item.active .page-link {
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+    .page-item.disabled .page-link {
+        color: #cbd5e1;
+        pointer-events: none;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+    }
 </style>
 @endpush
 
@@ -194,120 +245,86 @@
         <!-- Logs List Card -->
         <div class="logs-card">
             <div id="logs-container">
-                
-                <!-- Loop over actual recent database registrations -->
-                @foreach($recentUsers as $index => $u)
-                @php
-                    $timeAgo = $index === 0 ? '15 menit yang lalu' : ($index === 1 ? '1 jam yang lalu' : 'Hari ini, ' . ($u->created_at ? $u->created_at->format('H:i') : '--:--') . ' WIB');
-                @endphp
-                <div class="log-item filterable-log" data-type="success">
-                    <div class="log-icon success">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <div class="log-details">
-                        <p class="log-title">
-                            Pendaftaran Akun Baru: <strong>{{ $u->username }}</strong> dengan role <strong>{{ $u->role }}</strong>.
-                        </p>
-                        <div class="log-meta">
-                            <span class="log-time"><i class="far fa-clock"></i> {{ $timeAgo }}</span>
-                            <span class="log-ip">IP: 192.168.10.{{ 12 + $index }}</span>
-                            <span>• Aksi Sistem</span>
+                @forelse($logs as $log)
+                    @php
+                        $dataType = 'info';
+                        $iconClass = 'fa-info-circle';
+                        $iconColor = 'info';
+
+                        if ($log->activity === 'auth') {
+                            if (str_contains(strtolower($log->description), 'registrasi')) {
+                                $dataType = 'success';
+                                $iconClass = 'fa-user-plus';
+                                $iconColor = 'success';
+                            } else {
+                                $dataType = 'warning';
+                                $iconClass = str_contains(strtolower($log->description), 'login') ? 'fa-sign-in-alt' : 'fa-sign-out-alt';
+                                $iconColor = 'warning';
+                            }
+                        } elseif ($log->activity === 'transaction') {
+                            if (str_contains(strtolower($log->description), 'lunas')) {
+                                $dataType = 'success';
+                                $iconColor = 'success';
+                                $iconClass = 'fa-check-circle';
+                            } else {
+                                $dataType = 'success';
+                                $iconColor = 'info';
+                                $iconClass = 'fa-shopping-cart';
+                            }
+                        } elseif ($log->activity === 'product') {
+                            $dataType = 'info';
+                            $iconColor = 'info';
+                            if (str_contains(strtolower($log->description), 'menambahkan')) {
+                                $iconClass = 'fa-plus-circle';
+                            } elseif (str_contains(strtolower($log->description), 'menghapus')) {
+                                $iconClass = 'fa-trash-alt';
+                                $iconColor = 'danger';
+                            } else {
+                                $iconClass = 'fa-edit';
+                            }
+                        } elseif ($log->activity === 'stock') {
+                            $dataType = 'info';
+                            $iconColor = 'info';
+                            $iconClass = 'fa-boxes';
+                        } elseif ($log->activity === 'setting') {
+                            $dataType = 'info';
+                            $iconColor = 'warning';
+                            $iconClass = 'fa-cog';
+                        }
+
+                        $timeAgo = $log->created_at ? $log->created_at->diffForHumans() : 'Baru saja';
+                        $username = $log->user ? $log->user->username : 'System';
+                        $role = $log->user ? $log->user->role : 'Sistem';
+                    @endphp
+                    <div class="log-item filterable-log" data-type="{{ $dataType }}">
+                        <div class="log-icon {{ $iconColor }}">
+                            <i class="fas {{ $iconClass }}"></i>
+                        </div>
+                        <div class="log-details">
+                            <p class="log-title">
+                                {!! e($log->description) !!}
+                                @if($log->user)
+                                    <span style="color: #64748b; font-size: 0.8rem;">(oleh <strong>{{ $username }}</strong> [{{ $role }}])</span>
+                                @endif
+                            </p>
+                            <div class="log-meta">
+                                <span class="log-time"><i class="far fa-clock"></i> {{ $timeAgo }}</span>
+                                <span class="log-ip">IP: {{ $log->ip_address ?? '127.0.0.1' }}</span>
+                                <span>• {{ ucfirst($log->activity) }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                @endforeach
-
-                <!-- Loop over actual recent transactions -->
-                @foreach($recentOrders as $index => $order)
-                @php
-                    $statusType = $order->status === 'Lunas' ? 'success' : 'info';
-                    $statusColor = $order->status === 'Lunas' ? 'success' : 'info';
-                    $statusIcon = $order->status === 'Lunas' ? 'fa-check-circle' : 'fa-shopping-cart';
-                    $timeAgo = $index === 0 ? '45 menit yang lalu' : 'Kemarin, ' . ($order->created_at ? $order->created_at->format('H:i') : '--:--') . ' WIB';
-                @endphp
-                <div class="log-item filterable-log" data-type="{{ $statusType }}">
-                    <div class="log-icon {{ $statusColor }}">
-                        <i class="fas {{ $statusIcon }}"></i>
+                @empty
+                    <div style="padding: 3rem; text-align: center; color: #64748b;">
+                        <i class="fas fa-history" style="font-size: 2.5rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
+                        <p style="font-size: 0.95rem; font-weight: 500;">Belum ada log aktivitas yang tercatat.</p>
                     </div>
-                    <div class="log-details">
-                        <p class="log-title">
-                            Transaksi Baru <strong>{{ $order->kodePemesanan }}</strong> oleh <strong>{{ $order->user ? $order->user->username : 'Pelanggan Umum' }}</strong> sebesar <strong>Rp {{ number_format($order->totalHarga, 0, ',', '.') }}</strong> dengan status <strong>{{ $order->status }}</strong>.
-                        </p>
-                        <div class="log-meta">
-                            <span class="log-time"><i class="far fa-clock"></i> {{ $timeAgo }}</span>
-                            <span class="log-ip">IP: 182.253.11.{{ 80 + $index }}</span>
-                            <span>• Aksi Transaksi</span>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-
-                <!-- Hardcoded realistic administrative & warning events for richness -->
-                <div class="log-item filterable-log" data-type="warning">
-                    <div class="log-icon warning">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div class="log-details">
-                        <p class="log-title">
-                            Percobaan login administrator diblokir untuk pengguna <strong>admin_siaga</strong> karena 3 kali salah memasukkan kata sandi.
-                        </p>
-                        <div class="log-meta">
-                            <span class="log-time"><i class="far fa-clock"></i> 2 jam yang lalu</span>
-                            <span class="log-ip">IP: 103.120.44.89</span>
-                            <span style="color: #f59e0b; font-weight: 600;">• Percobaan Gagal</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="log-item filterable-log" data-type="info">
-                    <div class="log-icon info">
-                        <i class="fas fa-edit"></i>
-                    </div>
-                    <div class="log-details">
-                        <p class="log-title">
-                            Stok produk obat <strong>Paracetamol 500mg</strong> diubah oleh Admin <strong>Klinik Siaga Medica</strong> dari 120 tablet menjadi 300 tablet.
-                        </p>
-                        <div class="log-meta">
-                            <span class="log-time"><i class="far fa-clock"></i> 3 jam yang lalu</span>
-                            <span class="log-ip">IP: 192.168.10.15</span>
-                            <span>• Perubahan Produk</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="log-item filterable-log" data-type="danger">
-                    <div class="log-icon danger">
-                        <i class="fas fa-trash-alt"></i>
-                    </div>
-                    <div class="log-details">
-                        <p class="log-title">
-                            Kategori obat <strong>Antibiotik Keras</strong> dihapus secara permanen dari database oleh pengguna <strong>Super Admin</strong>.
-                        </p>
-                        <div class="log-meta">
-                            <span class="log-time"><i class="far fa-clock"></i> 1 hari yang lalu</span>
-                            <span class="log-ip">IP: 192.168.10.2</span>
-                            <span style="color: #ef4444; font-weight: 600;">• Penghapusan Data</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="log-item filterable-log" data-type="warning">
-                    <div class="log-icon warning">
-                        <i class="fas fa-key"></i>
-                    </div>
-                    <div class="log-details">
-                        <p class="log-title">
-                            Pengguna <strong>superadmin</strong> berhasil memperbarui token integrasi WhatsApp Gateway pihak ketiga (Fonnte API).
-                        </p>
-                        <div class="log-meta">
-                            <span class="log-time"><i class="far fa-clock"></i> 2 hari yang lalu</span>
-                            <span class="log-ip">IP: 192.168.10.2</span>
-                            <span>• Pembaruan Konfigurasi</span>
-                        </div>
-                    </div>
-                </div>
-
+                @endforelse
             </div>
+        </div>
+
+        <div class="pagination-wrapper">
+            {{ $logs->links('pagination::bootstrap-4') }}
         </div>
     </div>
 </div>
