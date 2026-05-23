@@ -399,5 +399,11 @@ class mainController extends Controller
         
         return view('admin.list.activityLogs', compact('logs'));
     }
+
+    public function viewMaintenance()
+    {
+        return view('maintenance');
+    }
 }
+
 

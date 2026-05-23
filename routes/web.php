@@ -7,6 +7,8 @@ use App\Http\Controllers\actionController;
 Route::get('/', [mainController::class, 'viewLogin'])->name('login');
 Route::get('/register', [mainController::class, 'viewRegister'])->name('register');
 Route::redirect('/login', '/');
+Route::get('/maintenance', [mainController::class, 'viewMaintenance'])->name('maintenance');
+
 
 // User
 Route::get('/home', [mainController::class, 'home'])->name('home')->middleware('auth');
