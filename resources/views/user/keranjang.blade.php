@@ -778,20 +778,6 @@
                     </div>
                 </div>
 
-                <!-- Premium Voucher / Promo Code Field -->
-                <div class="promo-code-container" style="margin: 1.25rem 0; border-top: 1px dashed var(--border-color); padding-top: 1.25rem;">
-                    <label style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); display: block; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-ticket-alt" style="color: var(--accent);"></i> Voucher / Kode Promo
-                    </label>
-                    <div style="display: flex; gap: 0.65rem;">
-                        <input type="text" id="promo-input" placeholder="Masukkan kode promo..." style="flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 12px; font-size: 0.88rem; color: var(--text-main); transition: all 0.2s ease; background: #f8fafc;" />
-                        <button type="button" id="apply-promo-btn" style="padding: 0.75rem 1.25rem; background: var(--primary-light); color: var(--primary); border: 1px solid rgba(37, 99, 235, 0.08); border-radius: 12px; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
-                            Terapkan
-                        </button>
-                    </div>
-                    <div id="promo-status-msg" style="margin-top: 0.65rem; font-size: 0.8rem; font-weight: 600; display: none; line-height: 1.4;"></div>
-                </div>
-
                 <div class="checkout-button-container">
                     <form action="{{ route('createPemesanan') }}" method="post" id="checkout-form">
                         @csrf
@@ -800,11 +786,6 @@
                             <i class="fas fa-shield-alt"></i> Bayar Sekarang
                         </button>
                     </form>
-                </div>
-
-                <div class="checkout-tip">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Coba masukkan kode promo <strong style="color: var(--primary);">SEHAT20</strong> atau <strong style="color: var(--primary);">DISKON10</strong> untuk mendapatkan potongan harga secara instan!</span>
                 </div>
 
                 <script>

@@ -458,17 +458,6 @@
             Kami sedang melakukan peningkatan sistem dan pemeliharaan rutin untuk memberikan layanan yang lebih cepat, aman, dan handal bagi Anda. Kami akan segera kembali online.
         </p>
 
-        <!-- Progress Tracker -->
-        <div class="progress-container">
-            <div class="progress-bar-label">
-                <span>Peningkatan Layanan & Database</span>
-                <span>85%</span>
-            </div>
-            <div class="progress-bar-track">
-                <div class="progress-bar-fill"></div>
-            </div>
-        </div>
-
         <!-- Status Grid -->
         <div class="status-grid">
             <div class="status-item">
@@ -490,6 +479,11 @@
             <button onclick="window.location.reload();" class="btn btn-primary">
                 <i class="fas fa-sync-alt"></i> Refresh Halaman
             </button>
+            @if(Auth::check())
+            <a href="{{ route('logOut') }}" class="btn btn-secondary" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+            </a>
+            @endif
             <a href="https://wa.me/629623479137" target="_blank" class="btn btn-secondary">
                 <i class="fab fa-whatsapp"></i> Hubungi Dukungan
             </a>

@@ -9,85 +9,77 @@ Route::get('/register', [mainController::class, 'viewRegister'])->name('register
 Route::redirect('/login', '/');
 Route::get('/maintenance', [mainController::class, 'viewMaintenance'])->name('maintenance');
 
-
-// User
-Route::get('/home', [mainController::class, 'home'])->name('home')->middleware('auth');
-Route::get('/home/history', [mainController::class, 'history'])->name('history')->middleware('auth');
-Route::get('/produk/{id}', [mainController::class, 'produk'])->name('produk')->middleware('auth');
-Route::get('/keranjang', [mainController::class, 'keranjang'])->name('keranjang')->middleware('auth');
-Route::get('/pemesanan', [mainController::class, 'pemesanan'])->name('pemesanan')->middleware('auth');
-
-//Admin
-Route::get('/dashboard', [mainController::class, 'dashboard'])->name('dashboard')->middleware(['auth', 'admin']);
-Route::get('/dashboard/produk', [mainController::class, 'listProduk'])->name('listProduk')->middleware(['auth', 'admin']);
-Route::get('/dashboard/produk/edit/stok', [mainController::class, 'viewEditStok'])->name('viewEditStok')->middleware(['auth', 'admin']);
-Route::get('/dashboard/produk/edit/{id}', [mainController::class, 'viewEditProduk'])->name('viewEditProduk')->middleware(['auth', 'admin']);
-
-// Data Akun
-Route::get('/dashboard/akun', [mainController::class, 'listAkun'])->name('listAkun')->middleware(['auth', 'admin']);
-
-// List User
-Route::get('/dashboard/user', [mainController::class, 'listUser'])->name('listUser')->middleware(['auth', 'admin']);
-Route::get('/dashboard/user/edit/{id}', [mainController::class, 'viewEditUser'])->name('viewEditUser')->middleware(['auth', 'admin']);
-
-// List Klinik
-Route::get('/dashboard/klinik', [mainController::class, 'listKlinik'])->name('listKlinik')->middleware(['auth', 'admin']);
-
-// list Category
-Route::get('/dashboard/category', [mainController::class, 'listCategory'])->name('listCategory')->middleware(['auth', 'admin']);
-Route::get('/dashboard/category/create', [mainController::class, 'viewCreateCategory'])->name('viewCreateCategory')->middleware(['auth', 'admin']);
-Route::get('/dashboard/category/edit/{id}', [mainController::class, 'viewEditCategory'])->name('viewEditCategory')->middleware(['auth', 'admin']);
-
-// List Transaksi
-Route::get('/dashboard/transaksi', [mainController::class, 'listTransaksi'])->name('listTransaksi')->middleware(['auth', 'admin']);
-Route::get('/dashboard/penjualan', [mainController::class, 'listPenjualan'])->name('listPenjualan')->middleware(['auth', 'admin']);
-Route::get('/pemesanan/bayar-ulang/{id}', [actionController::class, 'bayarUlang'])->name('bayarUlang');
-Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPemesanan']);
-Route::get('/pemesanan/cetak/{id}', [actionController::class, 'cetakStruk'])->name('cetakStruk')->middleware('auth');
-
-// List Program
-Route::get('/dashboard/listProgram', [mainController::class, 'listProgram'])->name('listProgram')->middleware(['auth', 'admin']);
-Route::get('/dashboard/buatProgram', [mainController::class, 'viewBuatProgram'])->name('viewBuatProgram')->middleware(['auth', 'admin']);
-Route::get('/dashboard/buatProgram/edit/{id}', [mainController::class, 'viewEditProgram'])->name('viewEditProgram')->middleware(['auth', 'admin']);
-
-Route::get('/dashboard/listDiskon', [mainController::class, 'listDiskon'])->name('listDiskon')->middleware(['auth', 'admin']);
-Route::get('/dashboard/buatDiskon', [mainController::class, 'viewBuatDiskon'])->name('viewBuatDiskon')->middleware(['auth', 'admin']);
-Route::get('/dashboard/buatDiskon/edit/{id}', [mainController::class, 'viewEditDiskon'])->name('editDiskon')->middleware(['auth', 'admin']);
-
-Route::get('/logOut', [actionController::class, 'signOut'])->name('logOut')->middleware('auth');
-
-// New Routes for Billing, Settings, and Activity Logs
-Route::get('/dashboard/invoice', [mainController::class, 'listInvoice'])->name('listInvoice')->middleware(['auth', 'admin']);
-Route::get('/dashboard/settings', [mainController::class, 'viewSettings'])->name('viewSettings')->middleware(['auth', 'admin']);
-Route::get('/dashboard/activity-logs', [mainController::class, 'viewActivityLogs'])->name('viewActivityLogs')->middleware(['auth', 'admin']);
-
 Route::post('/register/action', [actionController::class, 'register']);
-Route::post('/registerKlinik/action', [actionController::class, 'registerKlinik'])->name('registerKlinik');
 Route::post('/login/action', [actionController::class,  'login']);
-Route::post('/masukKeranjang', [actionController::class, 'masukKeranjang'])->name('masukKeranjang')->middleware('auth');
-Route::post('/pemesanan/create', [actionController::class, 'createPemesanan'])->name('createPemesanan')->middleware('auth');
-Route::post('/category/create', [actionController::class, 'createCategory']);
-Route::post('/produk/create', [actionController::class, 'createProduk'])->name('produk.store');
-Route::post('/program/create', [actionController::class, 'buatProgram']);
-Route::post('/buatDiskon/create', [actionController::class,'buatDiskon'])->name('buatDiskon')->middleware('auth');
-Route::post('/dashboard/produk/edit/stok/bulk', [actionController::class, 'updateStokMassal'])->name('produk.updateStokMassal')->middleware(['auth', 'admin']);
-// Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPemesanan']);
+Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPemesanan']);
 
-Route::put('/pemesanan/update/{id}', [actionController::class, 'updatePemesanan'])->name('updatePemesanan');
-Route::put('/category/update/{id}', [actionController::class, 'updateCategory']);
-Route::put('/produk/update/{id}', [actionController::class, 'updateProduk']);
-Route::put('/produk/update-stock/{id}', [actionController::class, 'updateStok'])->name('produk.updateStok');
-Route::put('/user/update/{id}', [actionController::class, 'updateUser'])->name('updateUser');
-Route::put('/user/reassign/{id}', [actionController::class, 'reassignUserClinic'])->name('reassignUserClinic')->middleware(['auth', 'admin']);
-Route::put('/program/update/{id}', [actionController::class, 'updateProgram'])->name('updateProgram');
-Route::put('/diskon/update/{id}', [actionController::class, 'updateDiskon'])->name('updateDiskon');
-Route::put('/admin/settings/update', [actionController::class, 'updateSettings'])->name('admin.settings.update')->middleware(['auth', 'admin']);
-Route::post('/admin/settings/backup', [actionController::class, 'backupDatabase'])->name('admin.settings.backup')->middleware(['auth', 'admin']);
-Route::post('/admin/settings/restore', [actionController::class, 'restoreDatabase'])->name('admin.settings.restore')->middleware(['auth', 'admin']);
 
-Route::delete('/removeItemKeranjang/{id}', [actionController::class, 'removeItemKeranjang'])->name('removeItemKeranjang');
-Route::delete('/produk/delete/{id}', [actionController::class, 'deleteProduk'])->name('deleteProduk');
-Route::delete('/category/delete/{id}', [actionController::class, 'deleteCategory'])->name('deleteCategory');
-Route::delete('/user/delete/{id}', [actionController::class, 'deleteUser'])->name('deleteUser');
-Route::delete('/program/delete/{id}', [actionController::class, 'deleteProgram'])->name('deleteProgram');
-Route::delete('/diskon/delete/{id}', [actionController::class, 'deleteDiskon'])->name('deleteDiskon');
+// Routes requiring authentication (User, Admin, SuperAdmin)
+Route::middleware(['auth'])->group(function () {
+    // User pages
+    Route::get('/home', [mainController::class, 'home'])->name('home');
+    Route::get('/home/history', [mainController::class, 'history'])->name('history');
+    Route::get('/produk/{id}', [mainController::class, 'produk'])->name('produk');
+    Route::get('/keranjang', [mainController::class, 'keranjang'])->name('keranjang');
+    Route::get('/pemesanan', [mainController::class, 'pemesanan'])->name('pemesanan');
+
+    // User actions
+    Route::post('/masukKeranjang', [actionController::class, 'masukKeranjang'])->name('masukKeranjang');
+    Route::post('/pemesanan/create', [actionController::class, 'createPemesanan'])->name('createPemesanan');
+    Route::get('/pemesanan/bayar-ulang/{id}', [actionController::class, 'bayarUlang'])->name('bayarUlang');
+    Route::get('/pemesanan/cetak/{id}', [actionController::class, 'cetakStruk'])->name('cetakStruk');
+    Route::delete('/removeItemKeranjang/{id}', [actionController::class, 'removeItemKeranjang'])->name('removeItemKeranjang');
+    Route::get('/logOut', [actionController::class, 'signOut'])->name('logOut');
+
+    // Admin & SuperAdmin dashboard and management
+    Route::middleware(['admin'])->group(function () {
+        // Views
+        Route::get('/dashboard', [mainController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard/produk', [mainController::class, 'listProduk'])->name('listProduk');
+        Route::get('/dashboard/produk/edit/stok', [mainController::class, 'viewEditStok'])->name('viewEditStok');
+        Route::get('/dashboard/produk/edit/{id}', [mainController::class, 'viewEditProduk'])->name('viewEditProduk');
+        Route::get('/dashboard/akun', [mainController::class, 'listAkun'])->name('listAkun');
+        Route::get('/dashboard/user', [mainController::class, 'listUser'])->name('listUser');
+        Route::get('/dashboard/user/edit/{id}', [mainController::class, 'viewEditUser'])->name('viewEditUser');
+        Route::get('/dashboard/klinik', [mainController::class, 'listKlinik'])->name('listKlinik');
+        Route::get('/dashboard/category', [mainController::class, 'listCategory'])->name('listCategory');
+        Route::get('/dashboard/category/create', [mainController::class, 'viewCreateCategory'])->name('viewCreateCategory');
+        Route::get('/dashboard/category/edit/{id}', [mainController::class, 'viewEditCategory'])->name('viewEditCategory');
+        Route::get('/dashboard/transaksi', [mainController::class, 'listTransaksi'])->name('listTransaksi');
+        Route::get('/dashboard/penjualan', [mainController::class, 'listPenjualan'])->name('listPenjualan');
+        Route::get('/dashboard/listProgram', [mainController::class, 'listProgram'])->name('listProgram');
+        Route::get('/dashboard/buatProgram', [mainController::class, 'viewBuatProgram'])->name('viewBuatProgram');
+        Route::get('/dashboard/buatProgram/edit/{id}', [mainController::class, 'viewEditProgram'])->name('viewEditProgram');
+        Route::get('/dashboard/listDiskon', [mainController::class, 'listDiskon'])->name('listDiskon');
+        Route::get('/dashboard/buatDiskon', [mainController::class, 'viewBuatDiskon'])->name('viewBuatDiskon');
+        Route::get('/dashboard/buatDiskon/edit/{id}', [mainController::class, 'viewEditDiskon'])->name('editDiskon');
+        Route::get('/dashboard/invoice', [mainController::class, 'listInvoice'])->name('listInvoice');
+        Route::get('/dashboard/settings', [mainController::class, 'viewSettings'])->name('viewSettings');
+        Route::get('/dashboard/activity-logs', [mainController::class, 'viewActivityLogs'])->name('viewActivityLogs');
+
+        // Actions
+        Route::post('/registerKlinik/action', [actionController::class, 'registerKlinik'])->name('registerKlinik');
+        Route::post('/category/create', [actionController::class, 'createCategory']);
+        Route::post('/produk/create', [actionController::class, 'createProduk'])->name('produk.store');
+        Route::post('/program/create', [actionController::class, 'buatProgram']);
+        Route::post('/buatDiskon/create', [actionController::class, 'buatDiskon'])->name('buatDiskon');
+        Route::post('/dashboard/produk/edit/stok/bulk', [actionController::class, 'updateStokMassal'])->name('produk.updateStokMassal');
+        
+        Route::put('/category/update/{id}', [actionController::class, 'updateCategory']);
+        Route::put('/produk/update/{id}', [actionController::class, 'updateProduk']);
+        Route::put('/produk/update-stock/{id}', [actionController::class, 'updateStok'])->name('produk.updateStok');
+        Route::put('/user/update/{id}', [actionController::class, 'updateUser'])->name('updateUser');
+        Route::put('/user/reassign/{id}', [actionController::class, 'reassignUserClinic'])->name('reassignUserClinic');
+        Route::put('/program/update/{id}', [actionController::class, 'updateProgram'])->name('updateProgram');
+        Route::put('/diskon/update/{id}', [actionController::class, 'updateDiskon'])->name('updateDiskon');
+        Route::put('/admin/settings/update', [actionController::class, 'updateSettings'])->name('admin.settings.update');
+        Route::post('/admin/settings/backup', [actionController::class, 'backupDatabase'])->name('admin.settings.backup');
+        Route::post('/admin/settings/restore', [actionController::class, 'restoreDatabase'])->name('admin.settings.restore');
+
+        Route::delete('/produk/delete/{id}', [actionController::class, 'deleteProduk'])->name('deleteProduk');
+        Route::delete('/category/delete/{id}', [actionController::class, 'deleteCategory'])->name('deleteCategory');
+        Route::delete('/user/delete/{id}', [actionController::class, 'deleteUser'])->name('deleteUser');
+        Route::delete('/program/delete/{id}', [actionController::class, 'deleteProgram'])->name('deleteProgram');
+        Route::delete('/diskon/delete/{id}', [actionController::class, 'deleteDiskon'])->name('deleteDiskon');
+    });
+});

@@ -466,9 +466,13 @@
                                     @endif
                                 </td>
                                 <td>
+                                    @if($order->status === 'Lunas')
                                     <a href="{{ route('cetakStruk', $order->id) }}" target="_blank" class="action-btn">
                                         <i class="fas fa-print"></i> Cetak Struk
                                     </a>
+                                    @else
+                                    <span class="status-badge status-pending"><i class="fas fa-clock"></i>Belum Lunas</span>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach

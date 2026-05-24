@@ -64,16 +64,6 @@
                     <textarea id="alamat" name="alamat" placeholder="Masukkan alamat lengkap" style="min-height: 130px;">{{ old('alamat', $users->alamat) }}</textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="role">
-                        <i class="fas fa-user-tag"></i> Role <span style="color: #ff4757;">*</span>
-                    </label>
-                    <select id="role" name="role" required>
-                        <option value="User" {{ old('role', $users->role) === 'User' ? 'selected' : '' }}>User</option>
-                        <option value="Admin" {{ old('role', $users->role) === 'Admin' ? 'selected' : '' }}>Admin</option>
-                    </select>
-                </div>
-
                 @if(auth()->user()->role === 'SuperAdmin' && $users->role === 'User')
                 <div class="form-group" id="clinic-group">
                     <label for="idKlinik">

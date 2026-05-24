@@ -22,7 +22,7 @@
                     <i class="fas fa-wallet"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>Rp {{ $totalPendapatan }}</h3>
+                    <h3>Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h3>
                     <p>Total Pendapatan</p>
                 </div>
             </div>

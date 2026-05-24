@@ -24,12 +24,6 @@
     <section class="content-section active" style="padding: 1.5rem 2rem 2rem;">
         <div class="section-header">
             <h2>Ringkasan Penjualan</h2>
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-                <input type="date" class="date-filter" style="padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid #e5e7eb;" />
-                <input type="date" class="date-filter" style="padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid #e5e7eb;" />
-                <button class="filter-btn">Filter</button>
-                <button class="export-btn">Export</button>
-            </div>
         </div>
 
         <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">

@@ -24,6 +24,12 @@
         </div>
         @endif
 
+        @if (session('error'))
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+        </div>
+        @endif
+
         @if($buatDiskon->isEmpty())
         <div class="table-container">
             <div style="padding: 3rem; text-align: center; color: #999;">

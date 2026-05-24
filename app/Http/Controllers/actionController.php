@@ -308,29 +308,21 @@ class actionController extends Controller
             'username' => 'required',
             'alamat' => 'required',
             'phoneNumber' => 'required|unique:users,phoneNumber,' . $id,
-            'role' => 'required',
             'idKlinik' => 'nullable|exists:kodeKlinik,id'
         ], [
             'username.required' => 'Username wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
             'phoneNumber.required' => 'Nomor telepon wajib diisi.',
             'phoneNumber.unique' => 'Nomor telepon sudah terdaftar.',
-            'role.required' => 'Role wajib diisi.'
         ]);
 
         $user = User::find($id);
         if ($user) {
-            // Mencegah admin mendemosi diri sendiri
-            $role = $request->input('role');
-            if ($user->id === Auth::id() && $role !== 'Admin' && $user->role === 'Admin') {
-                return redirect()->back()->with('error', 'Anda tidak dapat mengubah role Anda sendiri dari Admin ke User untuk menghindari kehilangan akses.');
-            }
 
             $updateData = [
                 'username' => $request->input('username'),
                 'alamat' => $request->input('alamat'),
                 'phoneNumber' => $request->input('phoneNumber'),
-                'role' => $role
             ];
 
             if (auth()->user()->role === 'SuperAdmin') {
@@ -490,13 +482,13 @@ class actionController extends Controller
         $year = date('Y');
         $month = date('m');
         $day = date('d');
-        
+
         $kodePemesanan = str_replace(
             ['{YEAR}', '{MONTH}', '{DAY}'],
             [$year, $month, $day],
             $format
         );
-        
+
         // Tangani {RAND:N}
         $kodePemesanan = preg_replace_callback('/\{RAND:(\d+)\}/', function ($matches) {
             $length = (int)$matches[1];
@@ -505,7 +497,7 @@ class actionController extends Controller
             $max = pow(10, $length) - 1;
             return (string)rand($min, $max);
         }, $kodePemesanan);
-        
+
         if (empty($kodePemesanan)) {
             $kodePemesanan = 'PM' . time() . rand(1000, 9999);
         }
@@ -530,7 +522,7 @@ class actionController extends Controller
         ]);
 
         logActivity(
-            'transaction', 
+            'transaction',
             "Membuat transaksi baru dengan kode: {$pemesanan->kodePemesanan} sebesar Rp " . number_format($pemesanan->totalHarga, 0, ',', '.'),
             Pemesanan::class,
             $pemesanan->id,
@@ -581,10 +573,18 @@ class actionController extends Controller
         $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
 
         if ($hashed == $request->signature_key) {
-            $orderIdParts = explode('-', $request->order_id);
-            $pureOrderId = $orderIdParts[0];
-
+            
+            $pureOrderId = $request->order_id;
             $order = Pemesanan::where('kodePemesanan', $pureOrderId)->first();
+
+            if (!$order) {
+                $parts = explode('-', $pureOrderId);
+                if (count($parts) > 1) {
+                    array_pop($parts);
+                    $candidateId = implode('-', $parts);
+                    $order = Pemesanan::where('kodePemesanan', $candidateId)->first();
+                }
+            }
 
             if (!$order) {
                 return response()->json(['message' => 'Order tidak ditemukan'], 404);
@@ -778,6 +778,14 @@ class actionController extends Controller
             'diskon.required' => 'Diskon wajib diisi'
         ]);
 
+        $checkDiskon = KuantitasDiskon::where('idProduk', $request->produk_id)
+            ->where('minimalBeli', $request->minimalBeli)
+            ->first();
+
+        if ($checkDiskon) {
+            return redirect('/dashboard/listDiskon')->with('error', 'Diskon dengan produk dan minimal beli yang sama sudah ada.');
+        }
+
         KuantitasDiskon::create([
             'idProduk' => $request->produk_id,
             'minimalBeli' => $request->minimalBeli,
@@ -798,6 +806,14 @@ class actionController extends Controller
             'minimalBeli.required' => 'Minimal beli wajib diisi',
             'diskon.required' => 'Diskon wajib diisi'
         ]);
+
+        $checkDiskon = KuantitasDiskon::where('idProduk', $request->produk_id)
+            ->where('minimalBeli', $request->minimalBeli)
+            ->first();
+
+        if ($checkDiskon) {
+            return redirect('/dashboard/listDiskon')->with('error', 'Diskon dengan produk dan minimal beli yang sama sudah ada.');
+        }
 
         $diskon = KuantitasDiskon::findOrFail($id);
         $diskon->update([
@@ -853,7 +869,7 @@ class actionController extends Controller
         });
 
         if (!empty($updated)) {
-            $updatedNames = array_map(function($u) {
+            $updatedNames = array_map(function ($u) {
                 return $u['nama'] . " (+{$u['tambahan']})";
             }, $updated);
             logActivity(
@@ -898,7 +914,7 @@ class actionController extends Controller
                 if ($oldFile) {
                     Storage::disk('public')->delete($oldFile);
                 }
-                
+
                 $path = $request->file($key)->store('settings', 'public');
                 Setting::set($key, $path);
                 $changedSettings[$key] = ['old' => $oldVal, 'new' => $path];
@@ -939,7 +955,7 @@ class actionController extends Controller
             }
             $firstRow = (array)$query[0];
             $dbNameKey = array_keys($firstRow)[0];
-            
+
             foreach ($query as $row) {
                 $tables[] = $row->$dbNameKey;
             }
@@ -950,11 +966,11 @@ class actionController extends Controller
 
             foreach ($tables as $table) {
                 $sql .= "DROP TABLE IF EXISTS `$table`;\n";
-                
+
                 $createTableQuery = DB::select("SHOW CREATE TABLE `$table`")[0];
                 $createTableKey = 'Create Table';
                 $sql .= $createTableQuery->$createTableKey . ";\n\n";
-                
+
                 $rows = DB::table($table)->get();
                 if ($rows->count() > 0) {
                     $sql .= "INSERT INTO `$table` VALUES ";
@@ -987,7 +1003,6 @@ class actionController extends Controller
                 'Content-Type' => 'application/octet-stream',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             ]);
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal memproses backup database: ' . $e->getMessage());
         }
@@ -1005,13 +1020,13 @@ class actionController extends Controller
 
         try {
             $file = $request->file('backup_file');
-            
+
             if ($file->getClientOriginalExtension() !== 'sql') {
                 return redirect()->back()->with('error', 'File harus berupa format .sql');
             }
 
             $sql = file_get_contents($file->getRealPath());
-            
+
             if (empty($sql)) {
                 return redirect()->back()->with('error', 'File backup kosong.');
             }
@@ -1021,7 +1036,6 @@ class actionController extends Controller
             logActivity('setting', "Melakukan restore database");
 
             return redirect()->back()->with('success', 'Database berhasil dipulihkan dari file backup!');
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal memproses restore database: ' . $e->getMessage());
         }
