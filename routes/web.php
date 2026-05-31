@@ -18,8 +18,7 @@ Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPem
 Route::middleware(['auth'])->group(function () {
     // User pages
     Route::get('/home', [mainController::class, 'home'])->name('home');
-    Route::get('/home/history', [mainController::class, 'history'])->name('history');
-    Route::get('/produk/{id}', [mainController::class, 'produk'])->name('produk');
+    // Route::get('/produk/{id}', [mainController::class, 'produk'])->name('produk');
     Route::get('/keranjang', [mainController::class, 'keranjang'])->name('keranjang');
     Route::get('/pemesanan', [mainController::class, 'pemesanan'])->name('pemesanan');
 

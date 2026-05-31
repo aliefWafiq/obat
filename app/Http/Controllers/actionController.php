@@ -630,7 +630,7 @@ class actionController extends Controller
                 'gross_amount' => (int) $pesanan->totalHarga,
             ],
             'usage_limit' => 1,
-            'notification_url' => 'https://a73c-103-190-46-192.ngrok-free.app/updateStatusPemesanan',
+            // 'notification_url' => 'https://a73c-103-190-46-192.ngrok-free.app/updateStatusPemesanan',
             'customer_details' => [
                 'first_name' => Auth::user()->username,
                 'phone' => Auth::user()->phoneNumber,
