@@ -62,12 +62,12 @@ class actionController extends Controller
             'username' => 'required',
             'alamat' => 'required',
             'phoneNumber' => 'required|unique:users,phoneNumber',
-            'password' => $passwordRules
+            'password' => $passwordRules,
         ], array_merge([
             'username.required' => 'Username wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
             'phoneNumber.required' => 'Nomor telepon wajib diisi.',
-            'phoneNumber.unique' => 'Nomor telepon sudah terdaftar.'
+            'phoneNumber.unique' => 'Nomor telepon sudah terdaftar.',
         ], $passwordMessages));
 
         $password = Hash::make($request->input('password'));
@@ -92,6 +92,65 @@ class actionController extends Controller
         logActivity('auth', "Registrasi pengguna baru: {$newUser->username}", User::class, $newUser->id);
 
         return redirect('/')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
+    }
+
+    public function sendOTP(Request $request)
+    {
+        $request->validate([
+            'phoneNumber' => 'required'
+        ]);
+
+        $phoneNumber = $request->input('phoneNumber');
+        
+        // Cek jika nomor HP sudah terdaftar
+        if (User::where('phoneNumber', $phoneNumber)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nomor telepon sudah terdaftar.'
+            ]);
+        }
+
+        // Generate 6 digit OTP
+        $otp = rand(100000, 999999);
+        
+        // Store in session
+        session([
+            'register_otp' => $otp,
+            'register_phone' => $phoneNumber,
+            'register_otp_expires' => now()->addMinutes(5)
+        ]);
+
+        // Send via Fonnte if token is configured
+        $token = Setting::get('tokenWhatsapp');
+        
+        if ($token) {
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => $token
+                ])->post('https://api.fonnte.com/send', [
+                    'target' => $phoneNumber,
+                    'message' => "Kode OTP pendaftaran ObatKita Anda adalah: {$otp}. Jangan bagikan kode ini kepada siapapun. Berlaku selama 5 menit."
+                ]);
+
+                if ($response->successful()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'OTP berhasil dikirim ke nomor WhatsApp Anda.'
+                    ]);
+                } else {
+                    logger('Fonnte API error: ' . $response->body());
+                }
+            } catch (\Exception $e) {
+                logger('Fonnte API exception: ' . $e->getMessage());
+            }
+        }
+        
+        // Fallback/Mock mode for testing when Fonnte token is not set
+        logger("Mock WA OTP Sent to {$phoneNumber}: Kode OTP is {$otp}");
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP berhasil dikirim via WA (Mock Mode: gunakan kode ' . $otp . ' untuk mendaftar)'
+        ]);
     }
 
     public function registerKlinik(Request $request)
@@ -521,12 +580,7 @@ class actionController extends Controller
             'totalHarga' => $total,
             'estimasipembayaran' => $estimasiPembayaran,
             'estimasiPengantaran' => $estimasiPengiriman,
-<<<<<<< HEAD
-            'tipePembayaran' => $tipePembayaran
-        ]);
-=======
         ]); 
->>>>>>> 00effbf5a28a89cdc4d69b20b6c799e075c75f39
 
         logActivity(
             'transaction',

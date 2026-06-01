@@ -18,7 +18,7 @@
         @yield('nav')
 
         <ul class="nav-links">
-            <li><a href="https://wa.me/629623479137">Kontak</a></li>
+            <li><a href="https://wa.me/6287877770155">Kontak</a></li>
             @if (Auth::check())
             <li><a href="{{ route('keranjang') }}">Keranjang</a></li>
             <li><a href="{{ route('pemesanan') }}">Pemesanan</a></li>

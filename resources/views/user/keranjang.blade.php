@@ -86,7 +86,7 @@
             transform: scale(1.5);
             object-fit: contain;
             pointer-events: none;
-            margin-left: -20px;
+            margin-left: 10px;
         }
 
         .btn-back-link {
@@ -218,7 +218,7 @@
         .cart-item {
             display: grid;
             grid-template-columns: 120px 1fr;
-            gap: 1.5rem;
+            gap: 0.75rem 1.5rem;
             padding: 1.5rem;
             border-bottom: 1px solid var(--border-color);
             transition: background-color 0.2s ease;
@@ -233,6 +233,8 @@
         }
 
         .cart-item-image-box {
+            grid-column: 1;
+            grid-row: 1 / span 3;
             position: relative;
             border-radius: 12px;
             overflow: hidden;
@@ -242,6 +244,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            height: 120px;
+            width: 120px;
         }
 
         .cart-item-image-box img {
@@ -255,10 +259,59 @@
             transform: scale(1.05);
         }
 
-        .cart-item-content {
+        .cart-item-info-col {
+            grid-column: 2;
             display: flex;
             flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .cart-item-discount-section {
+            grid-column: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        .discount-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: var(--accent-light);
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            font-size: 0.78rem;
+            font-weight: 700;
+            width: fit-content;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .discount-promo-banner {
+            background: var(--primary-light);
+            border: 1px dashed rgba(37, 99, 235, 0.3);
+            border-radius: 12px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.78rem;
+            color: var(--primary-hover);
+            width: fit-content;
+            max-width: 100%;
+            line-height: 1.5;
+            box-sizing: border-box;
+            font-weight: 600;
+        }
+
+        .cart-item-actions-section {
+            grid-column: 2;
+            display: flex;
             justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px dashed #e2e8f0;
         }
 
         .item-info {
@@ -603,11 +656,32 @@
         @media (max-width: 600px) {
             .cart-item {
                 grid-template-columns: 80px 1fr;
-                gap: 1rem;
+                gap: 0.75rem 1rem;
                 padding: 1.15rem;
             }
 
-            .item-actions-row {
+            .cart-item-image-box {
+                grid-column: 1;
+                grid-row: 1;
+                height: 80px;
+                width: 80px;
+            }
+
+            .cart-item-info-col {
+                grid-column: 2;
+                grid-row: 1;
+            }
+
+            .cart-item-discount-section {
+                grid-column: 1 / span 2;
+                grid-row: auto;
+                width: 100%;
+            }
+
+            .cart-item-actions-section {
+                grid-column: 1 / span 2;
+                grid-row: auto;
+                width: 100%;
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.75rem;
@@ -683,7 +757,7 @@
             <section class="cart-list">
                 <div class="store-header">
                     <i class="fas fa-store"></i>
-                    <span class="store-name">Apotek ObatKita Resmi</span>
+                    <span class="store-name"> ObatKita Resmi</span>
                     <span class="store-badge">Official Store</span>
                 </div>
 
@@ -693,53 +767,55 @@
                         <img src="{{ asset('storage/' . $item->produk->gambar) }}" alt="{{ $item->produk->namaProduk }}">
                     </div>
 
-                    <div class="cart-item-content">
-                        <div class="item-info">
-                            <h3 class="item-title">{{ $item->produk->namaProduk }}</h3>
-                            <p class="item-desc">{{ \Illuminate\Support\Str::limit($item->produk->deskripsi, 120, '...') }}</p>
+                    <div class="cart-item-info-col">
+                        <h3 class="item-title">{{ $item->produk->namaProduk }}</h3>
+                        <p class="item-desc">{{ \Illuminate\Support\Str::limit($item->produk->deskripsi, 120, '...') }}</p>
+                    </div>
 
+                    @if($item->has_diskon || $item->next_diskon_rule)
+                    <div class="cart-item-discount-section">
+                        @if($item->has_diskon)
+                        <div class="discount-badge-wrapper">
+                            <span class="discount-badge-pill">
+                                <i class="fas fa-tags"></i> Diskon Kuantitas ({{ number_format($item->diskon_rule->diskon, 0) }}%): -Rp {{ number_format($item->diskon_nominal, 0, ',', '.') }}
+                            </span>
+                        </div>
+                        @endif
+
+                        @if($item->next_diskon_rule)
+                        <div class="discount-promo-banner">
+                            <i class="fas fa-lightbulb" style="color: var(--warning); margin-right: 0.25rem;"></i> Beli <strong>{{ $item->next_diskon_rule->minimalBeli - $item->jumlah }}</strong> lagi untuk mendapat potongan <strong>{{ number_format($item->next_diskon_rule->diskon, 0) }}%</strong>!
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+
+                    <div class="cart-item-actions-section">
+                        <div class="item-price-info">
+                            <span class="item-unit-price">Harga satuan: Rp {{ number_format($item->produk->harga, 0, ',', '.') }}</span>
                             @if($item->has_diskon)
-                            <div style="margin-top: 0.45rem;">
-                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.75rem; border-radius: 999px; background: var(--accent-light); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.78rem; font-weight: 700; width: fit-content; box-shadow: var(--shadow-sm);">
-                                    Diskon Kuantitas ({{ number_format($item->diskon_rule->diskon, 0) }}%): -Rp {{ number_format($item->diskon_nominal, 0, ',', '.') }}
-                                </span>
-                            </div>
-                            @endif
-
-                            @if($item->next_diskon_rule)
-                            <div style="margin-top: 0.45rem; background: var(--primary-light); border: 1px dashed rgba(37, 99, 235, 0.3); border-radius: 12px; padding: 0.5rem 0.75rem; font-size: 0.78rem; color: var(--primary-hover); width: fit-content; max-width: 100%; line-height: 1.5; box-sizing: border-box; font-weight: 600;">
-                                💡 Beli <strong>{{ $item->next_diskon_rule->minimalBeli - $item->jumlah }}</strong> lagi untuk mendapat potongan <strong>{{ number_format($item->next_diskon_rule->diskon, 0) }}%</strong>!
-                            </div>
+                            <span class="item-subtotal">Subtotal:
+                                <del style="color: var(--text-muted); font-size: 0.9em; font-weight: normal; margin-right: 0.35rem;">Rp {{ number_format($item->subtotal_original, 0, ',', '.') }}</del>
+                                <span style="color: var(--accent);">Rp {{ number_format($item->subtotal_discounted, 0, ',', '.') }}</span>
+                            </span>
+                            @else
+                            <span class="item-subtotal">Subtotal: Rp {{ number_format($item->subtotal_original, 0, ',', '.') }}</span>
                             @endif
                         </div>
 
-                        <div class="item-actions-row">
-                            <div class="item-price-info">
-                                <span class="item-unit-price">Harga satuan: Rp {{ number_format($item->produk->harga, 0, ',', '.') }}</span>
-                                @if($item->has_diskon)
-                                <span class="item-subtotal">Subtotal:
-                                    <del style="color: var(--text-muted); font-size: 0.9em; font-weight: normal; margin-right: 0.35rem;">Rp {{ number_format($item->subtotal_original, 0, ',', '.') }}</del>
-                                    <span style="color: var(--accent);">Rp {{ number_format($item->subtotal_discounted, 0, ',', '.') }}</span>
-                                </span>
-                                @else
-                                <span class="item-subtotal">Subtotal: Rp {{ number_format($item->subtotal_original, 0, ',', '.') }}</span>
-                                @endif
+                        <div class="item-controls">
+                            <div class="qty-display-badge">
+                                <i class="fas fa-boxes"></i>
+                                <span>Jumlah: {{ $item->jumlah }}</span>
                             </div>
 
-                            <div class="item-controls">
-                                <div class="qty-display-badge">
-                                    <i class="fas fa-boxes"></i>
-                                    <span>Jumlah: {{ $item->jumlah }}</span>
-                                </div>
-
-                                <form action="{{ route('removeItemKeranjang', ['id' => $item->id]) }}" method="post" class="btn-delete-form">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-delete-text" onclick="return confirm('Apakah Anda yakin ingin menghapus item ini dari keranjang?')" title="Hapus Item">
-                                        <i class="far fa-trash-alt"></i> Hapus
-                                    </button>
-                                </form>
-                            </div>
+                            <form action="{{ route('removeItemKeranjang', ['id' => $item->id]) }}" method="post" class="btn-delete-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-delete-text" onclick="return confirm('Apakah Anda yakin ingin menghapus item ini dari keranjang?')" title="Hapus Item">
+                                    <i class="far fa-trash-alt"></i> Hapus
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </article>
@@ -1030,7 +1106,6 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success && data.redirect) {
-                            alert(data.message || 'Pemesanan via Kredit 21 Hari berhasil dibuat!');
                             window.location.href = data.redirect;
                         } else {
                             alert('Gagal memproses pemesanan kredit.');
@@ -1043,6 +1118,13 @@
                     });
             });
         }
+
+        // Force reload page if loaded from browser history/cache (Back Button)
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                window.location.reload();
+            }
+        });
     </script>
 </body>
 

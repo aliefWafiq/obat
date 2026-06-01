@@ -10,6 +10,7 @@ Route::redirect('/login', '/');
 Route::get('/maintenance', [mainController::class, 'viewMaintenance'])->name('maintenance');
 
 Route::post('/register/action', [actionController::class, 'register']);
+Route::post('/register/send-otp', [actionController::class, 'sendOTP'])->name('sendOTP');
 Route::post('/login/action', [actionController::class,  'login']);
 Route::post('/updateStatusPemesanan', [actionController::class, 'updateStatusPemesanan']);
 

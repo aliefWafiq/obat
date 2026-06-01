@@ -218,10 +218,6 @@
                     <i class="fas fa-phone-alt"></i>
                     <span>+62 878-7777-0155</span>
                 </li>
-                <li>
-                    <i class="fas fa-envelope"></i>
-                    <span>support@obatkita.com</span>
-                </li>
             </ul>
         </div>
     </div>
