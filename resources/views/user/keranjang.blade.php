@@ -1071,7 +1071,7 @@
                                     }
                                 });
                             };
-                            triggerSnap(data.snapToken);
+                            triggerSnap(data.snapToken);  
                         } else {
                             alert('Gagal mengambil token pembayaran');
                             enableBothButtons();
@@ -1104,10 +1104,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success && data.redirect) {
-<<<<<<< HEAD
-=======
                             alert(data.message || 'Pemesanan via Credit 21 Hari berhasil dibuat!');
->>>>>>> 65e2dc2aacaf1de5bb45afc5afed6d2a8bae5d77
                             window.location.href = data.redirect;
                         } else {
                             alert('Gagal memproses pemesanan credit.');
