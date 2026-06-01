@@ -520,6 +520,7 @@ class actionController extends Controller
             'totalHarga' => $total,
             'estimasipembayaran' => $estimasiPembayaran,
             'estimasiPengantaran' => $estimasiPengiriman,
+            // 'typePembayaran' => 
         ]); 
 
         logActivity(
