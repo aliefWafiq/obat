@@ -63,8 +63,8 @@
                         <td>{{ $item->user->phoneNumber ?? '-' }}</td>
                         <td>Rp {{ number_format($item->totalHarga, 0, ',', '.') }}</td>
                         <td>
-                            @if(strtolower($item->tipePembayaran) === 'kredit')
-                                <span class="status pending" style="font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-calendar-alt"></i> Kredit</span>
+                            @if(in_array(strtolower($item->tipePembayaran ?? $item->typePembayaran), ['credit', 'kredit']))
+                                <span class="status pending" style="font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-calendar-alt"></i> Credit</span>
                             @else
                                 <span class="status completed" style="font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px; background: #e2e8f0; color: #475569;"><i class="fas fa-wallet"></i> Cash</span>
                             @endif

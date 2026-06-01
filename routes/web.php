@@ -25,7 +25,7 @@ Route::middleware(['auth'])->group(function () {
 
     // User actions
     Route::post('/masukKeranjang', [actionController::class, 'masukKeranjang'])->name('masukKeranjang');
-    Route::post('/pemesanan/create', [actionController::class, 'createPemesanan'])->name('createPemesanan');
+    Route::post('/pemesanan/create/{type}', [actionController::class, 'createPemesanan'])->name('createPemesanan');
     Route::get('/pemesanan/bayar-ulang/{id}', [actionController::class, 'bayarUlang'])->name('bayarUlang');
     Route::get('/pemesanan/cetak/{id}', [actionController::class, 'cetakStruk'])->name('cetakStruk');
     Route::delete('/removeItemKeranjang/{id}', [actionController::class, 'removeItemKeranjang'])->name('removeItemKeranjang');

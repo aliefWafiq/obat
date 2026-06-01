@@ -393,8 +393,8 @@
                                                         </td>
                                                         <td style="font-weight: 600;">Rp {{ number_format($order->totalHarga, 0, ',', '.') }}</td>
                                                         <td>
-                                                            @if(strtolower($order->tipePembayaran) === 'kredit')
-                                                                <span class="status-badge" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-calendar-alt"></i> Kredit</span>
+                                                            @if(in_array(strtolower($order->tipePembayaran ?? $order->typePembayaran), ['credit', 'kredit']))
+                                                                <span class="status-badge" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-calendar-alt"></i> Credit</span>
                                                             @else
                                                                 <span class="status-badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;"><i class="fas fa-wallet"></i> Cash</span>
                                                             @endif
@@ -466,8 +466,8 @@
                                 </td>
                                 <td style="font-weight: 600; color: #0f172a;">Rp {{ number_format($order->totalHarga, 0, ',', '.') }}</td>
                                 <td>
-                                    @if(strtolower($order->tipePembayaran) === 'kredit')
-                                        <span class="status-badge" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-calendar-alt"></i> Kredit 21 Hari</span>
+                                    @if(in_array(strtolower($order->tipePembayaran ?? $order->typePembayaran), ['credit', 'kredit']))
+                                        <span class="status-badge" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-calendar-alt"></i> Credit 21 Hari</span>
                                     @else
                                         <span class="status-badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;"><i class="fas fa-wallet"></i> Cash</span>
                                     @endif

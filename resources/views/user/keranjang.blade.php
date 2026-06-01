@@ -855,7 +855,7 @@
                 </div>
 
                 <div class="checkout-button-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <form action="{{ route('createPemesanan') }}" method="post" id="checkout-form">
+                    <form action="{{ route('createPemesanan', ['type' => 'Cash']) }}" method="post" id="checkout-form">
                         @csrf
                         <input type="hidden" name="promo_code" id="hidden-promo-code" />
                         <button type="submit" id="pay-button" class="checkout-button">
@@ -863,11 +863,11 @@
                         </button>
                     </form>
                     
-                    <form action="{{ route('createPemesanan') }}" method="post" id="credit-checkout-form">
+                    <form action="{{ route('createPemesanan', ['type' => 'Credit']) }}" method="post" id="credit-checkout-form">
                         @csrf
                         <input type="hidden" name="promo_code" id="hidden-promo-code-credit" />
                         <button type="submit" id="credit-pay-button" class="checkout-button" style="background: linear-gradient(135deg, var(--accent) 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);">
-                            <i class="fas fa-calendar-alt"></i> Bayar via Kredit (21 Hari)
+                            <i class="fas fa-calendar-alt"></i> Bayar via Credit (21 Hari)
                         </button>
                     </form>
                 </div>
@@ -881,11 +881,7 @@
                         const totalAmountEl = document.querySelector('.total-amount');
                         const hiddenPromoInput = document.getElementById('hidden-promo-code');
 
-                        const originalTotal = {
-                            {
-                                $total
-                            }
-                        };
+                        const originalTotal = {{ $total }};
                         let isPromoApplied = false;
 
                         // Quick input focus styles
@@ -1041,7 +1037,7 @@
                 e.preventDefault();
                 disableBothButtons();
 
-                fetch("{{ route('createPemesanan') }}", {
+                fetch("{{ route('createPemesanan', ['type' => 'Cash']) }}", {
                         method: "POST",
                         headers: {
                             "X-CSRF-TOKEN": "{{ csrf_token() }}",
@@ -1055,25 +1051,27 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.snapToken) {
-                            window.snap.pay(data.snapToken, {
-                                onSuccess: function(result) {
-                                    alert('Pembayaran Berhasil! Pesanan Anda sedang diproses.');
-                                    window.location.href = "{{ route('pemesanan') }}";
-                                },
-                                onPending: function(result) {
-                                    alert('Menunggu pembayaran...');
-                                    window.location.reload();
-                                },
-                                onError: function(result) {
-                                    alert('Pembayaran gagal!');
-                                    enableBothButtons();
-                                },
-                                onClose: function() {
-                                    alert('Anda menutup popup sebelum bayar.');
-                                    enableBothButtons();
-                                    window.location.href = "{{ route('pemesanan') }}";
-                                }
-                            });
+                            const triggerSnap = (token) => {
+                                window.snap.pay(token, {
+                                    onSuccess: function(result) {
+                                        alert('Pembayaran Berhasil! Pesanan Anda sedang diproses.');
+                                        window.location.href = "{{ route('pemesanan') }}";
+                                    },
+                                    onPending: function(result) {
+                                        alert('Menunggu pembayaran...');
+                                        window.location.reload();
+                                    },
+                                    onError: function(result) {
+                                        alert('Pembayaran gagal!');
+                                        enableBothButtons();
+                                    },
+                                    onClose: function() {
+                                        alert('Pembayaran Cash harus diselesaikan. Silakan lanjutkan pembayaran Anda.');
+                                        triggerSnap(token);
+                                    }
+                                });
+                            };
+                            triggerSnap(data.snapToken);
                         } else {
                             alert('Gagal mengambil token pembayaran');
                             enableBothButtons();
@@ -1092,23 +1090,27 @@
                 e.preventDefault();
                 disableBothButtons();
 
-                fetch("{{ route('createPemesanan') }}", {
+                fetch("{{ route('createPemesanan', ['type' => 'Credit']) }}", {
                         method: "POST",
                         headers: {
                             "X-CSRF-TOKEN": "{{ csrf_token() }}",
                             "Content-Type": "application/json"
                         },
                         body: JSON.stringify({
-                            payment_method: 'kredit',
+                            payment_method: 'credit',
                             promo_code: document.getElementById('hidden-promo-code-credit').value
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success && data.redirect) {
+<<<<<<< HEAD
+=======
+                            alert(data.message || 'Pemesanan via Credit 21 Hari berhasil dibuat!');
+>>>>>>> 65e2dc2aacaf1de5bb45afc5afed6d2a8bae5d77
                             window.location.href = data.redirect;
                         } else {
-                            alert('Gagal memproses pemesanan kredit.');
+                            alert('Gagal memproses pemesanan credit.');
                             enableBothButtons();
                         }
                     })

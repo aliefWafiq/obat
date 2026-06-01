@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('status', ['Pending', 'Lunas']);
             $table->bigInteger('totalHarga');
             $table->string('paymentLink')->nullable();
+            $table->enum('typePembayaran', ['Cash', 'Credit'])->default('Cash');
             $table->dateTime('estimasipembayaran');
             $table->dateTime('estimasiPengantaran');
             $table->timestamps();
