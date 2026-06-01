@@ -49,7 +49,7 @@
                         <th>Tipe</th>
                         <th>Status</th>
                         <th>Tanggal Pesanan</th>
-                        <!-- <th>Aksi</th> -->
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,11 +70,28 @@
                             @endif
                         </td>
                         <td>
-                            <span class="status {{ strtolower($item->status) }}">
+                            <span class="status {{ str_replace(' ', '-', strtolower($item->status)) }}">
                                 {{ ucfirst($item->status) }}
                             </span>
                         </td>
                         <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
+                        <td>
+                            <div class="action-links" style="display: flex; gap: 0.5rem; align-items: center; justify-content: center;">
+                                @if($item->status === 'Menunggu Persetujuan')
+                                    <form action="{{ route('approveTransaksi', $item->id) }}" method="POST" style="margin: 0; display: inline;">
+                                        @csrf
+                                        <button type="submit" class="action-link" style="color: #10b981; background: none; border: none; cursor: pointer; font-weight: 600;" onclick="return confirm('Apakah Anda yakin ingin menyetujui transaksi ini?');">Approve</button>
+                                    </form>
+                                    <span style="color: #cbd5e1;">|</span>
+                                    <form action="{{ route('denyTransaksi', $item->id) }}" method="POST" style="margin: 0; display: inline;">
+                                        @csrf
+                                        <button type="submit" class="action-link delete" style="color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 600;" onclick="return confirm('Apakah Anda yakin ingin menolak transaksi ini?');">Deny</button>
+                                    </form>
+                                @else
+                                    <span style="color: #94a3b8; font-size: 0.85rem;">-</span>
+                                @endif
+                            </div>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -123,6 +140,22 @@
     .status.cancelled {
         background: #f8d7da;
         color: #721c24;
+    }
+
+    .status.menunggu-persetujuan {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .status.ditolak {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .status.invoice {
+        background: #eff6ff;
+        color: #1e40af;
+        border: 1px solid rgba(30, 64, 175, 0.2);
     }
 </style>
 

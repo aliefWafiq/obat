@@ -123,7 +123,7 @@
         font-size: 0.875rem;
         vertical-align: middle;
     }
-    
+
     .main-row {
         cursor: pointer;
         transition: background-color 0.2s ease;
@@ -132,7 +132,7 @@
     .main-row:hover {
         background-color: #f8fafc;
     }
-    
+
     .main-row.expanded {
         background-color: #f8fafc;
         border-bottom: none;
@@ -235,7 +235,7 @@
         font-size: 0.8rem;
         transition: transform 0.2s ease;
     }
-    
+
     .main-row.expanded .expand-indicator {
         transform: rotate(90deg);
     }
@@ -266,9 +266,9 @@
             <div>
                 <h2>
                     @if(auth()->user()->role === 'SuperAdmin')
-                        Kelola Invoice & Tagihan
+                    Kelola Invoice & Tagihan
                     @else
-                        Tagihan Klinik: {{ auth()->user()->username }}
+                    Tagihan Klinik: {{ auth()->user()->username }}
                     @endif
                 </h2>
                 <p>Data laporan penagihan, kwitansi, dan transaksi klinik terdaftar.</p>
@@ -276,9 +276,9 @@
         </div>
 
         @php
-            $lunas = $pemesanan->where('status', 'Lunas');
-            $pending = $pemesanan->where('status', '!=', 'Lunas');
-            $totalNominal = $lunas->sum('totalHarga');
+        $lunas = $pemesanan->where('status', 'Lunas');
+        $pending = $pemesanan->where('status', '!=', 'Lunas');
+        $totalNominal = $lunas->sum('totalHarga');
         @endphp
 
         <!-- Metrics cards -->
@@ -313,189 +313,193 @@
         </div>
 
         @if(auth()->user()->role === 'SuperAdmin')
-            <!-- SUPER ADMIN VIEW: Group by Clinics -->
-            <div class="data-card">
-                <div class="section-title">
-                    Daftar Invoice Berdasarkan Klinik
-                </div>
-                <table class="formal-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 40px;"></th>
-                            <th>Klinik</th>
-                            <th>Kode Klinik</th>
-                            <th>Total Transaksi</th>
-                            <th>Jumlah Terbayar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if($clinics->isEmpty())
-                            <tr>
-                                <td colspan="5" style="text-align: center; padding: 3rem; color: #64748b;">
-                                    Belum ada data klinik terdaftar.
-                                </td>
-                            </tr>
-                        @else
-                            @foreach($clinics as $c)
-                            @php
-                                $clinicOrders = $pemesanan->filter(function($order) use ($c) {
-                                    return $order->user && $order->user->idKlinik == $c->id;
-                                });
-                                $clinicPaidTotal = $clinicOrders->where('status', 'Lunas')->sum('totalHarga');
-                            @endphp
-                            <tr class="main-row searchable-row" onclick="toggleSubRow('invoice-clinic-{{ $c->id }}', this)">
-                                <td style="text-align: center;">
-                                    <i class="fas fa-chevron-right expand-indicator"></i>
-                                </td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: #0f172a;">
-                                        <i class="fas fa-hospital" style="color: #6366f1;"></i>
-                                        <span class="searchable-name">{{ $c->namaKlinik }}</span>
-                                    </div>
-                                </td>
-                                <td><span style="font-family: monospace; background: #f1f5f9; padding: 0.2rem 0.5rem; border-radius: 4px;">{{ $c->kodeKlinik }}</span></td>
-                                <td>{{ $clinicOrders->count() }} Transaksi</td>
-                                <td>
-                                    <span style="font-weight: 600; color: #10b981;">Rp {{ number_format($clinicPaidTotal, 0, ',', '.') }}</span>
-                                </td>
-                            </tr>
-                            <tr class="sub-row" id="invoice-clinic-{{ $c->id }}">
-                                <td colspan="5" style="padding: 0;">
-                                    <div class="sub-table-container">
-                                        <h5 style="margin: 1rem 0 0.75rem 0; color: #1e293b; font-size: 0.95rem; font-weight: 700;">
-                                            Daftar Invoice: {{ $c->namaKlinik }}
-                                        </h5>
-                                        @if($clinicOrders->isEmpty())
-                                            <div style="padding: 1.5rem; color: #64748b; font-size: 0.9rem; border: 1px dashed #e2e8f0; border-radius: 8px; text-align: center; background: #fff;">
-                                                Belum ada invoice/transaksi untuk klinik ini.
-                                            </div>
-                                        @else
-                                            <table class="sub-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Kode Invoice</th>
-                                                        <th>Tanggal Pemesanan</th>
-                                                        <th>Pelanggan</th>
-                                                        <th>Total Nominal</th>
-                                                        <th>Tipe</th>
-                                                        <th>Status</th>
-                                                        <th>Aksi</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach($clinicOrders as $order)
-                                                    <tr>
-                                                        <td style="font-weight: 600; font-family: monospace; color: #6366f1;">{{ $order->kodePemesanan }}</td>
-                                                        <td>{{ $order->created_at ? $order->created_at->format('d M Y, H:i') : '-' }}</td>
-                                                        <td>
-                                                            <div style="font-weight: 500;">{{ $order->user ? $order->user->username : '-' }}</div>
-                                                            <small style="color: #64748b;">{{ $order->user ? $order->user->phoneNumber : '-' }}</small>
-                                                        </td>
-                                                        <td style="font-weight: 600;">Rp {{ number_format($order->totalHarga, 0, ',', '.') }}</td>
-                                                        <td>
-                                                            @if(in_array(strtolower($order->tipePembayaran ?? $order->typePembayaran), ['credit', 'kredit']))
-                                                                <span class="status-badge" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-calendar-alt"></i> Credit</span>
-                                                            @else
-                                                                <span class="status-badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;"><i class="fas fa-wallet"></i> Cash</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if($order->status === 'Lunas')
-                                                                <span class="status-badge status-lunas"><i class="fas fa-check"></i> Lunas</span>
-                                                            @elseif($order->status === 'Batal')
-                                                                <span class="status-badge status-batal"><i class="fas fa-times"></i> Batal</span>
-                                                            @else
-                                                                <span class="status-badge status-pending"><i class="fas fa-clock"></i> Pending</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if($order->status === 'Lunas')
-                                                            <a href="{{ route('cetakStruk', $order->id) }}" target="_blank" class="action-btn">
-                                                                <i class="fas fa-print"></i> Cetak Kwitansi
-                                                            </a>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
+        <!-- SUPER ADMIN VIEW: Group by Clinics -->
+        <div class="data-card">
+            <div class="section-title">
+                Daftar Invoice Berdasarkan Klinik
             </div>
+            <table class="formal-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"></th>
+                        <th>Klinik</th>
+                        <th>Kode Klinik</th>
+                        <th>Total Transaksi</th>
+                        <th>Jumlah Terbayar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if($clinics->isEmpty())
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 3rem; color: #64748b;">
+                            Belum ada data klinik terdaftar.
+                        </td>
+                    </tr>
+                    @else
+                    @foreach($clinics as $c)
+                    @php
+                    $clinicOrders = $pemesanan->filter(function($order) use ($c) {
+                    return $order->user && $order->user->idKlinik == $c->id;
+                    });
+                    $clinicPaidTotal = $clinicOrders->where('status', 'Lunas')->sum('totalHarga');
+                    @endphp
+                    <tr class="main-row searchable-row" onclick="toggleSubRow('invoice-clinic-{{ $c->id }}', this)">
+                        <td style="text-align: center;">
+                            <i class="fas fa-chevron-right expand-indicator"></i>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: #0f172a;">
+                                <i class="fas fa-hospital" style="color: #6366f1;"></i>
+                                <span class="searchable-name">{{ $c->namaKlinik }}</span>
+                            </div>
+                        </td>
+                        <td><span style="font-family: monospace; background: #f1f5f9; padding: 0.2rem 0.5rem; border-radius: 4px;">{{ $c->kodeKlinik }}</span></td>
+                        <td>{{ $clinicOrders->count() }} Transaksi</td>
+                        <td>
+                            <span style="font-weight: 600; color: #10b981;">Rp {{ number_format($clinicPaidTotal, 0, ',', '.') }}</span>
+                        </td>
+                    </tr>
+                    <tr class="sub-row" id="invoice-clinic-{{ $c->id }}">
+                        <td colspan="5" style="padding: 0;">
+                            <div class="sub-table-container">
+                                <h5 style="margin: 1rem 0 0.75rem 0; color: #1e293b; font-size: 0.95rem; font-weight: 700;">
+                                    Daftar Invoice: {{ $c->namaKlinik }}
+                                </h5>
+                                @if($clinicOrders->isEmpty())
+                                <div style="padding: 1.5rem; color: #64748b; font-size: 0.9rem; border: 1px dashed #e2e8f0; border-radius: 8px; text-align: center; background: #fff;">
+                                    Belum ada invoice/transaksi untuk klinik ini.
+                                </div>
+                                @else
+                                <table class="sub-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Kode Invoice</th>
+                                            <th>Tanggal Pemesanan</th>
+                                            <th>Pelanggan</th>
+                                            <th>Total Nominal</th>
+                                            <th>Tipe</th>
+                                            <th>Status</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($clinicOrders as $order)
+                                        <tr>
+                                            <td style="font-weight: 600; font-family: monospace; color: #6366f1;">{{ $order->kodePemesanan }}</td>
+                                            <td>{{ $order->created_at ? $order->created_at->format('d M Y, H:i') : '-' }}</td>
+                                            <td>
+                                                <div style="font-weight: 500;">{{ $order->user ? $order->user->username : '-' }}</div>
+                                                <small style="color: #64748b;">{{ $order->user ? $order->user->phoneNumber : '-' }}</small>
+                                            </td>
+                                            <td style="font-weight: 600;">Rp {{ number_format($order->totalHarga, 0, ',', '.') }}</td>
+                                            <td>
+                                                @if(in_array(strtolower($order->tipePembayaran ?? $order->typePembayaran), ['credit', 'kredit']))
+                                                <span class="status-badge" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-calendar-alt"></i> Credit</span>
+                                                @else
+                                                <span class="status-badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;"><i class="fas fa-wallet"></i> Cash</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($order->status === 'Lunas')
+                                                <span class="status-badge status-lunas"><i class="fas fa-check"></i> Lunas</span>
+                                                @elseif($order->status === 'Batal')
+                                                <span class="status-badge status-batal"><i class="fas fa-times"></i> Batal</span>
+                                                @elseif($order->status === 'Invoice')
+                                                <span class="status-badge status-pending" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-clock"></i> Invoice</span>
+                                                @else
+                                                <span class="status-badge status-pending"><i class="fas fa-clock"></i> {{ ucfirst($order->status) }}</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($order->status === 'Lunas' || (in_array(strtolower($order->tipePembayaran ?? $order->typePembayaran), ['credit', 'kredit']) && in_array($order->status, ['Credit', 'Invoice'])))
+                                                <a href="{{ route('cetakStruk', $order->id) }}" target="_blank" class="action-btn">
+                                                    <i class="fas fa-print"></i> Cetak Kwitansi
+                                                </a>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                    @endif
+                </tbody>
+            </table>
+        </div>
         @else
-            <!-- CLINIC ADMIN VIEW: Show only their own clinic invoices -->
-            <div class="data-card">
-                <div class="section-title">
-                    Invoice & Riwayat Tagihan Masuk
-                </div>
-                <table class="formal-table">
-                    <thead>
-                        <tr>
-                            <th>Kode Invoice</th>
-                            <th>Tanggal Pemesanan</th>
-                            <th>Nama Pelanggan</th>
-                            <th>Total Tagihan</th>
-                            <th>Tipe Pembayaran</th>
-                            <th>Status Pembayaran</th>
-                            <th>Kwitansi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if($pemesanan->isEmpty())
-                            <tr>
-                                <td colspan="7" style="text-align: center; padding: 3rem; color: #64748b;">
-                                    Belum ada transaksi atau invoice terbit untuk klinik Anda.
-                                </td>
-                            </tr>
-                        @else
-                            @foreach($pemesanan as $order)
-                            <tr class="searchable-row">
-                                <td style="font-weight: 600; font-family: monospace; color: #6366f1;" class="searchable-name">
-                                    {{ $order->kodePemesanan }}
-                                </td>
-                                <td>{{ $order->created_at ? $order->created_at->format('d M Y, H:i') : '-' }}</td>
-                                <td>
-                                    <div style="font-weight: 600;" class="searchable-name">{{ $order->user ? $order->user->username : '-' }}</div>
-                                    <small style="color: #64748b;">{{ $order->user ? $order->user->phoneNumber : '-' }}</small>
-                                </td>
-                                <td style="font-weight: 600; color: #0f172a;">Rp {{ number_format($order->totalHarga, 0, ',', '.') }}</td>
-                                <td>
-                                    @if(in_array(strtolower($order->tipePembayaran ?? $order->typePembayaran), ['credit', 'kredit']))
-                                        <span class="status-badge" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-calendar-alt"></i> Credit 21 Hari</span>
-                                    @else
-                                        <span class="status-badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;"><i class="fas fa-wallet"></i> Cash</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($order->status === 'Lunas')
-                                        <span class="status-badge status-lunas"><i class="fas fa-check"></i> Lunas</span>
-                                    @elseif($order->status === 'Batal')
-                                        <span class="status-badge status-batal"><i class="fas fa-times"></i> Batal</span>
-                                    @else
-                                        <span class="status-badge status-pending"><i class="fas fa-clock"></i> Pending</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($order->status === 'Lunas')
-                                    <a href="{{ route('cetakStruk', $order->id) }}" target="_blank" class="action-btn">
-                                        <i class="fas fa-print"></i> Cetak Struk
-                                    </a>
-                                    @else
-                                    <span class="status-badge status-pending"><i class="fas fa-clock"></i>Belum Lunas</span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
+        <!-- CLINIC ADMIN VIEW: Show only their own clinic invoices -->
+        <div class="data-card">
+            <div class="section-title">
+                Invoice & Riwayat Tagihan Masuk
             </div>
+            <table class="formal-table">
+                <thead>
+                    <tr>
+                        <th>Kode Invoice</th>
+                        <th>Tanggal Pemesanan</th>
+                        <th>Nama Pelanggan</th>
+                        <th>Total Tagihan</th>
+                        <th>Tipe Pembayaran</th>
+                        <th>Status Pembayaran</th>
+                        <th>Kwitansi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if($pemesanan->isEmpty())
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: #64748b;">
+                            Belum ada transaksi atau invoice terbit untuk klinik Anda.
+                        </td>
+                    </tr>
+                    @else
+                    @foreach($pemesanan as $order)
+                    <tr class="searchable-row">
+                        <td style="font-weight: 600; font-family: monospace; color: #6366f1;" class="searchable-name">
+                            {{ $order->kodePemesanan }}
+                        </td>
+                        <td>{{ $order->created_at ? $order->created_at->format('d M Y, H:i') : '-' }}</td>
+                        <td>
+                            <div style="font-weight: 600;" class="searchable-name">{{ $order->user ? $order->user->username : '-' }}</div>
+                            <small style="color: #64748b;">{{ $order->user ? $order->user->phoneNumber : '-' }}</small>
+                        </td>
+                        <td style="font-weight: 600; color: #0f172a;">Rp {{ number_format($order->totalHarga, 0, ',', '.') }}</td>
+                        <td>
+                            @if(in_array(strtolower($order->tipePembayaran ?? $order->typePembayaran), ['credit', 'kredit']))
+                            <span class="status-badge" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-calendar-alt"></i> Credit 21 Hari</span>
+                            @else
+                            <span class="status-badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;"><i class="fas fa-wallet"></i> Cash</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($order->status === 'Lunas')
+                            <span class="status-badge status-lunas"><i class="fas fa-check"></i> Lunas</span>
+                            @elseif($order->status === 'Batal')
+                            <span class="status-badge status-batal"><i class="fas fa-times"></i> Batal</span>
+                            @elseif($order->status === 'Invoice')
+                            <span class="status-badge status-pending" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-clock"></i> Invoice</span>
+                            @else
+                            <span class="status-badge status-pending"><i class="fas fa-clock"></i> {{ ucfirst($order->status) }}</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($order->status === 'Lunas' || (in_array(strtolower($order->tipePembayaran ?? $order->typePembayaran), ['credit', 'kredit']) && in_array($order->status, ['Credit', 'Invoice'])))
+                            <a href="{{ route('cetakStruk', $order->id) }}" target="_blank" class="action-btn">
+                                <i class="fas fa-print"></i> Cetak Struk
+                            </a>
+                            @else
+                            <span class="status-badge status-pending"><i class="fas fa-clock"></i> Belum Lunas</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                    @endif
+                </tbody>
+            </table>
+        </div>
         @endif
     </div>
 </div>
@@ -520,7 +524,7 @@
             searchInput.addEventListener('keyup', function() {
                 const query = this.value.toLowerCase();
                 const rows = document.querySelectorAll('.searchable-row');
-                
+
                 rows.forEach(row => {
                     const nameElements = row.querySelectorAll('.searchable-name');
                     let match = false;
@@ -529,12 +533,12 @@
                             match = true;
                         }
                     });
-                    
+
                     const onclickAttr = row.getAttribute('onclick');
                     const clickMatch = onclickAttr ? onclickAttr.match(/'([^']+)'/) : null;
                     const subRowId = clickMatch ? clickMatch[1] : null;
                     const subRow = subRowId ? document.getElementById(subRowId) : null;
-                    
+
                     if (match) {
                         row.style.display = '';
                     } else {

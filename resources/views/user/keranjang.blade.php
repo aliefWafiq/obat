@@ -1050,7 +1050,10 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.snapToken) {
+                        if (data.success && data.redirect) {
+                            alert(data.message || 'Pesanan berhasil dibuat! Menunggu persetujuan admin.');
+                            window.location.href = data.redirect;
+                        } else if (data.snapToken) {
                             const triggerSnap = (token) => {
                                 window.snap.pay(token, {
                                     onSuccess: function(result) {
@@ -1104,10 +1107,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success && data.redirect) {
-<<<<<<< HEAD
-=======
                             alert(data.message || 'Pemesanan via Credit 21 Hari berhasil dibuat!');
->>>>>>> 65e2dc2aacaf1de5bb45afc5afed6d2a8bae5d77
                             window.location.href = data.redirect;
                         } else {
                             alert('Gagal memproses pemesanan credit.');

@@ -71,7 +71,7 @@ class mainController extends Controller
     {
         $idUser = Auth::id();
         $items = Keranjang::with(['produk.kuantitasDiskon'])->where('idUser', $idUser)->get();
-        $pemesananPending = Pemesanan::whereIn('status', ['Pending', 'Credit'])->where(function ($query) {
+        $pemesananPending = Pemesanan::whereIn('status', ['Pending', 'Credit', 'Invoice'])->where(function ($query) {
             $query->whereDate('estimasipembayaran', '<=', Carbon::today());
         })->get();
         

@@ -75,6 +75,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/admin/settings/update', [actionController::class, 'updateSettings'])->name('admin.settings.update');
         Route::post('/admin/settings/backup', [actionController::class, 'backupDatabase'])->name('admin.settings.backup');
         Route::post('/admin/settings/restore', [actionController::class, 'restoreDatabase'])->name('admin.settings.restore');
+        Route::post('/transaksi/approve/{id}', [actionController::class, 'approveTransaksi'])->name('approveTransaksi');
+        Route::post('/transaksi/deny/{id}', [actionController::class, 'denyTransaksi'])->name('denyTransaksi');
 
         Route::delete('/produk/delete/{id}', [actionController::class, 'deleteProduk'])->name('deleteProduk');
         Route::delete('/category/delete/{id}', [actionController::class, 'deleteCategory'])->name('deleteCategory');
@@ -82,4 +84,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/program/delete/{id}', [actionController::class, 'deleteProgram'])->name('deleteProgram');
         Route::delete('/diskon/delete/{id}', [actionController::class, 'deleteDiskon'])->name('deleteDiskon');
     });
+
+// OTP verification route
+Route::post('register/verify-otp', [actionController::class, 'verifyOTP'])->name('verifyOTP');
 });

@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
+use App\Models\Otp;
+use App\Helpers\OtpHelper;
+use App\Services\FonnteService;
 use App\Models\User;
 use App\Models\Produk;
 use App\Models\Keranjang;
@@ -80,18 +83,30 @@ class actionController extends Controller
             return redirect('/register')->with('error', 'Kode klinik tidak terdaftar.');
         }
 
+        // Create user with pending status
         $newUser = User::create([
             'username' => $request->input('username'),
             'alamat' => $request->input('alamat'),
             'phoneNumber' => $request->input('phoneNumber'),
             'role' => 'User',
             'password' => $password,
-            'idKlinik' => $selectedKlinik->id
+            'idKlinik' => $selectedKlinik->id,
+            'status' => 'pending', // pending until OTP verified
         ]);
 
         logActivity('auth', "Registrasi pengguna baru: {$newUser->username}", User::class, $newUser->id);
 
-        return redirect('/')->with('success', 'Akun berhasil dibuat. Silakan masuk.');
+        // Generate OTP and send via Fonnte
+        $otp = OtpHelper::createOtpForUser($newUser);
+        $message = view('auth.otp_message', ['code' => $otp->code, 'userName' => $newUser->username])->render();
+        (new FonnteService())->sendMessage($newUser->phoneNumber, $message);
+
+        // Show OTP verification view
+        // After sending OTP, stay on registration page and show a status message
+        return redirect()->route('register')
+            ->with('otp_sent', true)
+            ->with('userId', $newUser->id)
+            ->with('success', 'OTP telah dikirim ke WhatsApp. Silakan masukkan kode di bawah.');
     }
 
     public function sendOTP(Request $request)
@@ -101,7 +116,27 @@ class actionController extends Controller
         ]);
 
         $phoneNumber = $request->input('phoneNumber');
-        
+
+        // Rate limiting: max 3 per day
+        $dailyKey = "otp_resend:{$phoneNumber}:day";
+        $count = cache()->get($dailyKey, 0);
+        if ($count >= 3) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batas pengiriman OTP harian tercapai (3 kali).'
+            ]);
+        }
+
+        // Cooldown: 1 minute between sends
+        $cooldownKey = "otp_resend:{$phoneNumber}:last";
+        $lastSent = cache()->get($cooldownKey);
+        if ($lastSent && now()->diffInSeconds($lastSent) < 60) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Harap tunggu 1 menit sebelum meminta OTP lagi.'
+            ]);
+        }
+
         // Cek jika nomor HP sudah terdaftar
         if (User::where('phoneNumber', $phoneNumber)->exists()) {
             return response()->json([
@@ -113,44 +148,58 @@ class actionController extends Controller
         // Generate 6 digit OTP
         $otp = rand(100000, 999999);
         
-        // Store in session
-        session([
-            'register_otp' => $otp,
-            'register_phone' => $phoneNumber,
-            'register_otp_expires' => now()->addMinutes(5)
-        ]);
+        // Store OTP in database via helper (creates new record)
+        $user = new \App\Models\User();
+        $user->phoneNumber = $phoneNumber;
+        $otpRecord = \App\Helpers\OtpHelper::createOtpRecord($phoneNumber, $otp);
 
         // Send via Fonnte if token is configured
-        $token = Setting::get('tokenWhatsapp');
-        
-        if ($token) {
-            try {
-                $response = Http::withHeaders([
-                    'Authorization' => $token
-                ])->post('https://api.fonnte.com/send', [
-                    'target' => $phoneNumber,
-                    'message' => "Kode OTP pendaftaran ObatKita Anda adalah: {$otp}. Jangan bagikan kode ini kepada siapapun. Berlaku selama 5 menit."
-                ]);
+        $service = new \App\Services\FonnteService();
+        $message = view('auth.otp_message', ['code' => $otp, 'userName' => ''] )->render();
+        $service->sendMessage($phoneNumber, $message);
 
-                if ($response->successful()) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'OTP berhasil dikirim ke nomor WhatsApp Anda.'
-                    ]);
-                } else {
-                    logger('Fonnte API error: ' . $response->body());
-                }
-            } catch (\Exception $e) {
-                logger('Fonnte API exception: ' . $e->getMessage());
-            }
-        }
-        
-        // Fallback/Mock mode for testing when Fonnte token is not set
-        logger("Mock WA OTP Sent to {$phoneNumber}: Kode OTP is {$otp}");
+        // Update rate limits
+        cache()->put($cooldownKey, now(), now()->addMinutes(5));
+        cache()->increment($dailyKey);
+        cache()->put($dailyKey, cache()->get($dailyKey), now()->addDay());
+
         return response()->json([
             'success' => true,
-            'message' => 'OTP berhasil dikirim via WA (Mock Mode: gunakan kode ' . $otp . ' untuk mendaftar)'
+            'message' => 'OTP berhasil dikirim ke WhatsApp.'
         ]);
+    }
+public function verifyOTP(Request $request)
+    {
+        $request->validate([
+            'userId' => 'required|exists:users,id',
+            'otp'    => 'required',
+        ]);
+
+        $user = User::find($request->input('userId'));
+
+        // Find matching OTP that is not expired
+        $otpRecord = Otp::where('phone_number', $user->phoneNumber)
+                         ->where('code', $request->input('otp'))
+                         ->where('expires_at', '>', now())
+                         ->first();
+
+        if (!$otpRecord) {
+            return redirect()->back()
+                ->with('error', 'OTP tidak valid atau sudah kadaluarsa.');
+        }
+
+        // Mark user as active
+        $user->status = 'active';
+        $user->save();
+
+        // Delete OTP record
+        $otpRecord->delete();
+
+        // Log activity
+        logActivity('auth', "Verifikasi OTP berhasil untuk user: {$user->username}", User::class, $user->id);
+
+        // Redirect to login page with success message
+        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
     }
 
     public function registerKlinik(Request $request)
@@ -576,14 +625,11 @@ class actionController extends Controller
         $pemesanan = Pemesanan::create([
             'kodePemesanan' => $kodePemesanan,
             'idUser' => $idUser,
-            'status' => $tipePembayaran === 'Credit' ? 'Credit' : 'Pending',
+            'status' => 'Menunggu Persetujuan',
             'totalHarga' => $total,
             'estimasipembayaran' => $estimasiPembayaran,
             'estimasiPengantaran' => $estimasiPengiriman,
-<<<<<<< HEAD
-=======
             'tipePembayaran' => (strtolower($type) === 'credit' || strtolower($type) === 'Credit') ? 'Credit' : 'Cash'
->>>>>>> 65e2dc2aacaf1de5bb45afc5afed6d2a8bae5d77
         ]); 
 
         logActivity(
@@ -615,29 +661,14 @@ class actionController extends Controller
             ]);
         }
 
-        if (in_array(strtolower($request->input('payment_method')), ['credit', 'kredit'])) {
-            Keranjang::where('idUser', $idUser)->delete();
-            return response()->json([
-                'success' => true,
-                'redirect' => route('pemesanan'),
-                'message' => 'Pemesanan via Credit 21 Hari berhasil dibuat!'
-            ]);
-        }
-
-        $params = [
-            'transaction_details' => [
-                'order_id' => $kodePemesanan,
-                'gross_amount' => $total,
-            ],
-            'customer_details' => [
-                'first_name' => Auth::user()->username,
-                'phone' => Auth::user()->phoneNumber,
-            ],
-        ];
-
-        $snapToken = Snap::getSnapToken($params);
         Keranjang::where('idUser', $idUser)->delete();
-        return response()->json(['snapToken' => $snapToken]);
+        $this->sendWAOrderNotification($pemesanan, 'created');
+        
+        return response()->json([
+            'success' => true,
+            'redirect' => route('pemesanan'),
+            'message' => 'Pesanan berhasil dibuat! Menunggu persetujuan admin.'
+        ]);
     }
 
     public function updateStatusPemesanan(Request $request)
@@ -673,6 +704,7 @@ class actionController extends Controller
                     $order->id,
                     ['status' => 'Lunas']
                 );
+                $this->sendWAOrderNotification($order, 'updated', 'Lunas');
             } elseif (in_array($request->transaction_status, ['deny', 'expire', 'cancel'])) {
                 $order->update(['status' => 'Gagal']);
                 logActivity(
@@ -682,12 +714,70 @@ class actionController extends Controller
                     $order->id,
                     ['status' => 'Gagal', 'transaction_status' => $request->transaction_status]
                 );
+                $this->sendWAOrderNotification($order, 'updated', 'Gagal');
             }
 
             return response()->json(['message' => 'Success']);
         }
 
         return response()->json(['message' => 'Invalid Signature'], 403);
+    }
+
+    public function approveTransaksi($id)
+    {
+        if (!auth()->check() || (auth()->user()->role !== 'SuperAdmin' && auth()->user()->role !== 'Admin')) {
+            abort(403);
+        }
+
+        $pesanan = Pemesanan::findOrFail($id);
+        if ($pesanan->status !== 'Menunggu Persetujuan') {
+            return redirect()->back()->with('error', 'Status pesanan tidak valid untuk disetujui.');
+        }
+
+        // If tipePembayaran is Credit, we set status to Invoice
+        // If tipePembayaran is Cash, we set status to Pending
+        $newStatus = (strtolower($pesanan->tipePembayaran) === 'credit') ? 'Invoice' : 'Pending';
+        $pesanan->update(['status' => $newStatus]);
+
+        logActivity(
+            'transaction',
+            "Menyetujui transaksi {$pesanan->kodePemesanan} (Status baru: {$newStatus})",
+            Pemesanan::class,
+            $pesanan->id,
+            ['status' => $newStatus]
+        );
+
+        // Send WA notification to user and admin about the approval
+        $this->sendWAOrderNotification($pesanan, 'updated', $newStatus);
+
+        return redirect()->back()->with('success', 'Transaksi berhasil disetujui.');
+    }
+
+    public function denyTransaksi($id)
+    {
+        if (!auth()->check() || (auth()->user()->role !== 'SuperAdmin' && auth()->user()->role !== 'Admin')) {
+            abort(403);
+        }
+
+        $pesanan = Pemesanan::findOrFail($id);
+        if ($pesanan->status !== 'Menunggu Persetujuan') {
+            return redirect()->back()->with('error', 'Status pesanan tidak valid untuk ditolak.');
+        }
+
+        $pesanan->update(['status' => 'Ditolak']);
+
+        logActivity(
+            'transaction',
+            "Menolak transaksi {$pesanan->kodePemesanan}",
+            Pemesanan::class,
+            $pesanan->id,
+            ['status' => 'Ditolak']
+        );
+
+        // Send WA notification to user and admin about the denial
+        $this->sendWAOrderNotification($pesanan, 'updated', 'Ditolak');
+
+        return redirect()->back()->with('success', 'Transaksi berhasil ditolak.');
     }
 
     private function generateMidtransLink($pesanan)
@@ -726,7 +816,7 @@ class actionController extends Controller
     {
         $pesanan = Pemesanan::where('id', $id)->where('idUser', Auth::id())->firstOrFail();
 
-        if (!in_array($pesanan->status, ['Pending', 'Credit'])) {
+        if (!in_array($pesanan->status, ['Pending', 'Credit', 'Invoice'])) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['error' => 'Pesanan ini tidak dapat dibayar lagi.'], 400);
             }
@@ -773,7 +863,8 @@ class actionController extends Controller
     {
         $pesanan = Pemesanan::with(['details.produk', 'user'])->findOrFail($id);
 
-        if ($pesanan->status !== 'Lunas') {
+        $isCredit = in_array(strtolower($pesanan->tipePembayaran ?? $pesanan->typePembayaran), ['credit', 'kredit']);
+        if ($pesanan->status !== 'Lunas' && !$isCredit) {
             return redirect()->back()->with('error', 'Struk hanya dapat dicetak untuk pesanan yang sudah lunas.');
         }
 
@@ -1136,6 +1227,93 @@ class actionController extends Controller
             return redirect()->back()->with('success', 'Database berhasil dipulihkan dari file backup!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal memproses restore database: ' . $e->getMessage());
+        }
+    }
+
+    private function sendWAOrderNotification($pemesanan, $type = 'created', $newStatus = null)
+    {
+        try {
+            $user = $pemesanan->user;
+            if (!$user) {
+                return;
+            }
+
+            $fonnte = new FonnteService();
+            $totalHargaFormatted = number_format($pemesanan->totalHarga, 0, ',', '.');
+            $tipePembayaran = $pemesanan->tipePembayaran;
+
+            // Load products details for the message
+            $pemesanan->load('details.produk');
+            $detailBarang = "";
+            foreach ($pemesanan->details as $index => $detail) {
+                $namaProduk = $detail->produk->namaProduk ?? 'Produk';
+                $jumlah = $detail->jumlahBeli;
+                $harga = number_format($detail->harga, 0, ',', '.');
+                $detailBarang .= "- {$namaProduk} ({$jumlah}x) @ Rp {$harga}\n";
+            }
+
+            // Fetch admins of the same clinic
+            $admins = collect();
+            if ($user->idKlinik) {
+                $admins = User::whereIn('role', ['Admin', 'admin'])
+                    ->where('idKlinik', $user->idKlinik)
+                    ->get();
+            }
+
+            // Fallback to SuperAdmin if no clinic-specific admin exists
+            if ($admins->isEmpty()) {
+                $admins = User::whereIn('role', ['SuperAdmin', 'superadmin'])->get();
+            }
+
+            if ($type === 'created') {
+                // Message for user
+                $userMessage = "Halo {$user->username},\n\n";
+                $userMessage .= "Pesanan Anda dengan kode *{$pemesanan->kodePemesanan}* telah berhasil dibuat.\n\n";
+                $userMessage .= "*Detail Barang:*\n{$detailBarang}\n";
+                $userMessage .= "Total Bayar: *Rp {$totalHargaFormatted}*\n";
+                $userMessage .= "Tipe Pembayaran: *{$tipePembayaran}*\n\n";
+                $userMessage .= "Terima kasih telah berbelanja di ObatKita!";
+
+                $fonnte->sendMessage($user->phoneNumber, $userMessage);
+
+                // Message for admins
+                foreach ($admins as $admin) {
+                    $adminMessage = "🚨 *PESANAN BARU MASUK* 🚨\n\n";
+                    $adminMessage .= "Kode Pemesanan: *{$pemesanan->kodePemesanan}*\n";
+                    $adminMessage .= "Pelanggan: *{$user->username}* ({$user->phoneNumber})\n\n";
+                    $adminMessage .= "*Detail Barang:*\n{$detailBarang}\n";
+                    $adminMessage .= "Total: *Rp {$totalHargaFormatted}*\n";
+                    $adminMessage .= "Tipe Pembayaran: *{$tipePembayaran}*\n\n";
+                    $adminMessage .= "Silakan periksa dashboard admin untuk memproses pesanan.";
+
+                    $fonnte->sendMessage($admin->phoneNumber, $adminMessage);
+                }
+            } elseif ($type === 'updated') {
+                $status = $newStatus ?? $pemesanan->status;
+
+                // Message for user
+                $userMessage = "Halo {$user->username},\n\n";
+                $userMessage .= "Status pesanan Anda dengan kode *{$pemesanan->kodePemesanan}* telah diperbarui menjadi *{$status}*.\n\n";
+                $userMessage .= "*Detail Barang:*\n{$detailBarang}\n";
+                $userMessage .= "Total Bayar: *Rp {$totalHargaFormatted}*\n\n";
+                $userMessage .= "Terima kasih telah mempercayai ObatKita!";
+
+                $fonnte->sendMessage($user->phoneNumber, $userMessage);
+
+                // Message for admins
+                foreach ($admins as $admin) {
+                    $adminMessage = "🔔 *UPDATE STATUS PESANAN* 🔔\n\n";
+                    $adminMessage .= "Kode Pemesanan: *{$pemesanan->kodePemesanan}*\n";
+                    $adminMessage .= "Pelanggan: *{$user->username}* ({$user->phoneNumber})\n\n";
+                    $adminMessage .= "*Detail Barang:*\n{$detailBarang}\n";
+                    $adminMessage .= "Status Baru: *{$status}*\n\n";
+                    $adminMessage .= "Silakan periksa detail pesanan di dashboard admin.";
+
+                    $fonnte->sendMessage($admin->phoneNumber, $adminMessage);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to send WA Notification: " . $e->getMessage());
         }
     }
 }
