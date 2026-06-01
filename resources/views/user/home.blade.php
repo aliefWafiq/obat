@@ -170,8 +170,79 @@
 </section>
 
 <!-- FOOTER -->
-<footer>
-    <p><strong><em>obat</em>kita.</strong> &nbsp;—&nbsp; Distribusi Obat Terpercaya &copy; 2026</p>
+<footer class="main-footer">
+    <div class="footer-container">
+        <!-- Column 1: Brand Profile -->
+        <div class="footer-column brand-profile">
+            <h3 class="footer-logo"><strong><em>obat</em>kita.</strong></h3>
+            <p class="brand-desc">ObatKita menyediakan obat-obatan resmi, vitamin, suplemen makanan, serta alat kesehatan berkualitas tinggi 100% asli untuk menunjang kesehatan Anda sekeluarga.</p>
+        </div>
+
+        <!-- Column 2: Navigation Links -->
+        <div class="footer-column">
+            <h4 class="footer-title">Tautan Cepat</h4>
+            <ul class="footer-links">
+                <li><a href="{{ route('home') }}">Beranda Belanja</a></li>
+                <li><a href="#catalog-title">Katalog Produk</a></li>
+                <li><a href="{{ route('keranjang') }}">Keranjang Belanja</a></li>
+                <li><a href="{{ route('pemesanan') }}">Riwayat Transaksi</a></li>
+            </ul>
+        </div>
+
+        <!-- Column 3: Category Highlights -->
+        <div class="footer-column">
+            <h4 class="footer-title">Kategori Terpopuler</h4>
+            <ul class="footer-links">
+                @if(isset($categories))
+                    @foreach($categories->take(4) as $cat)
+                        <li><a href="#catalog-title" class="footer-cat-link" data-cat="{{ $cat->id }}">{{ $cat->namaCategory }}</a></li>
+                    @endforeach
+                @else
+                    <li><a href="#catalog-title">Obat Resep</a></li>
+                    <li><a href="#catalog-title">Vitamin & Suplemen</a></li>
+                    <li><a href="#catalog-title">Ibu & Anak</a></li>
+                    <li><a href="#catalog-title">Alat Kesehatan</a></li>
+                @endif
+            </ul>
+        </div>
+
+        <!-- Column 4: Contact Info -->
+        <div class="footer-column contact-info">
+            <h4 class="footer-title">Hubungi Kami</h4>
+            <ul class="contact-list">
+                <li>
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Jl. Sentosa, Perumahan Grya Masmur 2, Blok Tulip No. 24, Pekanbaru, Riau.</span>
+                </li>
+                <li>
+                    <i class="fas fa-phone-alt"></i>
+                    <span>+62 878-7777-0155</span>
+                </li>
+                <li>
+                    <i class="fas fa-envelope"></i>
+                    <span>support@obatkita.com</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Footer Bottom -->
+    <div class="footer-bottom">
+        <div class="footer-bottom-container">
+            <div class="copyright">
+                <p>&copy; 2026 <strong>ObatKita</strong>. Seluruh Hak Cipta Dilindungi.</p>
+            </div>
+            <div class="payment-partners">
+                <span>Pembayaran & Pengiriman Aman:</span>
+                <div class="partner-logos">
+                    <i class="fab fa-cc-visa" title="Visa"></i>
+                    <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+                    <i class="fas fa-university" title="Transfer Bank"></i>
+                    <i class="fas fa-truck" title="Kurir Instan"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 </footer>
 @endsection
 @push('scripts')
