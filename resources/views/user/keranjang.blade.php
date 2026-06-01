@@ -778,12 +778,20 @@
                     </div>
                 </div>
 
-                <div class="checkout-button-container">
+                <div class="checkout-button-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
                     <form action="{{ route('createPemesanan') }}" method="post" id="checkout-form">
                         @csrf
                         <input type="hidden" name="promo_code" id="hidden-promo-code" />
                         <button type="submit" id="pay-button" class="checkout-button">
                             <i class="fas fa-shield-alt"></i> Bayar Sekarang
+                        </button>
+                    </form>
+                    
+                    <form action="{{ route('createPemesanan') }}" method="post" id="credit-checkout-form">
+                        @csrf
+                        <input type="hidden" name="promo_code" id="hidden-promo-code-credit" />
+                        <button type="submit" id="credit-pay-button" class="checkout-button" style="background: linear-gradient(135deg, var(--accent) 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);">
+                            <i class="fas fa-calendar-alt"></i> Bayar via Kredit (21 Hari)
                         </button>
                     </form>
                 </div>
@@ -827,6 +835,8 @@
                                 promoInput.style.borderColor = 'var(--border-color)';
                                 promoInput.style.background = '#f8fafc';
                                 hiddenPromoInput.value = "";
+                                const hiddenPromoInputCredit = document.getElementById('hidden-promo-code-credit');
+                                if (hiddenPromoInputCredit) hiddenPromoInputCredit.value = "";
 
                                 applyPromoBtn.textContent = "Terapkan";
                                 applyPromoBtn.style.background = "var(--primary-light)";
@@ -872,6 +882,8 @@
                             const promoDiscount = Math.round(originalTotal * discountPercent);
                             const newTotal = originalTotal - promoDiscount;
                             hiddenPromoInput.value = code;
+                            const hiddenPromoInputCredit = document.getElementById('hidden-promo-code-credit');
+                            if (hiddenPromoInputCredit) hiddenPromoInputCredit.value = code;
 
                             // Visual feedback
                             promoInput.disabled = true;
@@ -934,19 +946,35 @@
 
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
     <script>
+        const payButton = document.getElementById('pay-button');
+        const creditPayButton = document.getElementById('credit-pay-button');
+
+        function disableBothButtons() {
+            if (payButton) payButton.disabled = true;
+            if (creditPayButton) creditPayButton.disabled = true;
+        }
+
+        function enableBothButtons() {
+            if (payButton) payButton.disabled = false;
+            if (creditPayButton) creditPayButton.disabled = false;
+        }
+
         const checkoutForm = document.getElementById('checkout-form');
         if (checkoutForm) {
             checkoutForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const button = document.getElementById('pay-button');
-                button.disabled = true;
+                disableBothButtons();
 
                 fetch("{{ route('createPemesanan') }}", {
                         method: "POST",
                         headers: {
                             "X-CSRF-TOKEN": "{{ csrf_token() }}",
                             "Content-Type": "application/json"
-                        }
+                        },
+                        body: JSON.stringify({
+                            payment_method: 'online',
+                            promo_code: document.getElementById('hidden-promo-code').value
+                        })
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -962,22 +990,56 @@
                                 },
                                 onError: function(result) {
                                     alert('Pembayaran gagal!');
-                                    button.disabled = false;
+                                    enableBothButtons();
                                 },
                                 onClose: function() {
                                     alert('Anda menutup popup sebelum bayar.');
-                                    button.disabled = false;
+                                    enableBothButtons();
                                     window.location.href = "{{ route('pemesanan') }}";
                                 }
                             });
                         } else {
                             alert('Gagal mengambil token pembayaran');
-                            button.disabled = false;
+                            enableBothButtons();
                         }
                     })
                     .catch(error => {
                         console.error(error);
-                        button.disabled = false;
+                        enableBothButtons();
+                    });
+            });
+        }
+
+        const creditCheckoutForm = document.getElementById('credit-checkout-form');
+        if (creditCheckoutForm) {
+            creditCheckoutForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                disableBothButtons();
+
+                fetch("{{ route('createPemesanan') }}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            payment_method: 'kredit',
+                            promo_code: document.getElementById('hidden-promo-code-credit').value
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.redirect) {
+                            alert(data.message || 'Pemesanan via Kredit 21 Hari berhasil dibuat!');
+                            window.location.href = data.redirect;
+                        } else {
+                            alert('Gagal memproses pemesanan kredit.');
+                            enableBothButtons();
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        enableBothButtons();
                     });
             });
         }

@@ -105,8 +105,11 @@
                 <div class="title">F A K T U R</div>
                 <div><span class="meta-label">No Faktur</span>: {{ $pesanan->kodePemesanan }}</div>
                 <div><span class="meta-label">Tanggal</span>: {{ $createdAt->format('d/m/Y') }}</div>
+                <div><span class="meta-label">Tipe Bayar</span>: {{ $pesanan->tipePembayaran ?? 'Cash' }}</div>
+                @if(strtolower($pesanan->tipePembayaran) === 'kredit')
                 <div><span class="meta-label">TOP</span>: 21 Hari</div>
                 <div><span class="meta-label">Jatuh Tempo</span>: {{ $jatuhTempo ? $jatuhTempo->format('d/m/Y') : '-' }}</div>
+                @endif
             </td>
             <!-- Right Side Customer Info -->
             <td style="width: 48%; padding-left: 15px;">
