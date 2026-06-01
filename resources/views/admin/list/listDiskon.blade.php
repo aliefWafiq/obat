@@ -34,7 +34,7 @@
         <div class="table-container">
             <div style="padding: 3rem; text-align: center; color: #999;">
                 <i class="fas fa-t" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
-                <p>Belum ada program diskon kuantitas. <a href="{{ route('buatDiskon') }}">Tambah diskon sekarang</a></p>
+                <p>Belum ada program diskon kuantitas. <a href="{{ route('viewBuatDiskon') }}">Tambah diskon sekarang</a></p>
             </div>
         </div>
         @else
