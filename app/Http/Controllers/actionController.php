@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 use App\Models\User;
 use App\Models\Produk;
@@ -520,8 +521,12 @@ class actionController extends Controller
             'totalHarga' => $total,
             'estimasipembayaran' => $estimasiPembayaran,
             'estimasiPengantaran' => $estimasiPengiriman,
+<<<<<<< HEAD
             'tipePembayaran' => $tipePembayaran
         ]);
+=======
+        ]); 
+>>>>>>> 00effbf5a28a89cdc4d69b20b6c799e075c75f39
 
         logActivity(
             'transaction',
