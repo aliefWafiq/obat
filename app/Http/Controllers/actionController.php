@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 use App\Models\User;
 use App\Models\Produk;
@@ -518,8 +519,8 @@ class actionController extends Controller
             'status' => 'Pending',
             'totalHarga' => $total,
             'estimasipembayaran' => $estimasiPembayaran,
-            'estimasiPengantaran' => $estimasiPengiriman
-        ]);
+            'estimasiPengantaran' => $estimasiPengiriman,
+        ]); 
 
         logActivity(
             'transaction',
