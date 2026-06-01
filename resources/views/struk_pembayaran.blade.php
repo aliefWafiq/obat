@@ -32,7 +32,7 @@
             margin: 0 0 5px 0;
         }
         .meta-label {
-            width: 110px;
+            width: 150px;
             display: inline-block;
         }
         .divider {
@@ -101,12 +101,12 @@
     <table class="header-table">
         <tr>
             <!-- Left Side Meta Info -->
-            <td style="width: 52%;">
+            <td style="width: 55%;">
                 <div class="title">F A K T U R</div>
                 <div><span class="meta-label">No Faktur</span>: {{ $pesanan->kodePemesanan }}</div>
                 <div><span class="meta-label">Tanggal</span>: {{ $createdAt->format('d/m/Y') }}</div>
-                <div><span class="meta-label">Tipe Bayar</span>: {{ $pesanan->tipePembayaran ?? 'Cash' }}</div>
-                @if(strtolower($pesanan->tipePembayaran) === 'kredit')
+                <div><span class="meta-label">Metode Pembayaran</span>: {{ $pesanan->tipePembayaran ?? 'Cash' }}</div>
+                @if(in_array(strtolower($pesanan->tipePembayaran ?? $pesanan->typePembayaran), ['credit', 'kredit']))
                 <div><span class="meta-label">TOP</span>: 21 Hari</div>
                 <div><span class="meta-label">Jatuh Tempo</span>: {{ $jatuhTempo ? $jatuhTempo->format('d/m/Y') : '-' }}</div>
                 @endif

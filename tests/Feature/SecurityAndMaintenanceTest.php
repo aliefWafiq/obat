@@ -150,6 +150,7 @@ class SecurityAndMaintenanceTest extends TestCase
             'totalHarga' => 10000,
             'estimasipembayaran' => now()->addDays(1)->format('Y-m-d'),
             'estimasiPengantaran' => now()->addDays(5)->format('Y-m-d'),
+            'tipePembayaran' => 'Cash',
         ]);
 
         $orderIdWithSuffix = 'ORD-2026-05-2771-1779673822298';
@@ -170,4 +171,52 @@ class SecurityAndMaintenanceTest extends TestCase
 
         $this->assertEquals('Lunas', $order->fresh()->status);
     }
+
+    /**
+     * Test create pemesanan with credit payment type.
+     */
+    public function test_create_pemesanan_credit_success(): void
+    {
+        $user = User::factory()->create(['role' => 'User']);
+        $category = \App\Models\Category::create(['namaCategory' => 'Obat']);
+        $product = \App\Models\Produk::create([
+            'kodeProduk' => 'PRD001',
+            'gambar' => 'test.jpg',
+            'namaProduk' => 'Paracetamol',
+            'deskripsi' => 'Obat Sakit Kepala',
+            'idCategory' => $category->id,
+            'harga' => 5000,
+            'stok' => 10,
+        ]);
+        
+        \App\Models\keranjang::create([
+            'idUser' => $user->id,
+            'idProduk' => $product->id,
+            'jumlah' => 2,
+        ]);
+
+        $response = $this->actingAs($user)->postJson(route('createPemesanan', ['type' => 'Credit']), [
+            'payment_method' => 'credit',
+            'promo_code' => '',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'redirect' => route('pemesanan'),
+        ]);
+
+        $this->assertDatabaseHas('pemesanan', [
+            'idUser' => $user->id,
+            'status' => 'Credit',
+            'tipePembayaran' => 'Credit',
+            'totalHarga' => 10000,
+        ]);
+
+        // Cart should be empty
+        $this->assertDatabaseMissing('keranjang', [
+            'idUser' => $user->id,
+        ]);
+    }
 }
+

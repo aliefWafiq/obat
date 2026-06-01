@@ -311,7 +311,7 @@
             border: 1px solid #cbd5e1;
         }
         
-        .type-kredit {
+        .type-credit {
             background: #eff6ff;
             color: #1e40af;
             border: 1px solid rgba(30, 64, 175, 0.2);
@@ -586,9 +586,9 @@
                         <p>Dipesan pada {{ $item->created_at->format('d M Y H:i') }}</p>
                     </div>
                     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                        @if(strtolower($item->tipePembayaran) === 'kredit')
-                        <span class="order-type type-kredit">
-                            <i class="fas fa-calendar-alt"></i> Kredit 21 Hari
+                        @if(in_array(strtolower($item->tipePembayaran ?? $item->typePembayaran), ['credit', 'kredit']))
+                        <span class="order-type type-credit">
+                            <i class="fas fa-calendar-alt"></i> Credit 21 Hari
                         </span>
                         @else
                         <span class="order-type type-cash">
@@ -600,7 +600,7 @@
                         <span class="order-status status-lunas">
                             <i class="fas fa-check-circle"></i> {{ ucfirst($item->status) }}
                         </span>
-                        @elseif(strtolower($item->status) == 'pending')
+                        @elseif(in_array(strtolower($item->status), ['pending', 'credit']))
                         <span class="order-status status-pending">
                             <i class="fas fa-clock"></i> {{ ucfirst($item->status) }}
                         </span>
@@ -645,15 +645,15 @@
 
                 <div class="order-card-footer">
                     <p>
-                        @if(strtolower($item->tipePembayaran) === 'kredit')
+                        @if(in_array(strtolower($item->tipePembayaran ?? $item->typePembayaran), ['credit', 'kredit']))
                             <i class="fas fa-info-circle"></i> Pembayaran jatuh tempo pada {{ \Carbon\Carbon::parse($item->estimasipembayaran)->format('d M Y') }}.
                         @else
                             <i class="fas fa-info-circle"></i> Gunakan tombol di samping untuk melanjutkan pembayaran atau mencetak struk.
                         @endif
                     </p>
                     <div class="order-actions">
-                        @if (strtolower($item->status) === 'pending' && strtolower($item->tipePembayaran) !== 'kredit')
-                        <a href="{{ route('bayarUlang', $item->id) }}" class="btn-action"><i class="fas fa-credit-card"></i> Bayar Sekarang</a>
+                        @if (in_array(strtolower($item->status), ['pending', 'credit']))
+                        <button type="button" class="btn-action pay-now-btn" data-url="{{ route('bayarUlang', $item->id) }}"><i class="fas fa-credit-card"></i> Bayar Sekarang</button>
                         @endif
                         @if(strtolower($item->status) === 'lunas')
                         <a href="{{ route('cetakStruk', $item->id) }}" target="_blank" class="btn-action"><i class="fas fa-print"></i> Cetak Struk</a>
@@ -666,6 +666,67 @@
         </div>
         @endif
     </main>
-</body>
 
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const payButtons = document.querySelectorAll('.pay-now-btn');
+            payButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    const originalText = this.innerHTML;
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
+
+                    fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.snapToken) {
+                            window.snap.pay(data.snapToken, {
+                                onSuccess: function(result) {
+                                    alert('Pembayaran Berhasil! Pesanan Anda sedang diproses.');
+                                    window.location.reload();
+                                },
+                                onPending: function(result) {
+                                    alert('Menunggu pembayaran...');
+                                    window.location.reload();
+                                },
+                                onError: function(result) {
+                                    alert('Pembayaran gagal!');
+                                    button.disabled = false;
+                                    button.innerHTML = originalText;
+                                },
+                                onClose: function() {
+                                    alert('Anda menutup popup sebelum bayar.');
+                                    button.disabled = false;
+                                    button.innerHTML = originalText;
+                                }
+                            });
+                        } else if (data.error) {
+                            alert(data.error);
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                        } else {
+                            alert('Gagal mengambil token pembayaran.');
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        alert('Terjadi kesalahan koneksi.');
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                    });
+                });
+            });
+        });
+    </script>
+</body>
 </html>

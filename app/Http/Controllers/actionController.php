@@ -454,7 +454,7 @@ class actionController extends Controller
         }
     }
 
-    public function createPemesanan(Request $request)
+    public function createPemesanan(Request $request, $type)
     {
         $idUser = Auth::id();
 
@@ -510,18 +510,18 @@ class actionController extends Controller
             $kodePemesanan = $baseKode . '-' . $counter;
             $counter++;
         }
-        $tipePembayaran = strtolower($request->input('payment_method')) === 'kredit' ? 'Kredit' : 'Cash';
-        $estimasiPembayaran = $tipePembayaran === 'Kredit' ? now()->addDays(21)->format('Y-m-d') : now()->addDay()->format('Y-m-d');
+        $tipePembayaran = in_array(strtolower($request->input('payment_method')), ['credit', 'kredit']) ? 'Credit' : 'Cash';
+        $estimasiPembayaran = $tipePembayaran === 'Credit' ? now()->addDays(21)->format('Y-m-d') : now()->addDay()->format('Y-m-d');
         $estimasiPengiriman = now()->addDays(5)->format('Y-m-d');
 
         $pemesanan = Pemesanan::create([
             'kodePemesanan' => $kodePemesanan,
             'idUser' => $idUser,
-            'status' => 'Pending',
+            'status' => $tipePembayaran === 'Credit' ? 'Credit' : 'Pending',
             'totalHarga' => $total,
             'estimasipembayaran' => $estimasiPembayaran,
             'estimasiPengantaran' => $estimasiPengiriman,
-            // 'typePembayaran' => 
+            'tipePembayaran' => (strtolower($type) === 'credit' || strtolower($type) === 'Credit') ? 'Credit' : 'Cash'
         ]); 
 
         logActivity(
@@ -553,12 +553,12 @@ class actionController extends Controller
             ]);
         }
 
-        if ($request->input('payment_method') === 'kredit') {
+        if (in_array(strtolower($request->input('payment_method')), ['credit', 'kredit'])) {
             Keranjang::where('idUser', $idUser)->delete();
             return response()->json([
                 'success' => true,
                 'redirect' => route('pemesanan'),
-                'message' => 'Pemesanan via Kredit 21 Hari berhasil dibuat!'
+                'message' => 'Pemesanan via Credit 21 Hari berhasil dibuat!'
             ]);
         }
 
@@ -660,14 +660,38 @@ class actionController extends Controller
         return null;
     }
 
-    public function bayarUlang($id)
+    public function bayarUlang(Request $request, $id)
     {
         $pesanan = Pemesanan::where('id', $id)->where('idUser', Auth::id())->firstOrFail();
 
-        if ($pesanan->status !== 'Pending') {
+        if (!in_array($pesanan->status, ['Pending', 'Credit'])) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['error' => 'Pesanan ini tidak dapat dibayar lagi.'], 400);
+            }
             return redirect()->back()->with('error', 'Pesanan ini tidak dapat dibayar lagi.');
         }
 
+        // Handle AJAX request: return Snap Token
+        if ($request->ajax() || $request->wantsJson()) {
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $pesanan->kodePemesanan . '-' . time(),
+                    'gross_amount' => (int) $pesanan->totalHarga,
+                ],
+                'customer_details' => [
+                    'first_name' => Auth::user()->username,
+                    'phone' => Auth::user()->phoneNumber,
+                ],
+            ];
+            try {
+                $snapToken = Snap::getSnapToken($params);
+                return response()->json(['snapToken' => $snapToken]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        }
+
+        // Handle standard request: redirect to Midtrans Payment Link
         if ($pesanan->paymentLink) {
             return redirect()->away($pesanan->paymentLink);
         }
