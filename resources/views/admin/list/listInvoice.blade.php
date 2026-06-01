@@ -377,6 +377,7 @@
                                                         <th>Tanggal Pemesanan</th>
                                                         <th>Pelanggan</th>
                                                         <th>Total Nominal</th>
+                                                        <th>Tipe</th>
                                                         <th>Status</th>
                                                         <th>Aksi</th>
                                                     </tr>
@@ -391,6 +392,13 @@
                                                             <small style="color: #64748b;">{{ $order->user ? $order->user->phoneNumber : '-' }}</small>
                                                         </td>
                                                         <td style="font-weight: 600;">Rp {{ number_format($order->totalHarga, 0, ',', '.') }}</td>
+                                                        <td>
+                                                            @if(strtolower($order->tipePembayaran) === 'kredit')
+                                                                <span class="status-badge" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-calendar-alt"></i> Kredit</span>
+                                                            @else
+                                                                <span class="status-badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;"><i class="fas fa-wallet"></i> Cash</span>
+                                                            @endif
+                                                        </td>
                                                         <td>
                                                             @if($order->status === 'Lunas')
                                                                 <span class="status-badge status-lunas"><i class="fas fa-check"></i> Lunas</span>
@@ -433,6 +441,7 @@
                             <th>Tanggal Pemesanan</th>
                             <th>Nama Pelanggan</th>
                             <th>Total Tagihan</th>
+                            <th>Tipe Pembayaran</th>
                             <th>Status Pembayaran</th>
                             <th>Kwitansi</th>
                         </tr>
@@ -440,7 +449,7 @@
                     <tbody>
                         @if($pemesanan->isEmpty())
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 3rem; color: #64748b;">
+                                <td colspan="7" style="text-align: center; padding: 3rem; color: #64748b;">
                                     Belum ada transaksi atau invoice terbit untuk klinik Anda.
                                 </td>
                             </tr>
@@ -456,6 +465,13 @@
                                     <small style="color: #64748b;">{{ $order->user ? $order->user->phoneNumber : '-' }}</small>
                                 </td>
                                 <td style="font-weight: 600; color: #0f172a;">Rp {{ number_format($order->totalHarga, 0, ',', '.') }}</td>
+                                <td>
+                                    @if(strtolower($order->tipePembayaran) === 'kredit')
+                                        <span class="status-badge" style="background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2);"><i class="fas fa-calendar-alt"></i> Kredit 21 Hari</span>
+                                    @else
+                                        <span class="status-badge" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;"><i class="fas fa-wallet"></i> Cash</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @if($order->status === 'Lunas')
                                         <span class="status-badge status-lunas"><i class="fas fa-check"></i> Lunas</span>

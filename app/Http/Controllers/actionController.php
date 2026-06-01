@@ -510,7 +510,8 @@ class actionController extends Controller
             $kodePemesanan = $baseKode . '-' . $counter;
             $counter++;
         }
-        $estimasiPembayaran = now()->addDays(21)->format('Y-m-d');
+        $tipePembayaran = strtolower($request->input('payment_method')) === 'kredit' ? 'Kredit' : 'Cash';
+        $estimasiPembayaran = $tipePembayaran === 'Kredit' ? now()->addDays(21)->format('Y-m-d') : now()->addDay()->format('Y-m-d');
         $estimasiPengiriman = now()->addDays(5)->format('Y-m-d');
 
         $pemesanan = Pemesanan::create([
@@ -549,6 +550,15 @@ class actionController extends Controller
             $produk = Produk::find($item->idProduk);
             $produk->update([
                 'stok' => $produk->stok - $item->jumlah
+            ]);
+        }
+
+        if ($request->input('payment_method') === 'kredit') {
+            Keranjang::where('idUser', $idUser)->delete();
+            return response()->json([
+                'success' => true,
+                'redirect' => route('pemesanan'),
+                'message' => 'Pemesanan via Kredit 21 Hari berhasil dibuat!'
             ]);
         }
 

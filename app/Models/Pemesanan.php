@@ -16,6 +16,7 @@ class Pemesanan extends Model
         'paymentLink',
         'estimasipembayaran',
         'estimasiPengantaran',
+        'tipePembayaran',
     ];
 
     public function details()

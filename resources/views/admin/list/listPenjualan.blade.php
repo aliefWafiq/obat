@@ -67,6 +67,7 @@
                         <th>Pembeli</th>
                         <th>Klinik</th>
                         <th>Total Harga</th>
+                        <th>Tipe</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -78,11 +79,18 @@
                         <td>{{ $item->user->username ?? '-' }}</td>
                         <td>{{ $item->user->klinik->namaKlinik ?? '-' }}</td>
                         <td>Rp {{ number_format($item->totalHarga, 0, ',', '.') }}</td>
+                        <td>
+                            @if(strtolower($item->tipePembayaran) === 'kredit')
+                                <span style="font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; background: #eff6ff; color: #1e40af; border: 1px solid rgba(30, 64, 175, 0.2); display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-calendar-alt"></i> Kredit</span>
+                            @else
+                                <span style="font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-wallet"></i> Cash</span>
+                            @endif
+                        </td>
                         <td>{{ ucfirst($item->status) }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 2rem 0; color: #6b7280;">Belum ada transaksi.</td>
+                        <td colspan="7" style="text-align: center; padding: 2rem 0; color: #6b7280;">Belum ada transaksi.</td>
                     </tr>
                     @endforelse
                 </tbody>

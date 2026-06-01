@@ -293,6 +293,30 @@
             border: 1px solid rgba(225, 29, 72, 0.2);
         }
 
+        .order-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .type-cash {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+        
+        .type-kredit {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid rgba(30, 64, 175, 0.2);
+        }
+
         /* Order Info Grid */
         .order-info-grid {
             display: grid;
@@ -561,19 +585,31 @@
                         <h2><i class="fas fa-box-open"></i> Pesanan #{{ $item->kodePemesanan }}</h2>
                         <p>Dipesan pada {{ $item->created_at->format('d M Y H:i') }}</p>
                     </div>
-                    @if(strtolower($item->status) == 'lunas')
-                    <span class="order-status status-lunas">
-                        <i class="fas fa-check-circle"></i> {{ ucfirst($item->status) }}
-                    </span>
-                    @elseif(strtolower($item->status) == 'pending')
-                    <span class="order-status status-pending">
-                        <i class="fas fa-clock"></i> {{ ucfirst($item->status) }}
-                    </span>
-                    @else
-                    <span class="order-status status-cancelled">
-                        <i class="fas fa-times-circle"></i> {{ ucfirst($item->status) }}
-                    </span>
-                    @endif
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        @if(strtolower($item->tipePembayaran) === 'kredit')
+                        <span class="order-type type-kredit">
+                            <i class="fas fa-calendar-alt"></i> Kredit 21 Hari
+                        </span>
+                        @else
+                        <span class="order-type type-cash">
+                            <i class="fas fa-wallet"></i> Cash
+                        </span>
+                        @endif
+
+                        @if(strtolower($item->status) == 'lunas')
+                        <span class="order-status status-lunas">
+                            <i class="fas fa-check-circle"></i> {{ ucfirst($item->status) }}
+                        </span>
+                        @elseif(strtolower($item->status) == 'pending')
+                        <span class="order-status status-pending">
+                            <i class="fas fa-clock"></i> {{ ucfirst($item->status) }}
+                        </span>
+                        @else
+                        <span class="order-status status-cancelled">
+                            <i class="fas fa-times-circle"></i> {{ ucfirst($item->status) }}
+                        </span>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="order-info-grid">
@@ -608,11 +644,18 @@
                 </div>
 
                 <div class="order-card-footer">
-                    <p><i class="fas fa-info-circle"></i> Gunakan tombol di samping untuk melanjutkan pembayaran atau mencetak struk.</p>
+                    <p>
+                        @if(strtolower($item->tipePembayaran) === 'kredit')
+                            <i class="fas fa-info-circle"></i> Pembayaran jatuh tempo pada {{ \Carbon\Carbon::parse($item->estimasipembayaran)->format('d M Y') }}.
+                        @else
+                            <i class="fas fa-info-circle"></i> Gunakan tombol di samping untuk melanjutkan pembayaran atau mencetak struk.
+                        @endif
+                    </p>
                     <div class="order-actions">
-                        @if (strtolower($item->status) === 'pending')
+                        @if (strtolower($item->status) === 'pending' && strtolower($item->tipePembayaran) !== 'kredit')
                         <a href="{{ route('bayarUlang', $item->id) }}" class="btn-action"><i class="fas fa-credit-card"></i> Bayar Sekarang</a>
-                        @elseif(strtolower($item->status) === 'lunas')
+                        @endif
+                        @if(strtolower($item->status) === 'lunas')
                         <a href="{{ route('cetakStruk', $item->id) }}" target="_blank" class="btn-action"><i class="fas fa-print"></i> Cetak Struk</a>
                         @endif
                         <a href="{{ route('keranjang') }}" class="btn-secondary"><i class="fas fa-shopping-cart"></i> Lihat Keranjang</a>
