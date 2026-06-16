@@ -83,29 +83,27 @@ class actionController extends Controller
             return redirect('/register')->with('error', 'Kode klinik tidak terdaftar.');
         }
 
-        // Create user with pending status
-        $newUser = User::create([
+        // Store registration details in session
+        $pendingUser = [
             'username' => $request->input('username'),
             'alamat' => $request->input('alamat'),
             'phoneNumber' => $request->input('phoneNumber'),
             'role' => 'User',
             'password' => $password,
             'idKlinik' => $selectedKlinik->id,
-            'status' => 'pending', // pending until OTP verified
-        ]);
-
-        logActivity('auth', "Registrasi pengguna baru: {$newUser->username}", User::class, $newUser->id);
+        ];
+        session(['pending_user' => $pendingUser]);
 
         // Generate OTP and send via Fonnte
-        $otp = OtpHelper::createOtpForUser($newUser);
-        $message = view('auth.otp_message', ['code' => $otp->code, 'userName' => $newUser->username])->render();
-        (new FonnteService())->sendMessage($newUser->phoneNumber, $message);
+        $otpCode = OtpHelper::generateOtp();
+        OtpHelper::createOtpRecord($pendingUser['phoneNumber'], $otpCode);
+        $message = view('auth.otp_message', ['code' => $otpCode, 'userName' => $pendingUser['username']])->render();
+        (new FonnteService())->sendMessage($pendingUser['phoneNumber'], $message);
 
         // Show OTP verification view
         // After sending OTP, stay on registration page and show a status message
         return redirect()->route('register')
             ->with('otp_sent', true)
-            ->with('userId', $newUser->id)
             ->with('success', 'OTP telah dikirim ke WhatsApp. Silakan masukkan kode di bawah.');
     }
 
@@ -171,32 +169,47 @@ class actionController extends Controller
 public function verifyOTP(Request $request)
     {
         $request->validate([
-            'userId' => 'required|exists:users,id',
             'otp'    => 'required',
         ]);
 
-        $user = User::find($request->input('userId'));
+        $pendingUser = session('pending_user');
+        if (!$pendingUser) {
+            return redirect()->route('register')->with('error', 'Sesi pendaftaran kadaluarsa atau tidak ditemukan. Silakan isi form kembali.');
+        }
 
         // Find matching OTP that is not expired
-        $otpRecord = Otp::where('phone_number', $user->phoneNumber)
+        $otpRecord = Otp::where('phone_number', $pendingUser['phoneNumber'])
                          ->where('code', $request->input('otp'))
                          ->where('expires_at', '>', now())
                          ->first();
 
+
+
         if (!$otpRecord) {
             return redirect()->back()
+                ->with('otp_sent', true)
                 ->with('error', 'OTP tidak valid atau sudah kadaluarsa.');
         }
 
-        // Mark user as active
-        $user->status = 'active';
-        $user->save();
+        // Create the user in the database
+        $newUser = User::create([
+            'username' => $pendingUser['username'],
+            'alamat' => $pendingUser['alamat'],
+            'phoneNumber' => $pendingUser['phoneNumber'],
+            'role' => $pendingUser['role'],
+            'password' => $pendingUser['password'],
+            'idKlinik' => $pendingUser['idKlinik'],
+            'status' => 'active',
+        ]);
 
         // Delete OTP record
         $otpRecord->delete();
 
+        // Clear pending user from session
+        session()->forget('pending_user');
+
         // Log activity
-        logActivity('auth', "Verifikasi OTP berhasil untuk user: {$user->username}", User::class, $user->id);
+        logActivity('auth', "Registrasi & verifikasi OTP berhasil untuk user: {$newUser->username}", User::class, $newUser->id);
 
         // Redirect to login page with success message
         return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');

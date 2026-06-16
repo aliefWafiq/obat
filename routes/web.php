@@ -84,7 +84,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/program/delete/{id}', [actionController::class, 'deleteProgram'])->name('deleteProgram');
         Route::delete('/diskon/delete/{id}', [actionController::class, 'deleteDiskon'])->name('deleteDiskon');
     });
+});
 
 // OTP verification route
 Route::post('register/verify-otp', [actionController::class, 'verifyOTP'])->name('verifyOTP');
-});
