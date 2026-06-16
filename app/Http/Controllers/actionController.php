@@ -203,8 +203,11 @@ public function verifyOTP(Request $request)
         // Log activity
         logActivity('auth', "Registrasi & verifikasi OTP berhasil untuk user: {$newUser->username}", User::class, $newUser->id);
 
-        // Redirect to login page with success message
-        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
+        // Auto login user
+        Auth::login($newUser);
+
+        // Redirect to home page with success message
+        return redirect()->route('home')->with('success', 'Registrasi berhasil! Anda telah masuk.');
     }
 
     public function registerKlinik(Request $request)

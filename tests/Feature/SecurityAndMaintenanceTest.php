@@ -314,9 +314,10 @@ class SecurityAndMaintenanceTest extends TestCase
             'otp' => $otpRecord->code,
         ]);
 
-        // Should redirect to login page with success
-        $verifyResponse->assertRedirect('/');
-        $verifyResponse->assertSessionHas('success', 'Registrasi berhasil! Silakan login.');
+        // Should redirect to home page with success
+        $verifyResponse->assertRedirect('/home');
+        $verifyResponse->assertSessionHas('success', 'Registrasi berhasil! Anda telah masuk.');
+        $this->assertAuthenticated();
 
         // Assert user IS NOW in the database and active
         $this->assertDatabaseHas('users', [
