@@ -51,6 +51,7 @@
                 </div>
             </div>
             @else
+            <div class="table-container">
             <table>
                 <thead>
                     <tr>
@@ -127,6 +128,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
             @endif
         </div>
 

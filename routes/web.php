@@ -56,6 +56,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/invoice', [mainController::class, 'listInvoice'])->name('listInvoice');
         Route::get('/dashboard/settings', [mainController::class, 'viewSettings'])->name('viewSettings');
         Route::get('/dashboard/activity-logs', [mainController::class, 'viewActivityLogs'])->name('viewActivityLogs');
+        Route::get('/dashboard/virtual-website', [mainController::class, 'virtualWebsite'])->name('virtualWebsite');
 
         // Actions
         Route::post('/registerKlinik/action', [actionController::class, 'registerKlinik'])->name('registerKlinik');

@@ -404,6 +404,14 @@ class mainController extends Controller
     {
         return view('maintenance');
     }
+
+    public function virtualWebsite()
+    {
+        if (auth()->user()->role !== 'SuperAdmin') {
+            return redirect('/dashboard')->with('error', 'Halaman ini hanya dapat diakses oleh Super Admin.');
+        }
+        return view('admin.virtualWebsite');
+    }
 }
 
 
