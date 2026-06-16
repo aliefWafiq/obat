@@ -83,10 +83,6 @@
                         <input type="password" id="password" name="password" placeholder="Masukkan password Anda" required>
                     </div>
 
-                    <div class="form-remember">
-                        <a href="#">Lupa password?</a>
-                    </div>
-
                     <button type="submit" class="auth-btn" id="submitBtn">
                         <i class="fas fa-sign-in-alt"></i> Masuk
                     </button>
