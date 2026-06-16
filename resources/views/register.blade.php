@@ -69,12 +69,16 @@
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
+<<<<<<< HEAD
                         <div class="password-wrapper">
                             <input type="password" id="password" name="password" placeholder="Minimal 8 karakter" required>
                             <button type="button" class="password-toggle" aria-label="Tampilkan password">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
+=======
+                        <input type="password" id="password" name="password" placeholder="Masukkan password Anda" required>
+>>>>>>> 4a4afb0c061b6517ed96c70e39404e0121c49b44
                         @error('password')<span class="error">{{ $message }}</span>@enderror
                     </div>
                     <button type="submit" class="auth-btn" id="submitBtn"><i class="fas fa-user-plus"></i> Buat Akun</button>

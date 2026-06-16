@@ -264,5 +264,73 @@ class SecurityAndMaintenanceTest extends TestCase
         
         $this->assertEquals('Pending', $order->fresh()->status);
     }
+
+    /**
+     * Test registration stores in session and only saves to db after OTP verification.
+     */
+    public function test_registration_stores_in_session_and_only_saves_to_db_after_otp_verification(): void
+    {
+        // 1. Create a clinic so we can map the user to it
+        $clinic = \App\Models\KodeKlinik::create([
+            'namaKlinik' => 'Klinik Test',
+            'alamat' => 'Alamat Test',
+            'kodeKlinik' => 'KLK001',
+        ]);
+
+        // 2. Submit the registration form
+        $registrationData = [
+            'username' => 'newusertest',
+            'alamat' => 'Jalan Kebangsaan No. 45',
+            'phoneNumber' => '081234567890',
+            'password' => 'secret12345',
+        ];
+
+        $response = $this->post('/register/action', $registrationData);
+
+        // Should redirect back to register view showing the OTP form
+        $response->assertRedirect('/register');
+        $response->assertSessionHas('otp_sent', true);
+
+        // Assert user is NOT in the database yet
+        $this->assertDatabaseMissing('users', [
+            'username' => 'newusertest',
+            'phoneNumber' => '081234567890',
+        ]);
+
+        // Assert user details are stored in the session
+        $this->assertTrue(session()->has('pending_user'));
+        $this->assertEquals('newusertest', session('pending_user')['username']);
+
+        // Assert OTP record is created in the database
+        $this->assertDatabaseHas('otps', [
+            'phone_number' => '081234567890',
+        ]);
+
+        $otpRecord = \App\Models\Otp::where('phone_number', '081234567890')->first();
+        $this->assertNotNull($otpRecord);
+
+        // 3. Verify OTP code
+        $verifyResponse = $this->post(route('verifyOTP'), [
+            'otp' => $otpRecord->code,
+        ]);
+
+        // Should redirect to login page with success
+        $verifyResponse->assertRedirect('/');
+        $verifyResponse->assertSessionHas('success', 'Registrasi berhasil! Silakan login.');
+
+        // Assert user IS NOW in the database and active
+        $this->assertDatabaseHas('users', [
+            'username' => 'newusertest',
+            'phoneNumber' => '081234567890',
+        ]);
+
+        // Assert session is cleared
+        $this->assertFalse(session()->has('pending_user'));
+
+        // Assert OTP is deleted
+        $this->assertDatabaseMissing('otps', [
+            'phone_number' => '081234567890',
+        ]);
+    }
 }
 
