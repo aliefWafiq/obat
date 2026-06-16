@@ -69,7 +69,7 @@
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Minimal 8 karakter" required>
+                        <input type="password" id="password" name="password" placeholder="Masukkan password Anda" required>
                         @error('password')<span class="error">{{ $message }}</span>@enderror
                     </div>
                     <button type="submit" class="auth-btn" id="submitBtn"><i class="fas fa-user-plus"></i> Buat Akun</button>

@@ -53,14 +53,6 @@ class actionController extends Controller
             'password.required' => 'Password wajib diisi.'
         ];
 
-        if (Setting::get('paksaKebijakanSandi') === 'true' || Setting::get('paksaKebijakanSandi') === '1') {
-            $passwordRules[] = \Illuminate\Validation\Rules\Password::min(8)
-                ->letters()
-                ->mixedCase()
-                ->numbers()
-                ->symbols();
-        }
-
         $request->validate([
             'username' => 'required',
             'alamat' => 'required',
@@ -221,14 +213,6 @@ public function verifyOTP(Request $request)
         $passwordMessages = [
             'password.required' => 'Password wajib diisi.'
         ];
-
-        if (Setting::get('paksaKebijakanSandi') === 'true' || Setting::get('paksaKebijakanSandi') === '1') {
-            $passwordRules[] = \Illuminate\Validation\Rules\Password::min(8)
-                ->letters()
-                ->mixedCase()
-                ->numbers()
-                ->symbols();
-        }
 
         $request->validate([
             'username' => 'required',
