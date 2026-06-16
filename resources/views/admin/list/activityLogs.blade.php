@@ -210,6 +210,45 @@
         background: #f8fafc;
         border-color: #e2e8f0;
     }
+
+    @media (max-width: 768px) {
+        .formal-page-wrapper {
+            padding: 1rem;
+        }
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .filter-tabs {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 0.5rem;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+        }
+        .filter-tab {
+            flex-shrink: 0;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8rem;
+        }
+        .log-item {
+            padding: 1rem;
+            gap: 0.75rem;
+        }
+        .log-icon {
+            width: 32px;
+            height: 32px;
+            font-size: 0.9rem;
+        }
+        .log-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.35rem;
+        }
+    }
 </style>
 @endpush
 

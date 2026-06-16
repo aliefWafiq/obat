@@ -248,8 +248,190 @@
             align-items: flex-start;
             gap: 0.75rem;
         }
+        
+        .data-card {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+        .section-title {
+            background: transparent !important;
+            padding: 0.5rem 0 !important;
+            border-bottom: none !important;
+            font-size: 1rem !important;
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
+        .formal-table, .formal-table tbody, .formal-table tr, .formal-table td {
+            display: block !important;
+            width: 100% !important;
+        }
+        .formal-table thead {
+            display: none !important;
+        }
+        .formal-table tr {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem 1rem 1rem 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+        .formal-table tr.expanded {
+            border-bottom-left-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            margin-bottom: 0 !important;
+            border-bottom: 1px dashed #e2e8f0 !important;
+        }
+        .formal-table tr.main-row td:first-child {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            width: auto !important;
+            padding: 0 !important;
+            border: none !important;
+            background: none !important;
+        }
+        .formal-table td {
+            border-bottom: none !important;
+            padding: 0.4rem 0 !important;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+        .formal-table td[data-label]::before {
+            content: attr(data-label);
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-bottom: 0.1rem;
+        }
+        
+        .formal-table tr.sub-row {
+            display: none !important;
+            width: 100% !important;
+        }
+        .formal-table tr.sub-row.active {
+            display: block !important;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0 !important;
+            border-top: none !important;
+            border-radius: 0 0 12px 12px !important;
+            margin-bottom: 1rem !important;
+            padding: 0 !important;
+        }
+
+        /* Sub table inside expandable row */
         .sub-table-container {
-            padding: 0 1rem 1rem 1rem;
+            padding: 1rem !important;
+            background: transparent;
+        }
+        .sub-table, .sub-table tbody, .sub-table tr, .sub-table td {
+            display: block !important;
+            width: 100% !important;
+        }
+        .sub-table thead {
+            display: none !important;
+        }
+        .sub-table tr {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+        }
+        .sub-table td {
+            border-bottom: none !important;
+            padding: 0.35rem 0 !important;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.2rem;
+        }
+        .sub-table td[data-label]::before {
+            content: attr(data-label);
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+            display: block;
+        }
+        
+        /* Detail info key-value custom display */
+        .sub-table-container div table,
+        .sub-table-container div tbody,
+        .sub-table-container div tr,
+        .sub-table-container div td {
+            display: block !important;
+            width: 100% !important;
+        }
+        .sub-table-container div td {
+            padding: 0.35rem 0 !important;
+            border-bottom: none !important;
+        }
+        .sub-table-container div tr {
+            border-bottom: 1px solid #f1f5f9;
+            padding: 0.4rem 0;
+        }
+        .sub-table-container div tr:last-child {
+            border-bottom: none;
+        }
+        .sub-table-container div td:first-child {
+            font-weight: 700;
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .sub-table-container div td:last-child {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        /* Minimalist Clinics Table styling for mobile */
+        #clinicsTable tr.main-row .user-info-cell {
+            padding-right: 5.5rem !important;
+        }
+        #clinicsTable tr.main-row td[data-label="Kontak"] {
+            border: none !important;
+            padding: 0.1rem 0 !important;
+            font-size: 0.8rem !important;
+            color: #64748b !important;
+        }
+        #clinicsTable tr.main-row td[data-label="Kontak"]::before {
+            display: none !important;
+        }
+        #clinicsTable tr.main-row td[data-label="Status"] {
+            position: absolute;
+            right: 2.75rem;
+            top: 1.25rem;
+            width: auto !important;
+            padding: 0 !important;
+            z-index: 10;
+        }
+        #clinicsTable tr.main-row td[data-label="Status"]::before {
+            display: none !important;
+        }
+        #clinicsTable tr.main-row td[data-label="Aksi"] {
+            border-top: 1px solid #f1f5f9 !important;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem !important;
+            flex-direction: row !important;
+            justify-content: flex-end;
+            width: 100% !important;
+        }
+        #clinicsTable tr.main-row td[data-label="Aksi"]::before {
+            display: none !important;
         }
     }
 </style>
@@ -280,7 +462,7 @@
             <div class="section-title">
                 Klinik Terdaftar
             </div>
-            <table class="formal-table">
+            <table class="formal-table" id="clinicsTable">
                 <thead>
                     <tr>
                         <th style="width: 40px;"></th>
@@ -324,15 +506,15 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Kontak">
                                 <div style="margin-bottom: 0.25rem;">{{ $item->phoneNumber }}</div>
                                 <div style="font-size: 0.85rem; color: #64748b;">{{ $item->alamat ?: 'Alamat tidak tersedia' }}</div>
                             </td>
-                            <td>
+                            <td data-label="Status">
                                 <span class="doctor-count">{{ $doctorsInClinic->count() }} Dokter</span>
                             </td>
                             @if(auth()->user()->role === 'SuperAdmin')
-                                <td onclick="event.stopPropagation()">
+                                <td onclick="event.stopPropagation()" data-label="Aksi">
                                     <div class="action-links">
                                         <a href="{{ route('viewEditUser', $item->id) }}" class="action-link">Edit</a>
                                         <span style="color: #cbd5e1;">|</span>
@@ -389,15 +571,15 @@
                                             <tbody>
                                                 @foreach($doctorsInClinic as $doc)
                                                 <tr>
-                                                    <td>
+                                                    <td data-label="Nama Dokter">
                                                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                                                             <i class="fas fa-user-md" style="color: #94a3b8;"></i>
                                                             {{ $doc->username }}
                                                         </div>
                                                     </td>
-                                                    <td>{{ $doc->phoneNumber }}</td>
+                                                    <td data-label="Kontak">{{ $doc->phoneNumber }}</td>
                                                     @if(auth()->user()->role === 'SuperAdmin')
-                                                        <td>
+                                                        <td data-label="Pindah Penugasan">
                                                             <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" style="margin: 0;">
                                                                 @csrf
                                                                 @method('PUT')
@@ -459,9 +641,9 @@
                                 {{ $doc->username }}
                             </div>
                         </td>
-                        <td>{{ $doc->phoneNumber }}</td>
+                        <td data-label="Kontak">{{ $doc->phoneNumber }}</td>
                         @if(auth()->user()->role === 'SuperAdmin')
-                            <td>
+                            <td data-label="Penugasan">
                                 <form action="{{ route('reassignUserClinic', $doc->id) }}" method="POST" style="margin: 0;">
                                     @csrf
                                     @method('PUT')
