@@ -208,7 +208,7 @@ class SecurityAndMaintenanceTest extends TestCase
 
         $this->assertDatabaseHas('pemesanan', [
             'idUser' => $user->id,
-            'status' => 'Credit',
+            'status' => 'Menunggu Persetujuan',
             'tipePembayaran' => 'Credit',
             'totalHarga' => 10000,
         ]);
@@ -217,6 +217,52 @@ class SecurityAndMaintenanceTest extends TestCase
         $this->assertDatabaseMissing('keranjang', [
             'idUser' => $user->id,
         ]);
+    }
+
+    /**
+     * Test admin approves credit transaction sets invoice status.
+     */
+    public function test_admin_approves_credit_transaction_sets_invoice_status(): void
+    {
+        $admin = User::factory()->create(['role' => 'Admin']);
+        $user = User::factory()->create(['role' => 'User']);
+        $order = \App\Models\Pemesanan::create([
+            'kodePemesanan' => 'ORD-CREDIT-TEST',
+            'idUser' => $user->id,
+            'status' => 'Menunggu Persetujuan',
+            'totalHarga' => 5000,
+            'estimasipembayaran' => now()->addDays(21)->format('Y-m-d'),
+            'estimasiPengantaran' => now()->addDays(5)->format('Y-m-d'),
+            'tipePembayaran' => 'Credit',
+        ]);
+
+        $response = $this->actingAs($admin)->post(route('approveTransaksi', $order->id));
+        $response->assertRedirect();
+        
+        $this->assertEquals('Invoice', $order->fresh()->status);
+    }
+
+    /**
+     * Test admin approves cash transaction sets pending status.
+     */
+    public function test_admin_approves_cash_transaction_sets_pending_status(): void
+    {
+        $admin = User::factory()->create(['role' => 'Admin']);
+        $user = User::factory()->create(['role' => 'User']);
+        $order = \App\Models\Pemesanan::create([
+            'kodePemesanan' => 'ORD-CASH-TEST',
+            'idUser' => $user->id,
+            'status' => 'Menunggu Persetujuan',
+            'totalHarga' => 5000,
+            'estimasipembayaran' => now()->addDays(1)->format('Y-m-d'),
+            'estimasiPengantaran' => now()->addDays(5)->format('Y-m-d'),
+            'tipePembayaran' => 'Cash',
+        ]);
+
+        $response = $this->actingAs($admin)->post(route('approveTransaksi', $order->id));
+        $response->assertRedirect();
+        
+        $this->assertEquals('Pending', $order->fresh()->status);
     }
 }
 

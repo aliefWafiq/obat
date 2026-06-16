@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keranjang Belanja - ObatKita</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/obatkitalogo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1050,7 +1051,10 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.snapToken) {
+                        if (data.success && data.redirect) {
+                            alert(data.message || 'Pesanan berhasil dibuat! Menunggu persetujuan admin.');
+                            window.location.href = data.redirect;
+                        } else if (data.snapToken) {
                             const triggerSnap = (token) => {
                                 window.snap.pay(token, {
                                     onSuccess: function(result) {

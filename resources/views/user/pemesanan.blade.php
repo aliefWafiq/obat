@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Transaksi - ObatKita</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/obatkitalogo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -600,9 +601,17 @@
                         <span class="order-status status-lunas">
                             <i class="fas fa-check-circle"></i> {{ ucfirst($item->status) }}
                         </span>
-                        @elseif(in_array(strtolower($item->status), ['pending', 'credit']))
-                        <span class="order-status status-pending">
-                            <i class="fas fa-clock"></i> {{ ucfirst($item->status) }}
+                        @elseif(strtolower($item->status) == 'menunggu persetujuan')
+                        <span class="order-status status-pending" style="background: #e0f2fe; color: #0369a1; border-color: rgba(3, 105, 161, 0.2);">
+                            <i class="fas fa-hourglass-half"></i> Menunggu Persetujuan
+                        </span>
+                        @elseif(strtolower($item->status) == 'ditolak')
+                        <span class="order-status status-cancelled" style="background: #fee2e2; color: #b91c1c; border-color: rgba(185, 28, 28, 0.2);">
+                            <i class="fas fa-exclamation-triangle"></i> Ditolak
+                        </span>
+                        @elseif(in_array(strtolower($item->status), ['pending', 'credit', 'invoice']))
+                        <span class="order-status status-pending" @if(strtolower($item->status) === 'invoice') style="background: #e0f2fe; color: #0369a1; border-color: rgba(3, 105, 161, 0.2);" @endif>
+                            <i class="fas @if(strtolower($item->status) === 'invoice') fa-file-invoice-dollar @else fa-clock @endif"></i> {{ ucfirst($item->status) }}
                         </span>
                         @else
                         <span class="order-status status-cancelled">
@@ -645,17 +654,21 @@
 
                 <div class="order-card-footer">
                     <p>
-                        @if(in_array(strtolower($item->tipePembayaran ?? $item->typePembayaran), ['credit', 'kredit']))
+                        @if(strtolower($item->status) == 'menunggu persetujuan')
+                            <i class="fas fa-info-circle"></i> Pesanan sedang ditinjau oleh admin. Silakan tunggu persetujuan.
+                        @elseif(strtolower($item->status) == 'ditolak')
+                            <i class="fas fa-exclamation-circle" style="color: var(--danger);"></i> <strong>Transaksi ditolak! Anda harus melunasi tagihan sebelumnya terlebih dahulu.</strong>
+                        @elseif(in_array(strtolower($item->tipePembayaran ?? $item->typePembayaran), ['credit', 'kredit']))
                             <i class="fas fa-info-circle"></i> Pembayaran jatuh tempo pada {{ \Carbon\Carbon::parse($item->estimasipembayaran)->format('d M Y') }}.
                         @else
                             <i class="fas fa-info-circle"></i> Gunakan tombol di samping untuk melanjutkan pembayaran atau mencetak struk.
                         @endif
                     </p>
                     <div class="order-actions">
-                        @if (in_array(strtolower($item->status), ['pending', 'credit']))
+                        @if (in_array(strtolower($item->status), ['pending', 'credit', 'invoice']))
                         <button type="button" class="btn-action pay-now-btn" data-url="{{ route('bayarUlang', $item->id) }}"><i class="fas fa-credit-card"></i> Bayar Sekarang</button>
                         @endif
-                        @if(strtolower($item->status) === 'lunas')
+                        @if(strtolower($item->status) === 'lunas' || (in_array(strtolower($item->tipePembayaran ?? $item->typePembayaran), ['credit', 'kredit']) && in_array($item->status, ['Credit', 'Invoice'])))
                         <a href="{{ route('cetakStruk', $item->id) }}" target="_blank" class="btn-action"><i class="fas fa-print"></i> Cetak Struk</a>
                         @endif
                         <a href="{{ route('keranjang') }}" class="btn-secondary"><i class="fas fa-shopping-cart"></i> Lihat Keranjang</a>
