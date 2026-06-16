@@ -9,7 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="{{ asset('style/register.css') }}">
+    <link rel="stylesheet" href="{{ asset('style/register.css') }}?v={{ file_exists(public_path('style/register.css')) ? filemtime(public_path('style/register.css')) : '1.0.1' }}">
 </head>
 
 <body>
@@ -94,7 +94,7 @@
         </div>
         <p style="margin-top:15px;">&copy; 2026 ObatKita. Semua hak dilindungi.</p>
     </footer>
-    <script src="{{ asset('js/register.js') }}"></script>
+    <script src="{{ asset('js/register.js') }}?v={{ file_exists(public_path('js/register.js')) ? filemtime(public_path('js/register.js')) : '1.0.1' }}"></script>
 </body>
 
 </html>
