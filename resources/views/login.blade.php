@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="{{ asset('img/obatkitalogo.png') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('style/login.css') }}">
+    <link rel="stylesheet" href="{{ asset('style/login.css') }}?v={{ file_exists(public_path('style/login.css')) ? filemtime(public_path('style/login.css')) : '1.0.1' }}">
 </head>
 
 <body>
@@ -126,7 +126,7 @@
         <p style="margin-top: 15px;">&copy; 2026 ObatKita. Semua hak dilindungi.</p>
     </footer>
 
-    <script src="{{ asset('js/login.js') }}"></script>
+    <script src="{{ asset('js/login.js') }}?v={{ file_exists(public_path('js/login.js')) ? filemtime(public_path('js/login.js')) : '1.0.1' }}"></script>
 </body>
 
 </html>

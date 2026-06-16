@@ -328,10 +328,6 @@
                             <input type="text" name="namaAplikasi" class="settings-form-control" value="{{ setting('namaAplikasi', 'Apotek Default') }}">
                         </div>
                         <div class="settings-form-group">
-                            <label>Instansi Penyelenggara</label>
-                            <input type="text" name="instansiPenyelenggara" class="settings-form-control" value="{{ setting('instansiPenyelenggara', 'Dinas Kesehatan Kabupaten / Kota') }}">
-                        </div>
-                        <div class="settings-form-group">
                             <label>Alamat Surel Hubungan Masyarakat (Email Support)</label>
                             <input type="email" name="alamatEmailSupport" class="settings-form-control" value="{{ setting('alamatEmailSupport', '') }}">
                         </div>

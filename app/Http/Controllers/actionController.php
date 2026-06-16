@@ -434,8 +434,18 @@ public function verifyOTP(Request $request)
                 'phoneNumber' => $request->input('phoneNumber'),
             ];
 
-            if (auth()->user()->role === 'SuperAdmin') {
+            if (auth()->user()->role === 'SuperAdmin' && $request->has('idKlinik')) {
                 $updateData['idKlinik'] = $request->input('idKlinik');
+            }
+
+            // If the user represents a clinic (Admin role with idKlinik), also update the clinic name in the database
+            if ($user->role === 'Admin' && $user->idKlinik) {
+                $klinik = KodeKlinik::find($user->idKlinik);
+                if ($klinik) {
+                    $klinik->update([
+                        'namaKlinik' => $request->input('username')
+                    ]);
+                }
             }
 
             $user->update($updateData);
