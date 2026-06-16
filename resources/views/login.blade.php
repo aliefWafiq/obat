@@ -80,7 +80,12 @@
 
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Masukkan password Anda" required>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" placeholder="Masukkan password Anda" required>
+                            <button type="button" class="password-toggle" aria-label="Tampilkan password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" class="auth-btn" id="submitBtn">
