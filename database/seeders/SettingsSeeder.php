@@ -17,15 +17,11 @@ class SettingsSeeder extends Seeder
             [
                 [
                     'key' => 'namaAplikasi',
-                    'value' => 'ObatKita - Portal Resmi Dinas Kesehatan',
-                ],
-                [
-                    'key' => 'instansiPenyelenggara',
-                    'value' => 'Dinas Kesehatan Kota Contoh',
+                    'value' => 'ObatKita',
                 ],
                 [
                     'key' => 'alamatEmailSupport',
-                    'value' => 'support@obatkita.go.id',
+                    'value' => 'support@obatkita.com',
                 ],
                 [
                     'key' => 'formatKode',
