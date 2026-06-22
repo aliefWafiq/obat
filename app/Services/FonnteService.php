@@ -19,6 +19,11 @@ class FonnteService
      */
     public function sendMessage(string $to, string $message): bool
     {
+        if (setting('sistemWhatsapp', 'true') !== 'true') {
+            Log::info('Sistem WhatsApp dinonaktifkan. Lewati pengiriman pesan.');
+            return false;
+        }
+
         if (empty($this->token)) {
             Log::warning('Fonnte token not set. Skipping sendMessage.');
             return false;

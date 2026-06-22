@@ -84,6 +84,29 @@ class actionController extends Controller
             'password' => $password,
             'idKlinik' => $selectedKlinik->id,
         ];
+
+        if (setting('sistemWhatsapp', 'true') !== 'true') {
+            // Create the user in the database directly
+            $newUser = User::create([
+                'username' => $pendingUser['username'],
+                'alamat' => $pendingUser['alamat'],
+                'phoneNumber' => $pendingUser['phoneNumber'],
+                'role' => $pendingUser['role'],
+                'password' => $pendingUser['password'],
+                'idKlinik' => $pendingUser['idKlinik'],
+                'status' => 'active',
+            ]);
+
+            // Log activity
+            logActivity('auth', "Registrasi berhasil (tanpa OTP) untuk user: {$newUser->username}", User::class, $newUser->id);
+
+            // Auto login user
+            Auth::login($newUser);
+
+            // Redirect to home page with success message
+            return redirect()->route('home')->with('success', 'Registrasi berhasil! Anda telah masuk.');
+        }
+
         session(['pending_user' => $pendingUser]);
 
         // Generate OTP and send via Fonnte

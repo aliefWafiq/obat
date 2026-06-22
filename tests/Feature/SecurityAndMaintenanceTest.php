@@ -371,5 +371,48 @@ class SecurityAndMaintenanceTest extends TestCase
         $clinic->refresh();
         $this->assertEquals('Klinik Baru', $clinic->namaKlinik);
     }
+
+    /**
+     * Test registration without OTP when WA/OTP system is disabled.
+     */
+    public function test_registration_without_otp_when_sistem_whatsapp_is_disabled(): void
+    {
+        // 1. Disable WA/OTP system in Settings
+        Setting::set('sistemWhatsapp', 'false');
+
+        // Create a clinic for assignment
+        $clinic = \App\Models\KodeKlinik::create([
+            'kodeKlinik' => '88',
+            'namaKlinik' => 'Klinik Bawah',
+        ]);
+
+        // 2. Perform register POST request
+        $response = $this->post('/register/action', [
+            'username' => 'directuser',
+            'alamat' => 'Alamat Direct',
+            'phoneNumber' => '089876543210',
+            'password' => 'simplepassword',
+        ]);
+
+        // Should bypass OTP, redirect directly to home page, and authenticate the user
+        $response->assertRedirect('/home');
+        $response->assertSessionHas('success', 'Registrasi berhasil! Anda telah masuk.');
+        $this->assertAuthenticated();
+
+        // Assert user details are stored in the database directly
+        $this->assertDatabaseHas('users', [
+            'username' => 'directuser',
+            'phoneNumber' => '089876543210',
+        ]);
+
+        // Assert no OTP record was created in the database
+        $this->assertDatabaseMissing('otps', [
+            'phone_number' => '089876543210',
+        ]);
+
+        // 3. Test that FonnteService sendMessage returns false when disabled
+        $fonnte = new \App\Services\FonnteService();
+        $this->assertFalse($fonnte->sendMessage('089876543210', 'Test message'));
+    }
 }
 

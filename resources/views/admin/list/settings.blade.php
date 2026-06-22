@@ -373,12 +373,23 @@
                     <form method="POST" action="{{ route('admin.settings.update') }}">
                         @csrf
                         @method('PUT')
-                        <input type="hidden" name="_checkboxes" value="kirimInvoiceOtomatis,pengingatStok">
+                        <input type="hidden" name="_checkboxes" value="sistemWhatsapp,kirimInvoiceOtomatis,pengingatStok">
                         <div class="alert-settings">
                             <i class="fas fa-info-circle" style="font-size: 1.25rem;"></i>
                             <div>
                                 Gateway WhatsApp menggunakan integrasi pihak ketiga (Fonnte API). Pastikan token API Anda masih memiliki saldo kuota aktif.
                             </div>
+                        </div>
+
+                        <div class="toggle-container" style="background: rgba(99, 102, 241, 0.05); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid rgba(99, 102, 241, 0.15);">
+                            <div class="toggle-label">
+                                <span class="toggle-title" style="color: #4f46e5; font-weight: 600;">Aktifkan Sistem WhatsApp & OTP</span>
+                                <span class="toggle-desc">Jika aktif, pengiriman notifikasi WA dan registrasi dengan OTP berjalan normal. Jika dimatikan, seluruh pengiriman WA mati dan registrasi akun langsung aktif tanpa OTP.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="sistemWhatsapp" value="true" {{ setting('sistemWhatsapp', 'true') === 'true' ? 'checked' : '' }}>
+                                <span class="slider"></span>
+                            </label>
                         </div>
 
                         <div class="settings-form-group">
